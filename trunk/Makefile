@@ -255,5 +255,6 @@ clean:
 		random-distributions$(EXE) $(random-distributions_OBJ) \
 		evolved-ddg-dist$(EXE) $(evolddgdist_OBJ) \
 		snp-stability$(EXE) $(snpstab_OBJ) \
-		snp-mistrans-stability$(EXE) $(snpmisdg-obj)
+		snp-mistrans-stability$(EXE) $(snpmisdg-obj) \
+		snp-fitness$(EXE) $(snpfit-obj)
 
