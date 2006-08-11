@@ -1,260 +1,547 @@
-all: snpmisdg
-#density
-#tolerated-mutations
-#test-fitness-density
-#time-evol sequence-generator genebank-analyzer sequence-analyzer hillclimber misfold dgdist stabdist evolstab
-
-run: snpmisdg
-	./snp-mistrans-stability tr 10 6 0.0114 59.0 104.5 599 -5 -100 0 ../analysis/trs599ca6-snps.txt
-#	./snp-fitness tr 1000 6 0.0114 59.0 104.5 599 -5 -100 0 ../analysis/trs599ca6-snps.txt
-#	evolved-ddg-dist tr 1000 6 0.0114 59.0 104.5 599 -5 -100 0 ../analysis/trs599ca6-genes.txt
-#	./misfold tr 1000 6 0.0114 59.0 104.5 599 -5 -100 0 ../analysis/trs599ca6-genes.txt 10
-#	comparison tr 6 0 0.5 -5 -100 10000 ../seqs/start_sequence
-#	density tr 6 0 0.002 -5 -100 ../seqs/start_sequence 
-#	tolerated-mutations
-#	test-fitness-density ../analysis/traa0ca6-genes.txt
-#	misfold tr 1000 6 0 0.002 -5 -100 1000 ../analysis/traa0ca6-genes.txt 
-
-tests: test-genetic-code test-genotype test-genotype-util \
-	test-protein-folder test-fitness-evaluator \
-	test-population test-translator test
-
-#CPPFLAGS = -g -pedantic -Wall
-#CPPFLAGS = -O3 -pedantic -Wall -pg
-#CPPFLAGS = -O3 -pedantic -Wall
-CPPFLAGS = -pedantic -Wall -fomit-frame-pointer -ffast-math -march=i686 -O3
-
-#EXE = .exe
-EXE = 
-
-snpmisdg-obj = genetic-code.o protein-folder.o snp-mistrans-stability.o \
-	translator.o fitness-evaluator.o
-
-snpmisdg: $(snpmisdg-obj)
-	g++ -o snp-mistrans-stability $(snpmisdg-obj)
-
-snpstab_OBJ = genetic-code.o protein-folder.o snp-stability.o \
-	translator.o
-
-snpstab: $(snpstab_OBJ)
-	g++ -o snp-stability $(snpstab_OBJ)
-
-snpfit-obj = genetic-code.o protein-folder.o snp-fitness.o \
-	translator.o fitness-evaluator.o
-
-snpfit: $(snpfit-obj)
-	g++ -o snp-fitness $(snpfit-obj)
-
-evolddgdist_OBJ = genetic-code.o fitness-evaluator.o protein-folder.o evolved-ddg-dist.o \
-	translator.o
-
-evolddgdist: $(evolddgdist_OBJ)
-	g++ $(CPPFLAGS) -o evolved-ddg-dist $(evolddgdist_OBJ)
-
-tr-driver-nostr_OBJ = genetic-code.o fitness-evaluator.o translator.o \
-	population.o translation-experiment-nostr.o tr-driver.o protein-folder.o  \
-
-tr-driver-nostr: $(tr-driver-nostr_OBJ)
-	g++ -o tr-driver-nostr $(tr-driver-nostr_OBJ)
-
-tr-driver_OBJ = genetic-code.o fitness-evaluator.o translator.o \
-	population.o translation-experiment.o tr-driver.o protein-folder.o  \
-
-tr-driver: $(tr-driver_OBJ)
-	g++ -o tr-driver $(tr-driver_OBJ)
-
-comparison_OBJ = comparison.o genetic-code.o fitness-evaluator.o \
-	population.o protein-folder.o  \
-	translator.o
-
-comparison: $(comparison_OBJ)
-	g++ -o comparison $(comparison_OBJ)
-
-neutral-ffold_OBJ = genetic-code.o neutral-ffold.o \
-	protein-folder.o translator.o fitness-evaluator.o
-
-neutral-ffold: $(neutral-ffold_OBJ)
-	g++ -o neutral-ffold $(neutral-ffold_OBJ)
-
-density_OBJ = genetic-code.o density.o population.o \
-	protein-folder.o translator.o fitness-evaluator.o
-
-density: $(density_OBJ)
-	g++ -o density $(density_OBJ)
-
-random-distributions_OBJ = genetic-code.o random-distributions.o population.o \
-	protein-folder.o translator.o fitness-evaluator.o
-
-random-distributions: $(random-distributions_OBJ)
-	g++ -o random-distributions $(random-distributions_OBJ)
-
-tolerated-mutations_OBJ = tolerated-mutations.o genetic-code.o \
-	protein-folder.o translator.o
-
-tolerated-mutations: $(tolerated-mutations_OBJ)
-	g++ -o tolerated-mutations $(tolerated-mutations_OBJ)
-
-fitness-advantage_OBJ = genetic-code.o fitness-advantage.o \
-	protein-folder.o translator.o fitness-evaluator.o
-
-fitness-advantage: $(fitness-advantage_OBJ)
-	g++ -o fitness-advantage $(fitness-advantage_OBJ)
-
-res-analyzer_OBJ = genetic-code.o res-analyzer.o \
-	protein-folder.o translator.o
-
-res-analyzer: $(res-analyzer_OBJ)
-	g++ -o res-analyzer $(res-analyzer_OBJ)
-
-evolstab_OBJ = genetic-code.o fitness-evaluator.o protein-folder.o evolstab.o \
-	translator.o
-
-evolstab: $(evolstab_OBJ)
-	g++ $(CPPFLAGS) -o evolstab $(evolstab_OBJ)
-
-stabdist_OBJ = genetic-code.o fitness-evaluator.o protein-folder.o stabdist.o \
-	translator.o
-
-stabdist: $(stabdist_OBJ)
-	g++ $(CPPFLAGS) -o stabdist $(stabdist_OBJ)
-
-dgdist_OBJ = genetic-code.o fitness-evaluator.o protein-folder.o stabdist.o \
-	translator.o
-
-dgdist: $(dgdist_OBJ)
-	g++ $(CPPFLAGS) -o dgdist $(dgdist_OBJ)
-
-misfold_OBJ = genetic-code.o fitness-evaluator.o \
-	population.o misfold.o protein-folder.o  \
-	translator.o
-
-misfold: $(misfold_OBJ)
-	g++ $(CPPFLAGS) -o misfold $(misfold_OBJ)
-
-sequence-generator_OBJ = genetic-code.o sequence-generator.o \
-	protein-folder.o translator.o
-
-sequence-generator: $(sequence-generator_OBJ)
-	g++ -o sequence-generator $(sequence-generator_OBJ)
-
-sequence-analyzer_OBJ = genetic-code.o sequence-analyzer.o \
-	protein-folder.o translator.o
-
-sequence-analyzer: $(sequence-analyzer_OBJ)
-	g++ -o sequence-analyzer $(sequence-analyzer_OBJ)
-
-genebank-analyzer_OBJ = genetic-code.o genebank-analyzer.o \
-	protein-folder.o translator.o fitness-evaluator.o
-
-genebank-analyzer: $(genebank-analyzer_OBJ)
-	g++ -o genebank-analyzer $(genebank-analyzer_OBJ)
-
-hillclimber_OBJ = genetic-code.o hillclimber.o \
-	protein-folder.o translator.o fitness-evaluator.o
-
-hillclimber: $(hillclimber_OBJ)
-	g++ -o hillclimber $(hillclimber_OBJ)
-
-structure-printer_OBJ = structure-printer.o protein-folder.o \
-	genetic-code.o translator.o
-
-structure-printer: $(structure-printer_OBJ)
-	g++ -o structure-printer $(structure-printer_OBJ)
-
-time-evol_OBJ = genetic-code.o fitness-evaluator.o \
-	population.o time-evol.o protein-folder.o \
-        translator.o
-
-time-evol: $(time-evol_OBJ)
-	g++ -o time-evol $(time-evol_OBJ)
-
-#
-# All the test code
-#
-
-test_OBJ = test.o genetic-code.o \
-	protein-folder.o translator.o fitness-evaluator.o
-
-test: $(test_OBJ)
-	g++ -o test $(test_OBJ)
-
-test-fitness-density_OBJ = test-fitness-density.o genetic-code.o \
-	protein-folder.o translator.o fitness-evaluator.o
-
-test-fitness-density: $(test-fitness-density_OBJ) 
-	g++ -o test-fitness-density $(test-fitness-density_OBJ)
-
-test-translator_OBJ = translator.o genetic-code.o test-translator.o
-
-test-translator: $(test-translator_OBJ)
-	g++ -o test-translator $(test-translator_OBJ)
-
-test-genetic-code_OBJ = genetic-code.o test-genetic-code.o
-
-test-genetic-code: $(test-genetic-code_OBJ)
-	g++ -o test-genetic-code $(test-genetic-code_OBJ)
-
-test-genotype_OBJ = genetic-code.o test-genotype.o
-
-test-genotype: $(test-genotype_OBJ)
-	g++ -o test-genotype $(test-genotype_OBJ)
-
-test-genotype-util_OBJ = genetic-code.o test-genotype-util.o \
-	protein-folder.o translator.o fitness-evaluator.o
-
-test-genotype-util: $(test-genotype-util_OBJ)
-	g++ -o test-genotype-util $(test-genotype-util_OBJ)        
-
-test-protein-folder_OBJ = genetic-code.o protein-folder.o \
-	test-protein-folder.o
-
-test-protein-folder: $(test-protein-folder_OBJ)
-	g++ -o test-protein-folder $(test-protein-folder_OBJ)
-
-test-fitness-evaluator_OBJ = genetic-code.o protein-folder.o translator.o \
-	fitness-evaluator.o test-fitness-evaluator.o
-
-test-fitness-evaluator: $(test-fitness-evaluator_OBJ)
-	g++ -o test-fitness-evaluator $(test-fitness-evaluator_OBJ)
-
-test-population_OBJ = genetic-code.o protein-folder.o fitness-evaluator.o \
-	translator.o population.o test-population.o
-
-test-population: $(test-population_OBJ)
-	g++ -o test-population $(test-population_OBJ)
-
-clean:
-	rm -f $(transl-robustness_OBJ) transl-robustness$(EXE)             \
-		$(misfold_OBJ) misfold$(EXE)									\
-		$(sequence-generator_OBJ) sequence-generator$(EXE)           \
-		$(genebank-analyzer_OBJ) genebank-analyzer$(EXE)            \
-		$(hillclimber_OBJ) hillclimber-analyzer$(EXE)            \
-		$(time-evol_OBJ) time-evol$(EXE)             \
-		$(test-genetic-code_OBJ) test-genetic-code$(EXE)           \
-		$(test-genotype_OBJ) test-genotype$(EXE)                   \
-		$(test-protein-folder_OBJ) test-protein-folder$(EXE)       \
-		$(test-fitness-evaluator_OBJ) test-fitness-evaluator$(EXE) \
-		$(test-population_OBJ) test-population$(EXE)		     \
-		$(test-translator_OBJ) test-translator$(EXE)                \
-		$(test-genotype-util_OBJ) test-genotype-util$(EXE)        \
-		$(dgdist_OBJ) dgdist$(EXE) 								\
-		$(test_OBJ) test$(EXE) \
-		$(transl-constraint_OBJ) transl-constraint$(EXE) \
-		$(transl-acc_OBJ) transl-acc$(EXE) \
-		$(res-analyzer_OBJ) res-analyzer$(EXE) \
-		$(sequence-analyzer_OBJ) sequence-analyzer$(EXE) \
-		$(test-fitness-density_OBJ) test-fitness-density$(EXE) \
-		$(structure-printer_OBJ) structure-printer$(EXE) \
-		$(transl-robonly_OBJ) transl-robonly$(EXE) \
-		$(tolerated-mutations_OBJ) tolerated-mutations$(EXE) \
-		$(density_OBJ) density$(EXE) \
-		$(neutral-ffold_OBJ) neutral-ffold$(EXE) \
-		$(comparison_OBJ) comparison$(EXE) \
-		$(tr-driver_OBJ) tr-driver$(EXE) \
-		$(tr-driver-nostr_OBJ) tr-driver-nostr$(EXE) \
-		random-distributions$(EXE) $(random-distributions_OBJ) \
-		evolved-ddg-dist$(EXE) $(evolddgdist_OBJ) \
-		snp-stability$(EXE) $(snpstab_OBJ) \
-		snp-mistrans-stability$(EXE) $(snpmisdg-obj) \
-		snp-fitness$(EXE) $(snpfit-obj)
-
+# Makefile.in generated by automake 1.9.6 from Makefile.am.
+# Makefile.  Generated from Makefile.in by configure.
+
+# Copyright (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
+# 2003, 2004, 2005  Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+srcdir = .
+top_srcdir = .
+
+pkgdatadir = $(datadir)/snpmisdg
+pkglibdir = $(libdir)/snpmisdg
+pkgincludedir = $(includedir)/snpmisdg
+top_builddir = .
+am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
+INSTALL = /usr/bin/install -c
+install_sh_DATA = $(install_sh) -c -m 644
+install_sh_PROGRAM = $(install_sh) -c
+install_sh_SCRIPT = $(install_sh) -c
+INSTALL_HEADER = $(INSTALL_DATA)
+transform = $(program_transform_name)
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+subdir = .
+DIST_COMMON = $(am__configure_deps) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(top_srcdir)/configure depcomp \
+	install-sh missing
+ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+am__aclocal_m4_deps = $(top_srcdir)/configure.in
+am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
+	$(ACLOCAL_M4)
+am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
+ configure.lineno configure.status.lineno
+mkinstalldirs = $(install_sh) -d
+CONFIG_CLEAN_FILES =
+SOURCES =
+DIST_SOURCES =
+RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
+	html-recursive info-recursive install-data-recursive \
+	install-exec-recursive install-info-recursive \
+	install-recursive installcheck-recursive installdirs-recursive \
+	pdf-recursive ps-recursive uninstall-info-recursive \
+	uninstall-recursive
+ETAGS = etags
+CTAGS = ctags
+DIST_SUBDIRS = $(SUBDIRS)
+DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+distdir = $(PACKAGE)-$(VERSION)
+top_distdir = $(distdir)
+am__remove_distdir = \
+  { test ! -d $(distdir) \
+    || { find $(distdir) -type d ! -perm -200 -exec chmod u+w {} ';' \
+         && rm -fr $(distdir); }; }
+DIST_ARCHIVES = $(distdir).tar.gz
+GZIP_ENV = --best
+distuninstallcheck_listfiles = find . -type f -print
+distcleancheck_listfiles = find . -type f -print
+ACLOCAL = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run aclocal-1.9
+AMDEP_FALSE = #
+AMDEP_TRUE = 
+AMTAR = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run tar
+AUTOCONF = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run autoconf
+AUTOHEADER = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run autoheader
+AUTOMAKE = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run automake-1.9
+AWK = awk
+CPPFLAGS = 
+CXX = g++
+CXXDEPMODE = depmode=gcc3
+CXXFLAGS = -g -O2
+CYGPATH_W = echo
+DEFS = -DPACKAGE_NAME=\"snpmisdg\" -DPACKAGE_TARNAME=\"snpmisdg\" -DPACKAGE_VERSION=\"1.0\" -DPACKAGE_STRING=\"snpmisdg\ 1.0\" -DPACKAGE_BUGREPORT=\"dadrummond@gmail.com\" -DPACKAGE=\"snpmisdg\" -DVERSION=\"1.0\" 
+DEPDIR = .deps
+ECHO_C = 
+ECHO_N = -n
+ECHO_T = 
+EXEEXT = 
+INSTALL_DATA = ${INSTALL} -m 644
+INSTALL_PROGRAM = ${INSTALL}
+INSTALL_SCRIPT = ${INSTALL}
+INSTALL_STRIP_PROGRAM = ${SHELL} $(install_sh) -c -s
+LDFLAGS = 
+LIBOBJS = 
+LIBS = 
+LTLIBOBJS = 
+MAKEINFO = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run makeinfo
+OBJEXT = o
+PACKAGE = snpmisdg
+PACKAGE_BUGREPORT = dadrummond@gmail.com
+PACKAGE_NAME = snpmisdg
+PACKAGE_STRING = snpmisdg 1.0
+PACKAGE_TARNAME = snpmisdg
+PACKAGE_VERSION = 1.0
+PATH_SEPARATOR = :
+SET_MAKE = 
+SHELL = /bin/sh
+STRIP = 
+VERSION = 1.0
+ac_ct_CXX = g++
+ac_ct_STRIP = 
+am__fastdepCXX_FALSE = #
+am__fastdepCXX_TRUE = 
+am__include = include
+am__leading_dot = .
+am__quote = 
+am__tar = ${AMTAR} chof - "$$tardir"
+am__untar = ${AMTAR} xf -
+bindir = ${exec_prefix}/bin
+build_alias = 
+datadir = ${prefix}/share
+exec_prefix = ${prefix}
+host_alias = 
+includedir = ${prefix}/include
+infodir = ${prefix}/info
+install_sh = /Users/dad/research/trsim/evoli/trunk/install-sh
+libdir = ${exec_prefix}/lib
+libexecdir = ${exec_prefix}/libexec
+localstatedir = ${prefix}/var
+mandir = ${prefix}/man
+mkdir_p = $(install_sh) -d
+oldincludedir = /usr/include
+prefix = /usr/local
+program_transform_name = s,x,x,
+sbindir = ${exec_prefix}/sbin
+sharedstatedir = ${prefix}/com
+sysconfdir = ${prefix}/etc
+target_alias = 
+SUBDIRS = lib driver tests
+all: all-recursive
+
+.SUFFIXES:
+am--refresh:
+	@:
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+	@for dep in $?; do \
+	  case '$(am__configure_deps)' in \
+	    *$$dep*) \
+	      echo ' cd $(srcdir) && $(AUTOMAKE) --foreign '; \
+	      cd $(srcdir) && $(AUTOMAKE) --foreign  \
+		&& exit 0; \
+	      exit 1;; \
+	  esac; \
+	done; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  Makefile'; \
+	cd $(top_srcdir) && \
+	  $(AUTOMAKE) --foreign  Makefile
+.PRECIOUS: Makefile
+Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
+	@case '$?' in \
+	  *config.status*) \
+	    echo ' $(SHELL) ./config.status'; \
+	    $(SHELL) ./config.status;; \
+	  *) \
+	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
+	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
+	esac;
+
+$(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
+	$(SHELL) ./config.status --recheck
+
+$(top_srcdir)/configure:  $(am__configure_deps)
+	cd $(srcdir) && $(AUTOCONF)
+$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
+uninstall-info-am:
+
+# This directory's subdirectories are mostly independent; you can cd
+# into them and run `make' without going through this Makefile.
+# To change the values of `make' variables: instead of editing Makefiles,
+# (1) if the variable is set in `config.status', edit `config.status'
+#     (which will cause the Makefiles to be regenerated when you run `make');
+# (2) otherwise, pass the desired values on the `make' command line.
+$(RECURSIVE_TARGETS):
+	@failcom='exit 1'; \
+	for f in x $$MAKEFLAGS; do \
+	  case $$f in \
+	    *=* | --[!k]*);; \
+	    *k*) failcom='fail=yes';; \
+	  esac; \
+	done; \
+	dot_seen=no; \
+	target=`echo $@ | sed s/-recursive//`; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    dot_seen=yes; \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	  || eval $$failcom; \
+	done; \
+	if test "$$dot_seen" = "no"; then \
+	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
+	fi; test -z "$$fail"
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+maintainer-clean-recursive:
+	@failcom='exit 1'; \
+	for f in x $$MAKEFLAGS; do \
+	  case $$f in \
+	    *=* | --[!k]*);; \
+	    *k*) failcom='fail=yes';; \
+	  esac; \
+	done; \
+	dot_seen=no; \
+	case "$@" in \
+	  distclean-* | maintainer-clean-*) list='$(DIST_SUBDIRS)' ;; \
+	  *) list='$(SUBDIRS)' ;; \
+	esac; \
+	rev=''; for subdir in $$list; do \
+	  if test "$$subdir" = "."; then :; else \
+	    rev="$$subdir $$rev"; \
+	  fi; \
+	done; \
+	rev="$$rev ."; \
+	target=`echo $@ | sed s/-recursive//`; \
+	for subdir in $$rev; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	  || eval $$failcom; \
+	done && test -z "$$fail"
+tags-recursive:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  test "$$subdir" = . || (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) tags); \
+	done
+ctags-recursive:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  test "$$subdir" = . || (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) ctags); \
+	done
+
+ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
+	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	mkid -fID $$unique
+tags: TAGS
+
+TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+		$(TAGS_FILES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	if ($(ETAGS) --etags-include --version) >/dev/null 2>&1; then \
+	  include_option=--etags-include; \
+	  empty_fix=.; \
+	else \
+	  include_option=--include; \
+	  empty_fix=; \
+	fi; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  if test "$$subdir" = .; then :; else \
+	    test ! -f $$subdir/TAGS || \
+	      tags="$$tags $$include_option=$$here/$$subdir/TAGS"; \
+	  fi; \
+	done; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	if test -z "$(ETAGS_ARGS)$$tags$$unique"; then :; else \
+	  test -n "$$unique" || unique=$$empty_fix; \
+	  $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
+	    $$tags $$unique; \
+	fi
+ctags: CTAGS
+CTAGS: ctags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+		$(TAGS_FILES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(CTAGS_ARGS)$$tags$$unique" \
+	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
+	     $$tags $$unique
+
+GTAGS:
+	here=`$(am__cd) $(top_builddir) && pwd` \
+	  && cd $(top_srcdir) \
+	  && gtags -i $(GTAGS_ARGS) $$here
+
+distclean-tags:
+	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
+
+distdir: $(DISTFILES)
+	$(am__remove_distdir)
+	mkdir $(distdir)
+	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
+	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
+	list='$(DISTFILES)'; for file in $$list; do \
+	  case $$file in \
+	    $(srcdir)/*) file=`echo "$$file" | sed "s|^$$srcdirstrip/||"`;; \
+	    $(top_srcdir)/*) file=`echo "$$file" | sed "s|^$$topsrcdirstrip/|$(top_builddir)/|"`;; \
+	  esac; \
+	  if test -f $$file || test -d $$file; then d=.; else d=$(srcdir); fi; \
+	  dir=`echo "$$file" | sed -e 's,/[^/]*$$,,'`; \
+	  if test "$$dir" != "$$file" && test "$$dir" != "."; then \
+	    dir="/$$dir"; \
+	    $(mkdir_p) "$(distdir)$$dir"; \
+	  else \
+	    dir=''; \
+	  fi; \
+	  if test -d $$d/$$file; then \
+	    if test -d $(srcdir)/$$file && test $$d != $(srcdir); then \
+	      cp -pR $(srcdir)/$$file $(distdir)$$dir || exit 1; \
+	    fi; \
+	    cp -pR $$d/$$file $(distdir)$$dir || exit 1; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || cp -p $$d/$$file $(distdir)/$$file \
+	    || exit 1; \
+	  fi; \
+	done
+	list='$(DIST_SUBDIRS)'; for subdir in $$list; do \
+	  if test "$$subdir" = .; then :; else \
+	    test -d "$(distdir)/$$subdir" \
+	    || $(mkdir_p) "$(distdir)/$$subdir" \
+	    || exit 1; \
+	    distdir=`$(am__cd) $(distdir) && pwd`; \
+	    top_distdir=`$(am__cd) $(top_distdir) && pwd`; \
+	    (cd $$subdir && \
+	      $(MAKE) $(AM_MAKEFLAGS) \
+	        top_distdir="$$top_distdir" \
+	        distdir="$$distdir/$$subdir" \
+	        distdir) \
+	      || exit 1; \
+	  fi; \
+	done
+	-find $(distdir) -type d ! -perm -777 -exec chmod a+rwx {} \; -o \
+	  ! -type d ! -perm -444 -links 1 -exec chmod a+r {} \; -o \
+	  ! -type d ! -perm -400 -exec chmod a+r {} \; -o \
+	  ! -type d ! -perm -444 -exec $(SHELL) $(install_sh) -c -m a+r {} {} \; \
+	|| chmod -R a+r $(distdir)
+dist-gzip: distdir
+	tardir=$(distdir) && $(am__tar) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	$(am__remove_distdir)
+
+dist-bzip2: distdir
+	tardir=$(distdir) && $(am__tar) | bzip2 -9 -c >$(distdir).tar.bz2
+	$(am__remove_distdir)
+
+dist-tarZ: distdir
+	tardir=$(distdir) && $(am__tar) | compress -c >$(distdir).tar.Z
+	$(am__remove_distdir)
+
+dist-shar: distdir
+	shar $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).shar.gz
+	$(am__remove_distdir)
+
+dist-zip: distdir
+	-rm -f $(distdir).zip
+	zip -rq $(distdir).zip $(distdir)
+	$(am__remove_distdir)
+
+dist dist-all: distdir
+	tardir=$(distdir) && $(am__tar) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	$(am__remove_distdir)
+
+# This target untars the dist file and tries a VPATH configuration.  Then
+# it guarantees that the distribution is self-contained by making another
+# tarfile.
+distcheck: dist
+	case '$(DIST_ARCHIVES)' in \
+	*.tar.gz*) \
+	  GZIP=$(GZIP_ENV) gunzip -c $(distdir).tar.gz | $(am__untar) ;;\
+	*.tar.bz2*) \
+	  bunzip2 -c $(distdir).tar.bz2 | $(am__untar) ;;\
+	*.tar.Z*) \
+	  uncompress -c $(distdir).tar.Z | $(am__untar) ;;\
+	*.shar.gz*) \
+	  GZIP=$(GZIP_ENV) gunzip -c $(distdir).shar.gz | unshar ;;\
+	*.zip*) \
+	  unzip $(distdir).zip ;;\
+	esac
+	chmod -R a-w $(distdir); chmod a+w $(distdir)
+	mkdir $(distdir)/_build
+	mkdir $(distdir)/_inst
+	chmod a-w $(distdir)
+	dc_install_base=`$(am__cd) $(distdir)/_inst && pwd | sed -e 's,^[^:\\/]:[\\/],/,'` \
+	  && dc_destdir="$${TMPDIR-/tmp}/am-dc-$$$$/" \
+	  && cd $(distdir)/_build \
+	  && ../configure --srcdir=.. --prefix="$$dc_install_base" \
+	    $(DISTCHECK_CONFIGURE_FLAGS) \
+	  && $(MAKE) $(AM_MAKEFLAGS) \
+	  && $(MAKE) $(AM_MAKEFLAGS) dvi \
+	  && $(MAKE) $(AM_MAKEFLAGS) check \
+	  && $(MAKE) $(AM_MAKEFLAGS) install \
+	  && $(MAKE) $(AM_MAKEFLAGS) installcheck \
+	  && $(MAKE) $(AM_MAKEFLAGS) uninstall \
+	  && $(MAKE) $(AM_MAKEFLAGS) distuninstallcheck_dir="$$dc_install_base" \
+	        distuninstallcheck \
+	  && chmod -R a-w "$$dc_install_base" \
+	  && ({ \
+	       (cd ../.. && umask 077 && mkdir "$$dc_destdir") \
+	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" install \
+	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" uninstall \
+	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" \
+	            distuninstallcheck_dir="$$dc_destdir" distuninstallcheck; \
+	      } || { rm -rf "$$dc_destdir"; exit 1; }) \
+	  && rm -rf "$$dc_destdir" \
+	  && $(MAKE) $(AM_MAKEFLAGS) dist \
+	  && rm -rf $(DIST_ARCHIVES) \
+	  && $(MAKE) $(AM_MAKEFLAGS) distcleancheck
+	$(am__remove_distdir)
+	@(echo "$(distdir) archives ready for distribution: "; \
+	  list='$(DIST_ARCHIVES)'; for i in $$list; do echo $$i; done) | \
+	  sed -e '1{h;s/./=/g;p;x;}' -e '$${p;x;}'
+distuninstallcheck:
+	@cd $(distuninstallcheck_dir) \
+	&& test `$(distuninstallcheck_listfiles) | wc -l` -le 1 \
+	   || { echo "ERROR: files left after uninstall:" ; \
+	        if test -n "$(DESTDIR)"; then \
+	          echo "  (check DESTDIR support)"; \
+	        fi ; \
+	        $(distuninstallcheck_listfiles) ; \
+	        exit 1; } >&2
+distcleancheck: distclean
+	@if test '$(srcdir)' = . ; then \
+	  echo "ERROR: distcleancheck can only run from a VPATH build" ; \
+	  exit 1 ; \
+	fi
+	@test `$(distcleancheck_listfiles) | wc -l` -eq 0 \
+	  || { echo "ERROR: files left in build directory after distclean:" ; \
+	       $(distcleancheck_listfiles) ; \
+	       exit 1; } >&2
+check-am: all-am
+check: check-recursive
+all-am: Makefile
+installdirs: installdirs-recursive
+installdirs-am:
+install: install-recursive
+install-exec: install-exec-recursive
+install-data: install-data-recursive
+uninstall: uninstall-recursive
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+
+installcheck: installcheck-recursive
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
+	  install_sh_PROGRAM="$(INSTALL_STRIP_PROGRAM)" INSTALL_STRIP_FLAG=-s \
+	  `test -z '$(STRIP)' || \
+	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+
+maintainer-clean-generic:
+	@echo "This command is intended for maintainers to use"
+	@echo "it deletes files that may require special tools to rebuild."
+clean: clean-recursive
+
+clean-am: clean-generic mostlyclean-am
+
+distclean: distclean-recursive
+	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
+	-rm -f Makefile
+distclean-am: clean-am distclean-generic distclean-tags
+
+dvi: dvi-recursive
+
+dvi-am:
+
+html: html-recursive
+
+info: info-recursive
+
+info-am:
+
+install-data-am:
+
+install-exec-am:
+
+install-info: install-info-recursive
+
+install-man:
+
+installcheck-am:
+
+maintainer-clean: maintainer-clean-recursive
+	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
+	-rm -rf $(top_srcdir)/autom4te.cache
+	-rm -f Makefile
+maintainer-clean-am: distclean-am maintainer-clean-generic
+
+mostlyclean: mostlyclean-recursive
+
+mostlyclean-am: mostlyclean-generic
+
+pdf: pdf-recursive
+
+pdf-am:
+
+ps: ps-recursive
+
+ps-am:
+
+uninstall-am: uninstall-info-am
+
+uninstall-info: uninstall-info-recursive
+
+.PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am am--refresh check \
+	check-am clean clean-generic clean-recursive ctags \
+	ctags-recursive dist dist-all dist-bzip2 dist-gzip dist-shar \
+	dist-tarZ dist-zip distcheck distclean distclean-generic \
+	distclean-recursive distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-exec \
+	install-exec-am install-info install-info-am install-man \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	maintainer-clean-recursive mostlyclean mostlyclean-generic \
+	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
+	uninstall uninstall-am uninstall-info-am
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:
