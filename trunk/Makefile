@@ -75,16 +75,13 @@ AUTOCONF = ${SHELL} /Users/dad/research/trsim/evoli/trunk/config/missing --run a
 AUTOHEADER = ${SHELL} /Users/dad/research/trsim/evoli/trunk/config/missing --run autoheader
 AUTOMAKE = ${SHELL} /Users/dad/research/trsim/evoli/trunk/config/missing --run automake-1.9
 AWK = awk
-CC = gcc
-CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
-CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
+CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"evoli\" -DPACKAGE_TARNAME=\"evoli\" -DPACKAGE_VERSION=\"0.1\" -DPACKAGE_STRING=\"evoli\ 0.1\" -DPACKAGE_BUGREPORT=\"dadrummond@gmail.com\" -DPACKAGE=\"evoli\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_POW=1 -DHAVE_SQRT=1 
+DEFS = -DPACKAGE_NAME=\"evoli\" -DPACKAGE_TARNAME=\"evoli\" -DPACKAGE_VERSION=\"0.1\" -DPACKAGE_STRING=\"evoli\ 0.1\" -DPACKAGE_BUGREPORT=\"dadrummond@gmail.com\" -DPACKAGE=\"evoli\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_IOSTREAM=1 -DHAVE_SSTREAM=1 -DHAVE_FSTREAM=1 -DHAVE_STDBOOL_H=1 -DHAVE_POW=1 -DHAVE_SQRT=1 
 DEPDIR = .deps
 ECHO_C = 
 ECHO_N = -n
@@ -113,12 +110,9 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = 
 VERSION = 0.1
-ac_ct_CC = gcc
 ac_ct_CXX = g++
 ac_ct_RANLIB = ranlib
 ac_ct_STRIP = 
-am__fastdepCC_FALSE = #
-am__fastdepCC_TRUE = 
 am__fastdepCXX_FALSE = #
 am__fastdepCXX_TRUE = 
 am__include = include
@@ -146,7 +140,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = ${prefix}/etc
 target_alias = 
-SUBDIRS = folder driver utils
+SUBDIRS = folder driver utils test
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
 all: all-recursive
 
