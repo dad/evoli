@@ -7,6 +7,8 @@ AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([folder/protein-folder.cc])
 AM_INIT_AUTOMAKE([1.9 foreign])
 
+AC_LANG_CPLUSPLUS
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_RANLIB
@@ -14,7 +16,7 @@ AC_PROG_RANLIB
 # Checks for libraries.
 
 # Checks for header files.
-AC_CHECK_HEADERS(iostream.h sstream.h fstream.h)
+AC_CHECK_HEADERS(iostream sstream fstream)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -25,5 +27,5 @@ AC_C_INLINE
 AC_FUNC_ERROR_AT_LINE
 AC_CHECK_FUNCS([pow sqrt])
 
-AC_CONFIG_FILES([Makefile folder/Makefile driver/Makefile utils/Makefile])
+AC_CONFIG_FILES([Makefile folder/Makefile driver/Makefile utils/Makefile test/Makefile])
 AC_OUTPUT

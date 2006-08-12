@@ -1,5 +1,4 @@
 ## Makefile.am
-# Comment
 
 include $(top_srcdir)/config/Make-rules
 
