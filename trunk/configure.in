@@ -25,5 +25,5 @@ AC_C_INLINE
 AC_FUNC_ERROR_AT_LINE
 AC_CHECK_FUNCS([pow sqrt])
 
-AC_CONFIG_FILES([Makefile folder/Makefile driver/Makefile])
+AC_CONFIG_FILES([Makefile folder/Makefile driver/Makefile utils/Makefile])
 AC_OUTPUT

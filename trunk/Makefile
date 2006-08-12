@@ -146,7 +146,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = ${prefix}/etc
 target_alias = 
-SUBDIRS = folder
+SUBDIRS = folder driver utils
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
 all: all-recursive
 
