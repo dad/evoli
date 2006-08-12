@@ -16,9 +16,9 @@
 srcdir = .
 top_srcdir = .
 
-pkgdatadir = $(datadir)/snpmisdg
-pkglibdir = $(libdir)/snpmisdg
-pkgincludedir = $(includedir)/snpmisdg
+pkgdatadir = $(datadir)/evoli
+pkglibdir = $(libdir)/evoli
+pkgincludedir = $(includedir)/evoli
 top_builddir = .
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = /usr/bin/install -c
@@ -35,8 +35,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 subdir = .
 DIST_COMMON = $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/configure depcomp \
-	install-sh missing
+	$(srcdir)/Makefile.in $(top_srcdir)/configure config/depcomp \
+	config/install-sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -67,48 +67,58 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /Users/dad/research/trsim/evoli/trunk/config/missing --run aclocal-1.9
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run tar
-AUTOCONF = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run autoconf
-AUTOHEADER = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run autoheader
-AUTOMAKE = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run automake-1.9
+AMTAR = ${SHELL} /Users/dad/research/trsim/evoli/trunk/config/missing --run tar
+AUTOCONF = ${SHELL} /Users/dad/research/trsim/evoli/trunk/config/missing --run autoconf
+AUTOHEADER = ${SHELL} /Users/dad/research/trsim/evoli/trunk/config/missing --run autoheader
+AUTOMAKE = ${SHELL} /Users/dad/research/trsim/evoli/trunk/config/missing --run automake-1.9
 AWK = awk
+CC = gcc
+CCDEPMODE = depmode=gcc3
+CFLAGS = -g -O2
+CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"snpmisdg\" -DPACKAGE_TARNAME=\"snpmisdg\" -DPACKAGE_VERSION=\"1.0\" -DPACKAGE_STRING=\"snpmisdg\ 1.0\" -DPACKAGE_BUGREPORT=\"dadrummond@gmail.com\" -DPACKAGE=\"snpmisdg\" -DVERSION=\"1.0\" 
+DEFS = -DPACKAGE_NAME=\"evoli\" -DPACKAGE_TARNAME=\"evoli\" -DPACKAGE_VERSION=\"0.1\" -DPACKAGE_STRING=\"evoli\ 0.1\" -DPACKAGE_BUGREPORT=\"dadrummond@gmail.com\" -DPACKAGE=\"evoli\" -DVERSION=\"0.1\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_POW=1 -DHAVE_SQRT=1 
 DEPDIR = .deps
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
+EGREP = grep -E
 EXEEXT = 
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = ${SHELL} $(install_sh) -c -s
 LDFLAGS = 
-LIBOBJS = 
+LIBOBJS =  error$U.o
 LIBS = 
-LTLIBOBJS = 
-MAKEINFO = ${SHELL} /Users/dad/research/trsim/evoli/trunk/missing --run makeinfo
+LTLIBOBJS =  error$U.lo
+MAKEINFO = ${SHELL} /Users/dad/research/trsim/evoli/trunk/config/missing --run makeinfo
 OBJEXT = o
-PACKAGE = snpmisdg
+PACKAGE = evoli
 PACKAGE_BUGREPORT = dadrummond@gmail.com
-PACKAGE_NAME = snpmisdg
-PACKAGE_STRING = snpmisdg 1.0
-PACKAGE_TARNAME = snpmisdg
-PACKAGE_VERSION = 1.0
+PACKAGE_NAME = evoli
+PACKAGE_STRING = evoli 0.1
+PACKAGE_TARNAME = evoli
+PACKAGE_VERSION = 0.1
 PATH_SEPARATOR = :
+RANLIB = ranlib
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 1.0
+VERSION = 0.1
+ac_ct_CC = gcc
 ac_ct_CXX = g++
+ac_ct_RANLIB = ranlib
 ac_ct_STRIP = 
+am__fastdepCC_FALSE = #
+am__fastdepCC_TRUE = 
 am__fastdepCXX_FALSE = #
 am__fastdepCXX_TRUE = 
 am__include = include
@@ -123,7 +133,7 @@ exec_prefix = ${prefix}
 host_alias = 
 includedir = ${prefix}/include
 infodir = ${prefix}/info
-install_sh = /Users/dad/research/trsim/evoli/trunk/install-sh
+install_sh = /Users/dad/research/trsim/evoli/trunk/config/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localstatedir = ${prefix}/var
@@ -136,7 +146,8 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = ${prefix}/etc
 target_alias = 
-SUBDIRS = lib driver tests
+SUBDIRS = folder
+MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
 all: all-recursive
 
 .SUFFIXES:
@@ -310,6 +321,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
+	$(mkdir_p) $(distdir)/config
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -477,6 +489,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-recursive
 
 clean-am: clean-generic mostlyclean-am

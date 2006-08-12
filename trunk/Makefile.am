@@ -1,3 +1,5 @@
 ## Makefile.am
 
-SUBDIRS = lib driver test
+SUBDIRS = folder driver
+
+MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
