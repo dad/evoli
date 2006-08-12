@@ -2,7 +2,7 @@
 
 include $(top_srcdir)/config/Make-rules
 
-MAINTAINERCLEANFILES = *.cutee.cc runtest.cc
+MAINTAINERCLEANFILES += *.cutee.cc runtest.cc
 
 ## Cutee unit testing directives
 # your test files here
