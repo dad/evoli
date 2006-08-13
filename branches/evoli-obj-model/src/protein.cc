@@ -221,6 +221,7 @@ Protein Gene::translate(void) const {
 	Translator t;
 	Protein prot(len);
 	t.translate(*this, prot);
+	//cout << this << tab << "translation" << endl;
 	return prot;
 }
 

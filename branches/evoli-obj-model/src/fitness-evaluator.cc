@@ -258,16 +258,20 @@ bool ErrorproneTranslation::getFolded( const Gene &g ) {
 }
 
 double ErrorproneTranslation::getFitness( const Gene &g ) {
-	if (!getFolded(g)) {
-		return 0.0;
-	}
-
+	//cout << &g << tab << "begin getFitness" << endl;
+	double fitness = 1.0;
 	if ( m_tr_cost > 0 ) {
 		double ffold, frob, facc, ftrunc;
 		calcOutcomes(g, facc, frob, ftrunc, ffold);
-		return exp( - m_tr_cost * (1-ffold) / ffold );
+		if (ffold > 0.0 ) {
+			fitness = exp( - m_tr_cost * (1-ffold) / ffold );
+		}
+		else {
+			fitness = 0.0;
+		}
 	}
-	else return 1.;
+	//cout << &g << tab << "end getFitness" << endl;
+	return fitness;
 }
 
 void ErrorproneTranslation::setTargetAccuracyOfRandomGenes(const Gene& seed_genotype, const double facc, const int num_equil, const int num_rand) {

@@ -111,14 +111,17 @@ bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
 	pop.init( g, fe, p.u );
 
 	int loop_length = 100;
+	int n_folded = 0;
 	for ( int i=0; ; i++ ) 	{
-		cout << "t=" << i*loop_length+1 << "; " << flush;
+		//n_folded = folder.getNumFolded();
 		for ( int j=0; j<loop_length; j++ ) {
 			pop.evolve();
 		}
 		pop.prepareCoalescenceCalcs();
 		if ( pop.calcCoalescenceTime() > p.equilibration_time + p.window_size )
 			break;
+		//cout << "t=" << i*loop_length+1 << " (" << (folder.getNumFolded()-n_folded) << "); " << flush;
+		cout << "t=" << i*loop_length+1 << "; " << flush;
 	}
 	cout << endl;
 
