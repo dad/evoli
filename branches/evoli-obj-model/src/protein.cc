@@ -83,6 +83,16 @@ bool Protein::operator==(const Protein& p) const {
 	return identical;
 }
 
+string Protein::toString() const {
+	string res;
+	for ( Protein::const_iterator it=begin(); it != end(); it++) {
+		res += GeneticCodeUtil::residueLetters[*it+1];
+	}
+	return res;
+}
+
+
+
 Gene::Gene() : Sequence(0) {
 	m_modified = true;
 }

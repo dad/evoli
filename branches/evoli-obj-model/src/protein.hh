@@ -61,6 +61,7 @@ public:
 	pair<int, double> fold(const ProteinFolder& folder);
 	int distance(const Protein& p) const;
 	vector<Contact> getContacts(const ProteinFolder& folder);
+	string toString() const;
 
 	Gene reverseTranslate() const;
 	bool operator==(const Protein& p) const;
