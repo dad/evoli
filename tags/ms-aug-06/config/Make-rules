@@ -1,0 +1,2 @@
+MAINTAINERCLEANFILES = Makefile.in
+INCLUDES = -I$(top_builddir) -I$(top_builddir)/src
