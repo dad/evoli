@@ -4,13 +4,14 @@ AC_PREREQ(2.59)
 
 AC_INIT([evoli], [0.1], [dadrummond@gmail.com])
 AC_CONFIG_AUX_DIR([config])
-AC_CONFIG_SRCDIR([folder/protein-folder.cc])
+AC_CONFIG_SRCDIR([src/protein-folder.cc])
 AM_INIT_AUTOMAKE([1.9 foreign])
 
 AC_LANG_CPLUSPLUS
 
 # Checks for programs.
 AC_PROG_CXX
+AC_PROG_CC
 AC_PROG_RANLIB
 
 # Checks for libraries.
@@ -27,5 +28,5 @@ AC_C_INLINE
 AC_FUNC_ERROR_AT_LINE
 AC_CHECK_FUNCS([pow sqrt])
 
-AC_CONFIG_FILES([Makefile folder/Makefile driver/Makefile utils/Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile driver/Makefile utils/Makefile test/Makefile])
 AC_OUTPUT

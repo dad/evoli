@@ -77,19 +77,20 @@ vector<int> Structure::getSurface() const
 	return v;
 }
 
-void Structure::draw() const
+void Structure::draw(ostream& os, const char* prefix) const
 {
-	StructureUtil::drawStructure( m_structure, m_size );
+	StructureUtil::drawStructure( os, m_structure, m_size, prefix );
 	vector<pair<int,int> >::const_iterator it,e;
 	it = m_interacting_pairs.begin();
 	e = m_interacting_pairs.end();
+	os << prefix;
 	for ( ; it != e; it++ )
-		cout << "(" << (*it).first << ", " << (*it).second << ") ";
-	cout << endl;
+		os << "(" << (*it).first << ", " << (*it).second << ") ";
+	os << endl << prefix;
 
 	vector<int> v = getSurface();
-	copy( v.begin(), v.end(), ostream_iterator<int>( cout, " " ) );
-	cout << endl;
+	copy( v.begin(), v.end(), ostream_iterator<int>( os, " " ) );
+	os << endl;
 }
 
 void StructureUtil::drawSite( ostream &s, int site )
@@ -154,35 +155,36 @@ void StructureUtil::drawHBond( ostream &s, char bond )
 }
 
 
-void StructureUtil::drawStructure( const char *s, int size )
+void StructureUtil::drawStructure( ostream& os, const char *s, int size, const char *prefix )
 {
 
 	int k=0;
+	os << prefix;
 	for ( int i=0; i<size-1; i++ )
 	{
 		for ( int j=0; j<size-1; j++ )
 		{
-			drawSite( cout, s[k++] );
-			drawHBond( cout, s[k++] );
+			drawSite( os, s[k++] );
+			drawHBond( os, s[k++] );
 		}
-		drawSite( cout, s[k++] );
-		cout << endl;
+		drawSite( os, s[k++] );
+		os << endl << prefix;
 		for ( int j=0; j<size; j++ )
-			drawVBond( cout, s[k++] );
-		cout << endl;
+			drawVBond( os, s[k++] );
+		os << endl << prefix;
 		k-=size;
 		for ( int j=0; j<size; j++ )
-			drawVBond( cout, s[k++] );
-		cout << endl;
+			drawVBond( os, s[k++] );
+		os << endl << prefix;
 	}
 
 	for ( int j=0; j<size-1; j++ )
 	{
-		drawSite( cout, s[k++] );
-		drawHBond( cout, s[k++] );
+		drawSite( os, s[k++] );
+		drawHBond( os, s[k++] );
 	}
-	drawSite( cout, s[k] );
-	cout << endl;
+	drawSite( os, s[k] );
+	os << endl;
 }
 
 
@@ -465,34 +467,34 @@ bool SelfAvoidingWalk::setString( int x, int y, const char * string )
 
 
 
-void SelfAvoidingWalk::draw() const
+void SelfAvoidingWalk::draw(ostream& os) const
 {
-	cout << "Start: ("<< m_start_x << ", " << m_start_y << "); Length: " << m_length << endl;
-	cout << "Pos: ("<< m_cur_x << ", " << m_cur_y << "); Direction: (" << m_dx << ", " << m_dy << ")" << endl;
+	os << "Start: ("<< m_start_x << ", " << m_start_y << "); Length: " << m_length << endl;
+	os << "Pos: ("<< m_cur_x << ", " << m_cur_y << "); Direction: (" << m_dx << ", " << m_dy << ")" << endl;
 	for ( int i=0; i<m_size-1; i++ )
 	{
 		for ( int j=0; j<m_size-1; j++ )
 		{
-			StructureUtil::drawSite( cout, m_sites[j][i] );
-			StructureUtil::drawHBond( cout, m_hbonds[j][i] );
+			StructureUtil::drawSite( os, m_sites[j][i] );
+			StructureUtil::drawHBond( os, m_hbonds[j][i] );
 		}
-		StructureUtil::drawSite( cout, m_sites[m_size-1][i] );
-		cout << endl;
+		StructureUtil::drawSite( os, m_sites[m_size-1][i] );
+		os << endl;
 		// draw the vbonds twice
 		for ( int j=0; j<m_size; j++ )
-			StructureUtil::drawVBond( cout, m_vbonds[j][i] );
-		cout << endl;
+			StructureUtil::drawVBond( os, m_vbonds[j][i] );
+		os << endl;
 		for ( int j=0; j<m_size; j++ )
-			StructureUtil::drawVBond( cout, m_vbonds[j][i] );
-		cout << endl;
+			StructureUtil::drawVBond( os, m_vbonds[j][i] );
+		os << endl;
 	}
 	for ( int j=0; j<m_size-1; j++ )
 	{
-		StructureUtil::drawSite( cout, m_sites[j][m_size-1] );
-		StructureUtil::drawHBond( cout, m_hbonds[j][m_size-1] );
+		StructureUtil::drawSite( os, m_sites[j][m_size-1] );
+		StructureUtil::drawHBond( os, m_hbonds[j][m_size-1] );
 	}
-	StructureUtil::drawSite( cout, m_sites[m_size-1][m_size-1] );
-	cout << endl;
+	StructureUtil::drawSite( os, m_sites[m_size-1][m_size-1] );
+	os << endl;
 }
 
 
@@ -535,11 +537,11 @@ void SelfAvoidingWalk::getStructure( char * d ) const
 
 
 ProteinFolder::ProteinFolder( int size )
-		: m_size( size ), m_num_structures( 0 )
+	: m_size( size ), m_num_structures( 0 ), m_num_folded( 0 )
 {
 	if ( m_size > 15 )
 	{
-		cout << "Maximally suported size: 15 (because char is being used to enumerate sites)" << endl;
+		cout << "Maximally suported size: 15 (because char is being used to enumerate sites" << endl;
 		exit(-1);
 	}
 	m_last_folded_structure = -1;
@@ -547,8 +549,6 @@ ProteinFolder::ProteinFolder( int size )
 	m_ffw_struct = new char[3*m_size*m_size];
 	m_ss_struct = new char[3*m_size*m_size];
 	m_ss_struct2 = new char[3*m_size*m_size];
-
-		m_numFolded = 0;
 }
 
 ProteinFolder::~ProteinFolder()
@@ -559,9 +559,8 @@ ProteinFolder::~ProteinFolder()
 
 	vector<Structure *>::iterator it = m_structures.begin();
 
-	for ( ; it != m_structures.end(); it++ ) {
+	for ( ; it != m_structures.end(); it++ )
 		delete (*it);
-	}
 }
 
 void ProteinFolder::findFillingWalks( SelfAvoidingWalk &w, int &moves )
@@ -703,8 +702,6 @@ void ProteinFolder::enumerateStructures()
 			moves++;
 			findFillingWalks( w, moves );
 		}
-	//  cout << "\nMoves needed: " << moves << endl;
-//	 cout << "#Total structures found: " << m_num_structures << endl;
 
 	vector<vector<int> > pairs;
 	pairs.resize(m_size*m_size);
@@ -748,8 +745,7 @@ void ProteinFolder::enumerateStructures()
 //	 cout << "#Total number of potentially interacting pairs: " << count << endl;
 }
 
-
-double ProteinFolder::foldProtein( const int *p )
+double ProteinFolder::foldProtein( const Protein& p) const
 {
 	assert( m_num_structures > 0 );
 
@@ -771,27 +767,29 @@ double ProteinFolder::foldProtein( const int *p )
 	//}
 	//cout << endl;
 
-	for ( int i=0; i<m_num_structures; i++ ) {
+	for ( int i=0; i<m_num_structures; i++ )
+	{
 		double E = 0;
 
 		//    cout << "Testing structure " << i << endl;
 		//    m_structures[i]->draw();
 
 		// calculate binding energy of this fold
-		const vector<pair<int,int> > &pair_list	= m_structures[i]->getInteractingPairs();
+		const vector<pair<int,int> > &pair_list
+		= m_structures[i]->getInteractingPairs();
 		vector<pair<int,int> >::const_iterator it=pair_list.begin();
 		for ( ; it!=pair_list.end(); it++ )
 		{
-				double deltaE = contactEnergies[p[(*it).first-1]][p[(*it).second-1]];
-				E += deltaE;
+			double deltaE = contactEnergies[p[(*it).first-1]][p[(*it).second-1]];
+			E += deltaE;
 
-				//	cout << "(" << (*it).first << ", " << (*it).second << ") -> " << GeneticCodeUtil::residues[p[(*it).first-1]] << ":" << GeneticCodeUtil::residues[p[(*it).second-1]] << " " << deltaE << " " << E << endl;
+			//	cout << "(" << (*it).first << ", " << (*it).second << ") -> " << GeneticCodeUtil::residues[p[(*it).first-1]] << ":" << GeneticCodeUtil::residues[p[(*it).second-1]] << " " << deltaE << " " << E << endl;
 		}
 		// check if binding energy is lower than any previously calculated one
 		if ( E < minE )
 		{
-				minE = E;
-				minIndex = i;
+			minE = E;
+			minIndex = i;
 		}
 		// add energy to partition sum
 		Z +=  exp(-E/kT);
@@ -808,12 +806,15 @@ double ProteinFolder::foldProtein( const int *p )
 
 	// record the structure into which this protein folds
 	m_last_folded_structure = minIndex;
+	// increment folded count
+	m_num_folded += 1;
 
-	m_numFolded++;
 	return G;
 }
 
-inline double ProteinFolder::getEnergy(const int *p, const int structID) const {
+
+//inline double ProteinFolder::getEnergy(const int *p, const int structID) const {
+inline double ProteinFolder::getEnergy(const Protein& p, const int structID) const {
 	const vector<pair<int,int> > &pair_list = m_structures[structID]->getInteractingPairs();
 	vector<pair<int,int> >::const_iterator it=pair_list.begin();
 	double E = 0.0;
@@ -824,7 +825,8 @@ inline double ProteinFolder::getEnergy(const int *p, const int structID) const {
 	return E;
 }
 
-void ProteinFolder::getMinMaxPartitionContributions(const int *p, const int ci, double& cmin, double& cmax) const {
+//void ProteinFolder::getMinMaxPartitionContributions(const int *p, const int ci, double& cmin, double& cmax) const {
+void ProteinFolder::getMinMaxPartitionContributions(const Protein& p, const int ci, double& cmin, double& cmax) const {
 	double kT = 0.6;
 	double min_cont = 1e5;
 	double max_cont = -1e5;
@@ -846,7 +848,9 @@ void ProteinFolder::getMinMaxPartitionContributions(const int *p, const int ci, 
 	//cout << cmin << tab << cmax << tab << num_contacts << endl;
 }
 
-bool ProteinFolder::isFoldedBelowThreshold( const int *p, const int structID, double cutoff) {
+//bool ProteinFolder::isFoldedBelowThreshold( const int *p, const int structID, double cutoff) const
+bool ProteinFolder::isFoldedBelowThreshold( const Protein& p, const int structID, double cutoff) const
+{
 	assert( m_num_structures > 0 );
 
 	double kT = 0.6;
@@ -859,31 +863,36 @@ bool ProteinFolder::isFoldedBelowThreshold( const int *p, const int structID, do
 	double cmin = 0.0;
 	double cmax = 0.0;
 
-	m_numFolded++;
+	int rep_count = 0;
+	int reps_per_minmax = 20;
 	getMinMaxPartitionContributions(p, 0, cmin, cmax);
 	for ( int ci=0; ci<m_num_structures; ci++ ) {
 		if (ci != structID) {
+			rep_count++;
 			// calculate binding energy of this fold
 			double E = getEnergy(p, ci);
 			// bail out if structID is not the minimum-energy structure.
-			if (E<Ef || (E==Ef && structID > ci) ) { // For equal-energy structures, first structure wins.
-				//cout << "E < Ef" << endl;
+			if (E<=Ef) {
+				//cout << "E <= Ef" << endl;
 				return false;
 			}
 			Zu += exp(-E/kT);
 			// bail out if the unfolded partition function is too large.
-			if (Zu > Zcutoff) {
-				//cout << "Zu > Zcutoff" << endl;
+			if (Zu >= Zcutoff) {
+				//cout << "Zu >= Zcutoff" << endl;
 				return false;
 			}
-			if (Zu + (m_num_structures-(ci+1))*cmin > Zcutoff) {
-				//cout << "Zu + (m_num_structures-ci)*cmin > Zcutoff" << endl;
-				return false;
-			}
-			else if (Zu + (m_num_structures-(ci+1))*cmax <= Zcutoff) {
-				//cout << "Zu + (m_num_structures-ci)*cmax <= Zcutoff" << endl;
-				// It's folded; should compute full free energy here.
-				return true;
+			if (true && rep_count > reps_per_minmax) {
+
+				rep_count = 0;
+				if (Zu + (m_num_structures-(ci+1))*cmin >= Zcutoff) {
+					//cout << "Zu + (m_num_structures-ci)*cmin >= Zcutoff" << endl;
+					return false;
+				}
+				if (Zu + (m_num_structures-(ci+1))*cmax < Zcutoff) {
+					//cout << "Zu + (m_num_structures-ci)*cmax < Zcutoff" << endl;
+					return true;
+				}
 			}
 		}
 	}
@@ -915,12 +924,12 @@ void ProteinFolder::printContactEnergyTable( ostream &s ) const
 	}
 }
 
-void ProteinFolder::printStructure( int id ) const
+void ProteinFolder::printStructure( int id, ostream& os, const char* prefix ) const
 {
 	if ( id < 0 || id >= m_num_structures )
 		return;
 
-	m_structures[id]->draw();
+	m_structures[id]->draw(os, prefix);
 }
 
 // Contact energies according to Miyazawa and Jernigan, Residue-Residue Potentials

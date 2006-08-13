@@ -5,6 +5,8 @@
 #include <cstring>
 #include <iostream>
 
+#include "protein.hh"
+
 
 // uncomment next line for older versions of gcc
 //#include <hash_map>
@@ -29,26 +31,24 @@ public:
 	Structure( const char *structure, int size );
 	~Structure();
 
-	char * getStructure() const
-	{
+	char * getStructure() const	{
 		return m_structure;
 	}
-	const vector<pair<int,int> >& getInteractingPairs() const
-	{
+	const vector<pair<int,int> >& getInteractingPairs() const {
 		return m_interacting_pairs;
 	}
 
 	vector<int> getSurface() const;
-	void draw() const;
+	void draw(ostream& os, const char* prefix) const;
 };
 
 class StructureUtil
 {
 public:
 	/**
-	* Draws the structure specified in the string s to stdout.
+	* Draws the structure specified in the string s to the specified ostream.
 	**/
-	static void drawStructure( const char *s, int size );
+	static void drawStructure( ostream& os, const char *s, int size, const char *prefix );
 	static void flipLeftRight( const char* s, char* d, int size );
 	static void rotate90( const char* s, char* d, int size );
 
@@ -97,27 +97,23 @@ public:
 	void setStart( int x, int y );
 
 	// accessors
-	void draw() const;
+	void draw(ostream& os) const;
 
 	/**
 	 * Saves the current structure in the provided string d. d must
 	 * be a sufficiently long array.
 	 **/
 	void getStructure( char *d ) const;
-	int startX() const
-	{
+	int startX() const {
 		return m_start_x;
 	}
-	int startY() const
-	{
+	int startY() const {
 		return m_start_y;
 	}
-	int length() const
-	{
+	int length() const {
 		return m_length;
 	}
-	int maxLength() const
-	{
+	int maxLength() const {
 		return m_size*m_size;
 	}
 };
@@ -126,10 +122,8 @@ public:
 /**
  * Needed for the structure map in StructureBank.
  **/
-struct eqstr
-{
-	bool operator()(const char* s1, const char* s2) const
-	{
+struct eqstr {
+	bool operator()(const char* s1, const char* s2) const {
 		return (strcmp(s1, s2) == 0);
 	}
 };
@@ -137,17 +131,14 @@ struct eqstr
 /**
  * Needed for the structure map in StructureBank.
  **/
-struct ltstr
-{
-	bool operator()(const char* s1, const char* s2) const
-	{
+struct ltstr {
+	bool operator()(const char* s1, const char* s2) const {
 		return (strcmp(s1, s2) < 0);
 	}
 };
 
 
-class ProteinFolder
-{
+class ProteinFolder {
 private:
 	// some useful typedefs
 	typedef hash_map<const char*, int, hash<const char*>, eqstr> StructureMap;
@@ -158,6 +149,8 @@ private:
 	static const double contactEnergies[20][20];
 	// the size of the square lattice (protein length is size^2)
 	const int m_size;
+	// the number of proteins folded
+	mutable int m_num_folded;
 
 	int m_num_structures; // total number of structures
 	vector<Structure *> m_structures; // list of all potential structures
@@ -171,9 +164,6 @@ private:
 	ProteinFolder();
 	ProteinFolder( const ProteinFolder & );
 	const ProteinFolder & operator=( const ProteinFolder & );
-
-	unsigned long m_numFolded;
-
 protected:
 	void findFillingWalks( SelfAvoidingWalk &w, int &moves );
 	bool findStructure( const char*s );
@@ -184,10 +174,10 @@ public:
 	~ProteinFolder();
 
 	void enumerateStructures();
-	double foldProtein( const int *p );
-	bool isFoldedBelowThreshold( const int *p, const int structID, double cutoff);
-	void getMinMaxPartitionContributions(const int *p, const int ci, double& cmin, double& cmax) const;
-	double getEnergy(const int *p, const int structID) const;
+	double foldProtein( const Protein& p ) const;
+	bool isFoldedBelowThreshold( const Protein& p, const int structID, double cutoff) const;
+	void getMinMaxPartitionContributions(const Protein& p, const int ci, double& cmin, double& cmax) const;
+	double getEnergy(const Protein& p, const int structID) const;
 	int getLastFoldedProteinStructureID() const
 	{
 		return m_last_folded_structure;
@@ -197,13 +187,18 @@ public:
 		return m_size*m_size;
 	}
 	void printContactEnergyTable( ostream &s ) const;
-	void printStructure( int id ) const;
+	void printStructure( int id, ostream& os, const char* prefix ) const;
 	vector<int> getSurface( int id ) const
 	{
 		return m_structures[id]->getSurface();
 	}
-	unsigned long getNumFolded() const { return m_numFolded; }
-	int getNumStructures() const { return m_num_structures; }
+
+	Structure* getStructure(const int id) const {
+		return m_structures[id];
+	}
+	unsigned int getNumFolded() {
+		return m_num_folded;
+	}
 };
 
 

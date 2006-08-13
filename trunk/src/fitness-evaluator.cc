@@ -3,7 +3,7 @@
 #include "genetic-code.hh"
 #include "protein-folder.hh"
 #include "translator.hh"
-#include "genotype-util.hh"
+#include "gene-util.hh"
 
 #include <cmath>
 #include <iomanip>
@@ -11,75 +11,60 @@
 FitnessEvaluator::FitnessEvaluator()
 {}
 
-
 FitnessEvaluator::~FitnessEvaluator()
 {}
 
-
 ProteinFreeEnergyFitness::ProteinFreeEnergyFitness( ProteinFolder *protein_folder )
-		: m_protein_folder( protein_folder )
+	: m_protein_folder( protein_folder )
 {
-	m_protein_length = m_protein_folder->getProteinLength();
-	m_residue_sequence = new int[m_protein_length];
 }
 
-
-ProteinFreeEnergyFitness::~ProteinFreeEnergyFitness()
-{
-	delete [] m_residue_sequence;
+ProteinFreeEnergyFitness::~ProteinFreeEnergyFitness() {
 }
 
-
-
-
-double ProteinFreeEnergyFitness::getFitness( const Genotype &g )
-{
-	Translator t( 0, m_protein_length );
-
-	if ( t.translateErrorFree( g, m_residue_sequence ) )
-	{
-		return exp(-m_protein_folder->foldProtein( m_residue_sequence ));
+double ProteinFreeEnergyFitness::getFitness( const Gene &g ) {
+	if ( g.encodesFullLength() ) {
+		Protein p = g.translate();
+		return getFitness(p);
 	}
 	else
 		return 0;
+}
+
+double ProteinFreeEnergyFitness::getFitness( Protein &p ) {
+	pair<int, double> pf = p.fold(*m_protein_folder);
+	return exp(-pf.second);
 }
 
 
 
 ProteinStructureFitness::ProteinStructureFitness( ProteinFolder *protein_folder, int protein_structure_ID, double max_free_energy )
-		: m_protein_folder( protein_folder ),
-		m_protein_structure_ID( protein_structure_ID ),
-		m_max_free_energy( max_free_energy )
+	: m_protein_folder( protein_folder ),
+	  m_protein_structure_ID( protein_structure_ID ),
+	  m_max_free_energy( max_free_energy )
 {
-	m_protein_length = m_protein_folder->getProteinLength();
-	m_residue_sequence = new int[m_protein_length];
 }
 
-
-ProteinStructureFitness::~ProteinStructureFitness()
-{
-	delete [] m_residue_sequence;
+ProteinStructureFitness::~ProteinStructureFitness() {
 }
 
-
-
-
-double ProteinStructureFitness::getFitness( const Genotype &g )
-{
-	Translator t( 0, m_protein_length );
-
-	if ( t.translateErrorFree( g, m_residue_sequence ) )
-	{
-		double Gfolding = m_protein_folder->foldProtein( m_residue_sequence );
-		if ( Gfolding > m_max_free_energy )
-			return 0;
-
-		if ( m_protein_folder->getLastFoldedProteinStructureID() != m_protein_structure_ID )
-			return 0;
-		return 1;
+double ProteinStructureFitness::getFitness( const Gene &g ) {
+	if ( g.encodesFullLength() ) {
+		Protein p = g.translate();
+		return getFitness(p);
 	}
 	else
 		return 0;
+}
+
+double ProteinStructureFitness::getFitness( Protein &p ) {
+	pair<int, double> pf = p.fold(*m_protein_folder);
+	if ( pf.second > m_max_free_energy )
+		return 0;
+
+	if ( pf.first != m_protein_structure_ID )
+		return 0;
+	return 1;
 }
 
 struct greater_pair_first
@@ -198,11 +183,13 @@ ErrorproneTranslation::~ErrorproneTranslation()
 }
 
 
-bool ErrorproneTranslation::sequenceFolds()
+bool ErrorproneTranslation::sequenceFolds(Protein& p)
 {
 	// test if residue sequence folds into correct structure and has correct free energy
-	m_last_free_energy = m_protein_folder->foldProtein( m_residue_sequence );
-	m_last_struct_id = m_protein_folder->getLastFoldedProteinStructureID();
+	pair<int, double> fold_data = p.fold(*m_protein_folder);
+	
+	m_last_free_energy = fold_data.second;
+	m_last_struct_id = fold_data.first;
 
 	if ( m_last_free_energy > m_max_free_energy )
 		return false;  // free energy above cutoff
@@ -256,107 +243,38 @@ double ErrorproneTranslation::calcWeight( int co, int ct )
 	return 0;
 }
 
-double ErrorproneTranslation::calcSensitivity( const Genotype &g )
-{
-	m_last_sensitivity = 0;
-	// store free energy and structure id values, so that function doesn't destroy them
-	double free_energy = m_last_free_energy;
-	int structure_id = m_last_struct_id;
-
-	// go through all positions in the genome
-	for ( int i=0; i<m_protein_length; i++ ) {
-		// go through all possible point mutations
-		// (avoid operator %, which can be very slow)
-		const int res = m_residue_sequence[i];
-		int tempres = res + 1;
-		while ( tempres < 20 ) {
-			double w = m_weight_matrix[g[i]][tempres];
-
-			if ( w > 0 ) {
-				m_residue_sequence[i] = tempres;
-				if ( !sequenceFolds() )
-					m_last_sensitivity += w * ( 1 + (m_ca_cost - 1) * m_codon_cost[g[i]] );
-			}
-			tempres++;
-		}
-
-		tempres = 0;
-		while ( tempres < res ) {
-			double w = m_weight_matrix[g[i]][tempres];
-
-			if ( w > 0 ) {
-				m_residue_sequence[i] = tempres;
-				if ( !sequenceFolds() )
-					m_last_sensitivity += w * ( 1 + (m_ca_cost - 1) * m_codon_cost[g[i]] );
-			}
-			tempres++;
-		}
-		m_residue_sequence[i] = res;
-
-	}
-
-	m_last_sensitivity_no_stop = m_last_sensitivity;
-
-	for ( int i=0; i<m_protein_length; i++ )
-	{
-		// now the stop codons. They always lead to erroneous proteins
-		m_last_sensitivity += m_weight_matrix[g[i]][20]
-				      * ( 1 + (m_ca_cost - 1) * m_codon_cost[g[i]] );
-	}
-
-	// restore free energy and structure id values
-	m_last_free_energy = free_energy;
-	m_last_struct_id = structure_id;
-
-	return m_last_sensitivity;
-}
-
 /**
  * Assays protein encoded by the gene g for folding.  Calls sequenceFolds(), which may
  * be overridden in interesting ways.
  */
-bool ErrorproneTranslation::getFolded( const Genotype &g ) {
-	bool res = false;
-	Translator t( 0, m_protein_length );
-
+bool ErrorproneTranslation::getFolded( const Gene &g ) {
 	// first test if protein translates at all, and if so, if it folds
-	if ( t.translateErrorFree( g, m_residue_sequence ) ) {
-		res = sequenceFolds();
+	bool res = g.encodesFullLength();
+	if ( res ) {
+		Protein p = g.translate();
+		res = sequenceFolds(p);
 	}
 	return res;
 }
 
-double ErrorproneTranslation::getFitness( const Genotype &g ) {
-	if (!getFolded(g)) {
-		return 0.0;
-	}
-
+double ErrorproneTranslation::getFitness( const Gene &g ) {
+	//cout << &g << tab << "begin getFitness" << endl;
+	double fitness = 1.0;
 	if ( m_tr_cost > 0 ) {
 		double ffold, frob, facc, ftrunc;
 		calcOutcomes(g, facc, frob, ftrunc, ffold);
-		return exp( - m_tr_cost * (1-ffold) / ffold );
+		if (ffold > 0.0 ) {
+			fitness = exp( - m_tr_cost * (1-ffold) / ffold );
+		}
+		else {
+			fitness = 0.0;
+		}
 	}
-	else return 1.;
+	//cout << &g << tab << "end getFitness" << endl;
+	return fitness;
 }
 
-double ErrorproneTranslation::getFitnessSensitivity( const Genotype &g ) {
-	Translator t( 0, m_protein_length );
-
-	// first test if protein translates at all, and if so, if it folds
-	if ( t.translateErrorFree( g, m_residue_sequence ) ) {
-		if ( !sequenceFolds() )
-			return 0;
-	}
-	else return 0;
-
-	if ( m_tr_cost > 0 ) {
-		double ffold = 1 - calcSensitivity( g ) * m_error_rate * g.size()/m_error_weight;
-		return exp( - m_tr_cost * (1-ffold) / ffold );
-	}
-	else return 1.;
-}
-
-void ErrorproneTranslation::setTargetAccuracyOfRandomGenes(const Genotype& seed_genotype, const double facc, const int num_equil, const int num_rand) {
+void ErrorproneTranslation::setTargetAccuracyOfRandomGenes(const Gene& seed_genotype, const double facc, const int num_equil, const int num_rand) {
 	// sets m_error_weight and m_accuracy_weight
 	getWeightsForTargetAccuracy(seed_genotype, facc, m_error_rate, m_accuracy_weight, m_error_weight, num_equil, num_rand);
 }
@@ -366,7 +284,8 @@ double ErrorproneTranslation::estimateErrorRateFromAccuracy(const double facc, c
 	return error_rate_estimate;
 }
 
-void ErrorproneTranslation::getWeightsForTargetAccuracy(const Genotype& seed_genotype, const double target_accuracy, double& error_rate, double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand) {
+void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_accuracy, double& error_rate, 
+														double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand) {
 	// Use for this is: we will specify an error rate for translation to match biological observations.  However, that error rate
 	// cannot always hold when accuracy can change.  Therefore we would like to set up the system so that
 	// a random folded sequence (e.g. w/ codons and aa usage constrained by folding only, no translational selection)
@@ -375,7 +294,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Genotype& seed_gen
 	Accumulator random_accuracy_weight; // running average
 	Accumulator random_error_weight; // running average
 
-	Genotype g(seed_genotype);
+	Gene g(seed_genotype);
 	if (!getFolded(g)) {
 		cerr << "# ERROR: getRandomWeights() requires a folded seed_genotype." << endl;
 		return;
@@ -401,7 +320,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Genotype& seed_gen
 				// Compute the weight
 				double acc_weight_total = 0.0;
 				double err_weight_total = 0.0;
-				for ( unsigned int i=0; i<g.size(); i++ ) {
+				for ( unsigned int i=0; i<g.codonLength(); i++ ) {
 					double last_event_prob = 0.0;
 
 					// Compute probability of synonymous error
@@ -439,13 +358,10 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Genotype& seed_gen
 /*
  * Computes the expected value of various translational outcomes from the gene g.
  */
-double ErrorproneTranslation::calcOutcomes( const Genotype &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) {
-	// Assess folding of native sequence.  Important: this also sets up m_residue_sequence appropriately by translating g.
-	bool native_seq_folds = getFolded(g);
-
-	// Store values for native protein.
-	double free_energy = m_last_free_energy;
-	int struct_id = m_last_struct_id;
+double ErrorproneTranslation::calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) {
+	Protein prot = g.translate();
+	// Assess folding of native sequence.
+	bool native_seq_folds = sequenceFolds(prot);
 
 	if (!native_seq_folds) {
 		frac_accurate = pow((1-m_error_rate*m_accuracy_weight/m_error_weight), (double)m_protein_length);
@@ -459,11 +375,11 @@ double ErrorproneTranslation::calcOutcomes( const Genotype &g, double &frac_accu
 	double p_acc = 1.0;
 	double p_fold = 1.0;
 	double p_notrunc = 1.0;
-	double inv_site_error_weight = 1.0/(m_error_weight/g.size());
+	double inv_site_error_weight = 1.0/(m_error_weight/g.codonLength());
 	int codon = -2;
 	// Iterate over all sites
-	for ( int i=0; i<m_protein_length; i++ ) {
-		const int old_res = m_residue_sequence[i];
+	for ( int i=0; i<prot.length(); i++ ) {
+		const int old_res = prot[i];
 		codon = g[i];
 		// Probability of an event at this site
 		double site_weight = 1.0 + m_codon_cost[codon]*(m_ca_cost-1);
@@ -477,18 +393,18 @@ double ErrorproneTranslation::calcOutcomes( const Genotype &g, double &frac_accu
 			// The first member of the pair is a cumulative probability; the second is
 			// the residue resulting from the error.
 			pair<double, int> p = m_cum_weight_matrix[codon][noutcome];
-			m_residue_sequence[i] = p.second;
+			prot[i] = p.second;
 			// Probability of this particular event given an error at this site
 			double p_outcome = (p.first-last_prob);
 			if (p_outcome < 1e-6) { // Ignore really low-probability events
 				break;
 			}
-			bool trunc = (m_residue_sequence[i] < 0); // truncation error.
+			bool trunc = (prot[i] < 0); // truncation error.
 			if (trunc) {
 				p_trunc_site += p_outcome;
 			}
-			if (m_residue_sequence[i] != old_res) { // Change from wildtype sequence
-				if (!trunc && sequenceFolds()) { // Truncated means misfolded
+			if (prot[i] != old_res) { // Change from wildtype sequence
+				if (!trunc && sequenceFolds(prot)) { // Truncated means misfolded
 					p_error_folds += p_outcome;
 				}
 			}
@@ -507,7 +423,7 @@ double ErrorproneTranslation::calcOutcomes( const Genotype &g, double &frac_accu
 		// to be untruncated, have no truncation
 		// p_notrunc = prod_i (1- p_codon_error(i) * p_trunc(i))
 		p_notrunc *= (1.0 - p_codon_error * p_trunc_site);
-		m_residue_sequence[i] = old_res;
+		prot[i] = old_res;
 	}
 
 	// Compute fractions of interest.
@@ -519,10 +435,6 @@ double ErrorproneTranslation::calcOutcomes( const Genotype &g, double &frac_accu
 	}
 	frac_truncated = 1.0 - p_notrunc;
 
-	// Restore values for native protein
-	m_last_free_energy = free_energy;
-	m_last_struct_id = struct_id;
-
 	// Return fitness
 	return exp( - m_tr_cost * (1-frac_folded) / frac_folded );
 }
@@ -532,7 +444,7 @@ double ErrorproneTranslation::calcOutcomes( const Genotype &g, double &frac_accu
  * the error spectrum of this translator.
  * This function assumes the native protein folds.
  */
-double ErrorproneTranslation::countOutcomes( const Genotype &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded) {
+double ErrorproneTranslation::countOutcomes( const Gene &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded) {
 	if (num_to_fold <= 0) {
 		num_truncated = 0;
 		num_accurate = 0;
@@ -541,24 +453,22 @@ double ErrorproneTranslation::countOutcomes( const Genotype &g, const int num_to
 		return (getFolded(g) ? 1.0 : 0.0);
 	}
 	bool native_seq_folds = getFolded(g);
-	// Save these values
-	double free_energy = m_last_free_energy;
-	int struct_id = m_last_struct_id;
 
-	Translator t(m_error_rate, g.size());
+	Translator t(m_error_rate);
+	Protein p = g.translate();
 	int numFolded = 0;
 	int numTrunc = 0;
 	int numMistranslated = 0;
 	for (int i=0; i<num_to_fold; i++) {
 		bool truncated = false;
-		int numErrors = t.translateRelativeWeighted(g, m_residue_sequence, m_error_weight, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
+		int numErrors = t.translateRelativeWeighted(g, p, m_error_weight, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
 		if (truncated) {
 			numTrunc++;
 		}
 		if (numErrors > 0) {
 			numMistranslated++;
 			if (!truncated) {
-				if (sequenceFolds()) {
+				if (sequenceFolds(p)) {
 					numFolded++;
 				}
 			}
@@ -576,10 +486,6 @@ double ErrorproneTranslation::countOutcomes( const Genotype &g, const int num_to
 	num_robust = numFolded - (native_seq_folds ? 1 : 0)*num_accurate;
 	double frac_folded = numFolded/(double)num_to_fold;
 
-	// Restore values
-	m_last_free_energy = free_energy;
-	m_last_struct_id = struct_id;
-
 	// return fitness
 	return exp( - m_tr_cost * (1-frac_folded) / frac_folded );
 }
@@ -590,35 +496,24 @@ double ErrorproneTranslation::countOutcomes( const Genotype &g, const int num_to
  * the error spectrum of this translator.
  * This function assumes the native protein folds.
  */
-void ErrorproneTranslation::stabilityOutcomes( const Genotype &g, const int num_to_fold, vector<double>& ddgs ) {
+void ErrorproneTranslation::stabilityOutcomes( const Gene &g, const int num_to_fold, vector<double>& ddgs ) {
 	getFolded(g);
-	// Save these values
-	double free_energy = m_last_free_energy;
-	int struct_id = m_last_struct_id;
 
-	Translator t(m_error_rate, g.size());
+	Translator t(m_error_rate);
+	Protein p = g.translate();
 	for (int i=0; i<num_to_fold;) {
 		bool truncated = false;
-		int numErrors = t.translateRelativeWeighted(g, m_residue_sequence, m_error_weight, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
+		int numErrors = t.translateRelativeWeighted(g, p, m_error_weight, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
 		// Only record mistranslations that are folded into the correct structure
 		if (numErrors>0 && !truncated) {
-			double dG = m_protein_folder->foldProtein(m_residue_sequence);
-			int sid = m_protein_folder->getLastFoldedProteinStructureID();
-			//if (sid != m_protein_structure_ID) {
-			//	cout << sid << tab << dG << endl;
-			//}
-			if (sid == m_protein_structure_ID) {
-				ddgs.push_back(dG);
+			pair<int,double> fold_data = p.fold(*m_protein_folder);
+			if (fold_data.first == m_protein_structure_ID) {
+				ddgs.push_back(fold_data.second);
 				i++;
 			}
 		}
 	}
-	// Restore values
-	m_last_free_energy = free_energy;
-	m_last_struct_id = struct_id;
 }
-
-
 
 
 void ErrorproneTranslation::setCodonCosts() {
@@ -729,9 +624,9 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 	// Compute fraction accurately translated (facc) for each codon.  Optimal codons
 	// have facc significantly higher than average for the family.
 	int max_reps = 1000;
-	Translator t(0.5,1); // Translator makes errors half the time.
-	int res[1];
-	Genotype g(1);
+	Translator t(0.5); // Translator makes errors half the time.
+	Gene g(3);
+	Protein p(1);
 	bool truncated = false;
 
 	vector<pair<int,int> > family_accuracies(20, pair<int,int>(0,0));  // Overall (accurate,total) pairs for all amino-acid families
@@ -744,7 +639,7 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 			family_degeneracies[aa]++;
 			for (int reps=0; reps<max_reps; reps++) {
 				g[0] = codon;
-				int n_errors = t.translateRelativeWeighted(g, res, m_error_weight/m_protein_length, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
+				int n_errors = t.translateRelativeWeighted(g, p, m_error_weight/m_protein_length, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
 				// Increment totals
 				family_accuracies[aa].second++;
 				codon_accuracies[codon].second++;
@@ -966,19 +861,14 @@ double ErrorproneTranslation::m_codon_cost[64] = {
 
 
 
-AccuracyOnlyTranslation::AccuracyOnlyTranslation() {
-	m_target_sequence = NULL;
+AccuracyOnlyTranslation::AccuracyOnlyTranslation() : m_target_sequence(0) {
 }
 
 AccuracyOnlyTranslation::~AccuracyOnlyTranslation() {
-	delete[] m_target_sequence;
 }
 
 void AccuracyOnlyTranslation::init( ProteinFolder *protein_folder, const int structure_id, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight ) {
-	m_protein_length = protein_folder->getProteinLength();
-	Translator t( 0, m_protein_length );
-	m_target_sequence = new int[m_protein_length];
-
+	m_target_sequence = Protein(protein_folder->getProteinLength());
 	//t.translateErrorFree( target_gene_sequence, m_target_sequence );
 	//m_last_free_energy = protein_folder->foldProtein( m_target_sequence );
 	//m_last_struct_id = protein_folder->getLastFoldedProteinStructureID();
@@ -988,33 +878,23 @@ void AccuracyOnlyTranslation::init( ProteinFolder *protein_folder, const int str
 }
 
 
-bool AccuracyOnlyTranslation::sequenceFolds() {
+bool AccuracyOnlyTranslation::sequenceFolds(Protein& p) {
 	// test if residue sequence is the same as the initialized sequence.
 	//cout << "AOT::sF" << endl;
-	for (int i = 0; i<m_protein_length; i++) {
-		if (m_target_sequence[i] != m_residue_sequence[i]) {
-			return false;
-		}
-	}
-	return true;
+	return m_target_sequence == p;
 }
 
-bool AccuracyOnlyTranslation::getFolded(const Genotype &g) {
-	bool res = false;
-	Translator t( 0, m_protein_length );
-
+bool AccuracyOnlyTranslation::getFolded(const Gene &g) {
+	bool res = g.encodesFullLength();
 	// first test if protein translates at all, and if so, if it folds
-	if ( t.translateErrorFree( g, m_residue_sequence ) ) {
-		res = ErrorproneTranslation::sequenceFolds();
+	if ( res ) {
+		Protein p = g.translate();
+		res = ErrorproneTranslation::sequenceFolds(p);
 	}
 	return res;
 }
 
-double AccuracyOnlyTranslation::getFitness( const Genotype &g ) {
-	Translator t( 0, m_protein_length );
-	// set the new target protein sequence
-	t.translateErrorFree( g, m_target_sequence);
-
+double AccuracyOnlyTranslation::getFitness( const Gene &g ) {
 	// test if protein translates at all, and if so, if it folds
 	if (!getFolded(g)) {
 		return 0.0;
@@ -1046,37 +926,34 @@ void RobustnessOnlyTranslation::init(ProteinFolder *protein_folder, const int pr
 	m_fraction_accurate = 1.0 - pow((1.0 - error_rate), length);
 }
 
-double RobustnessOnlyTranslation::getFitness( const Genotype &g )
+double RobustnessOnlyTranslation::getFitness( const Gene &g )
 {
-	Translator t( 0, m_protein_length );
-
+	double fitness = 0.0;
 	// test if protein translates at all, and if so, if it folds
-	if ( t.translateErrorFree( g, m_residue_sequence ) ) {
-		if ( !ErrorproneTranslation::sequenceFolds() )
-			return 0;
+	if ( g.encodesFullLength() ) {
+		Protein p = g.translate();
+		if ( ErrorproneTranslation::sequenceFolds(p) ) {
+			if ( m_tr_cost > 0 ) {
+				// Actual fraction folded will be (1-m_fraction_mistranslated) [all fold] + m_fraction_mistranslated*nu [neutral point mutations]
+				double nu = GeneUtil::calcNeutrality(*m_protein_folder, p, m_max_free_energy);
+				double ffold = m_fraction_accurate + nu*(1 - m_fraction_accurate);
+				double fitness = exp( - m_tr_cost * (1.0 - ffold) / ffold );
+			}
+			else {
+				fitness = 1.0;
+			}
+		}
 	}
-	else return 0;
-
-	if ( m_tr_cost > 0 ) {
-		// Actual fraction folded will be (1-m_fraction_mistranslated) [all fold] + m_fraction_mistranslated*nu [neutral point mutations]
-		double nu = GenotypeUtil::calcNeutrality(*m_protein_folder, g, m_max_free_energy);
-		double ffold = m_fraction_accurate + nu*(1 - m_fraction_accurate);
-		double fitness = exp( - m_tr_cost * (1.0 - ffold) / ffold );
-		return fitness;
-	}
-	else return 1.;
+	return fitness;
 }
 
 /*
  * Computes the expected value of various translational outcomes from the gene g.
  */
-double RobustnessOnlyTranslation::calcOutcomes( const Genotype &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) {
-	// Assess folding of native sequence.  Important: this also sets up m_residue_sequence appropriately by translating g.
-	bool native_seq_folds = getFolded(g);
-
-	// Store values for native protein.
-	double free_energy = m_last_free_energy;
-	int struct_id = m_last_struct_id;
+double RobustnessOnlyTranslation::calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) {
+	Protein prot = g.translate();
+	// Assess folding of native sequence.
+	bool native_seq_folds = sequenceFolds(prot);
 
 	if (!native_seq_folds) {
 		frac_accurate = m_fraction_accurate;
@@ -1086,7 +963,7 @@ double RobustnessOnlyTranslation::calcOutcomes( const Genotype &g, double &frac_
 		return 0.0;
 	}
 
-	double nu = GenotypeUtil::calcNeutrality(*m_protein_folder, g, m_max_free_energy);
+	double nu = GeneUtil::calcNeutrality(*m_protein_folder, prot, m_max_free_energy);
 	double ffold = m_fraction_accurate + nu*(1 - m_fraction_accurate);
 	double fitness = exp( - m_tr_cost * (1.0 - ffold) / ffold );
 
@@ -1099,10 +976,6 @@ double RobustnessOnlyTranslation::calcOutcomes( const Genotype &g, double &frac_
 	}
 	frac_truncated = 0.0;
 
-	// Restore values for native protein
-	m_last_free_energy = free_energy;
-	m_last_struct_id = struct_id;
-
 	// Return fitness
 	return fitness;
 }
@@ -1112,37 +985,12 @@ double RobustnessOnlyTranslation::calcOutcomes( const Genotype &g, double &frac_
  * the error spectrum of this translator.
  * This is stubbed out in RobustnessOnlyTranslation.
  */
-double RobustnessOnlyTranslation::countOutcomes( const Genotype &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded) {
+double RobustnessOnlyTranslation::countOutcomes( const Gene &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded) {
 	num_truncated = 0;
 	num_accurate = 0;
 	num_folded = 0;
 	num_robust = 0;
 	return 0.0;
-}
-
-StabilityConstraint::StabilityConstraint() {
-}
-
-StabilityConstraint::~StabilityConstraint() {
-}
-
-void StabilityConstraint::init( ProteinFolder *protein_folder, const int protein_structure_ID, const double max_free_energy, const double min_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight ) {
-	m_min_free_energy = min_free_energy;
-	ErrorproneTranslation::init( protein_folder, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight );
-}
-
-bool StabilityConstraint::sequenceFolds() {
-	// test if residue sequence folds into correct structure and has correct free energy
-	m_last_free_energy = m_protein_folder->foldProtein( m_residue_sequence );
-	m_last_struct_id = m_protein_folder->getLastFoldedProteinStructureID();
-
-	if ( m_last_free_energy > m_max_free_energy || m_last_free_energy < m_min_free_energy )
-		return false;  // free energy above or below cutoff
-
-	if ( m_last_struct_id != m_protein_structure_ID )
-		return false; // sequence folds into the wrong structure
-
-	return true;
 }
 
 NeutralFitness::NeutralFitness()
@@ -1176,29 +1024,3 @@ double fixation_probability(int N, double s) {
 	return res;
 }
 
-
-double FitnessDensityEvaluator::getFitnessDensity(const Genotype& gene, FitnessEvaluator& fe, unsigned int pop_size) const {
-	// Compute fraction of point mutations with fitness advantage < 0.
-	Genotype g(gene);
-	double wildtype_fitness = fe.getFitness(g);
-	double sum = 0.0;
-	int count = 0;
-	for (unsigned int pos=0; pos<g.size(); pos++) {
-		for (unsigned int codon=0; codon<64; codon++) {
-			unsigned int old_codon = g[pos];
-			if (codon != old_codon && CodonUtil::isPointMutant(old_codon, codon) && GeneticCodeUtil::geneticCode[codon] > 0) {
-				g[pos] = codon;
-				double mutant_fitness = fe.getFitness(g);
-				double s = (mutant_fitness/wildtype_fitness - 1.0);
-				count++;
-				if (s < 0.0) {
-					sum += 1.0;
-				}
-				g[pos] = old_codon;
-			}
-		}
-	}
-	// This call is necessary because getFitness may perturb the FitnessEvaluator (e.g. in AccuracyOnlyTranslation)
-	fe.getFitness(gene);
-	return sum/count;
-}

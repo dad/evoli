@@ -1,7 +1,7 @@
 ## Makefile.am
 
-SUBDIRS = folder driver utils test
+SUBDIRS = src driver utils test
 
-MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure \
+MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure configure.scan autoscan.log \
 	config/missing config/depcomp config/install-sh
 

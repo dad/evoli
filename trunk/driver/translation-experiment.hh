@@ -3,7 +3,7 @@
 #include "population.hh"
 #include "translator.hh"
 #include "tools.hh"
-#include "genotype-util.hh"
+#include "gene-util.hh"
 
 #include <cmath>
 #include <cstdio>
@@ -64,7 +64,7 @@ public:
 
 ostream & operator<<( ostream &s, const Parameters &p );
 
-int getStructureID( ProteinFolder &b, const Genotype &g );
+int getStructureID( ProteinFolder &b, const Gene &g );
 bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
 		     double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f,
 		     double &ave_fop );

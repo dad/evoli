@@ -3,74 +3,57 @@
 
 #include "tools.hh"
 #include "genetic-code.hh"
+#include "protein.hh"
 
 
-Translator::Translator( double mutation_prob, int length )
-		: m_mutation_prob( mutation_prob ), m_L( length )
+Translator::Translator( double mutation_prob)
+		: m_mutation_prob( mutation_prob )
 {}
 
-Translator::Translator( int length )
-		: m_mutation_prob( 0 ), m_L( length )
+Translator::Translator()
+		: m_mutation_prob( 0 )
 {}
 
-bool Translator::translateErrorFree( const Genotype &g, int *residue_sequence )
-{
-	bool result = true;
+bool Translator::translateErrorFree( const Gene &g, Protein& residue_sequence ) const {
+	bool no_stop = true;
 
-	for ( int i=0; i<m_L; i++ )
-	{
-		int residue = GeneticCodeUtil::geneticCode[g[i]];
-		if ( residue < 0 )
-		{
-			result = false;
-			break;
-		}
-		else
-		{
-			residue_sequence[i] = residue;
-		}
+	int i = 0;
+	for ( Gene::const_iterator it = g.begin(); it != g.end() && no_stop; it++ )	{
+		int residue = GeneticCodeUtil::geneticCode[*it];
+		no_stop = (residue >= 0 );
+		residue_sequence[i++] = residue;
 	}
-
-	return result;
-
+	return no_stop;
 }
 
-bool Translator::translate( const Genotype &g, int *residue_sequence ) {
+bool Translator::translate( const Gene &g, Protein& residue_sequence ) const {
 	if ( m_mutation_prob == 0 )
 		return translateErrorFree( g, residue_sequence );
 
-	bool result = true;
+	bool no_stop = true;
 
-	for ( int i=0; i<m_L; i++ ) {
-		int residue = GeneticCodeUtil::geneticCode[g[i]];
-		if ( residue < 0 ) {
-			result = false;
-			break;
-		}
-		else {
-			if ( myRand() < m_mutation_prob )
-				residue = ( residue
-					    + (int) (20*myRand() )) % 20;
-			residue_sequence[i] = residue;
-		}
+	int i = 0;
+	for ( Gene::const_iterator it = g.begin(); it != g.end() && no_stop; it++ )	{
+		int residue = GeneticCodeUtil::geneticCode[*it];
+		no_stop = (residue >= 0 );
+		if ( myRand() < m_mutation_prob )
+			residue = ( residue + (int) (20*myRand() )) % 20;
+		residue_sequence[i++] = residue;
 	}
-
-	return result;
-
-
+	return no_stop;
 }
 
-int Translator::translateWeighted( const Genotype &g, int *residue_sequence, const vector<vector<pair<double, int> > >& weights,
-	const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated)
+int Translator::translateWeighted( const Gene &g, Protein& residue_sequence, const vector<vector<pair<double, int> > >& weights,
+									       const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated)
 {
 	double mut_weight_total = 0.0;
-	for ( unsigned int i=0; i<g.size(); i++ ) {
-		mut_weight_total += (1.0 + prefCodons[g[i]]*(nonPrefCodonPenalty-1));
+	for ( Gene::const_iterator it = g.begin(); it != g.end(); it++ )	{
+		mut_weight_total += (1.0 + prefCodons[*it]*(nonPrefCodonPenalty-1));
 	}
 
 	truncated = false;
 	int numErrors = 0;
-	for ( int i=0; i<m_L && !truncated; i++ ) {
+	for ( int i=0; i<g.codonLength() && !truncated; i++) {
 		int residue = GeneticCodeUtil::geneticCode[g[i]];
 		residue_sequence[i] = residue;
 
@@ -78,7 +61,7 @@ int Translator::translateWeighted( const Genotype &g, int *residue_sequence, con
 			truncated = true;
 		}
 		else {
-			double threshold = m_mutation_prob*(1.0 + prefCodons[g[i]]*(nonPrefCodonPenalty-1))/(mut_weight_total/g.size());
+			double threshold = m_mutation_prob*(1.0 + prefCodons[g[i]]*(nonPrefCodonPenalty-1))/(mut_weight_total/g.codonLength());
 			double rand = myRand();
 			if ( rand < threshold ) {
 				// Weight the outcomes of a missense substitution.
@@ -103,15 +86,16 @@ int Translator::translateWeighted( const Genotype &g, int *residue_sequence, con
 	return numErrors;
 }
 
-int Translator::translateRelativeWeighted( const Genotype &g, int *residue_sequence, const double relative_gene_weight,
-	const vector<vector<pair<double, int> > >& weights,	const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated)
+int Translator::translateRelativeWeighted( const Gene &g, Protein& residue_sequence, const double relative_gene_weight,
+										   const vector<vector<pair<double, int> > >& weights, const double* prefCodons, 
+										   const double nonPrefCodonPenalty, bool& truncated)
 {
 	truncated = false;
 	int numErrors = 0;
 	// Hopefully, relative_gene_weight is tabulated in a reasonable way.  If there are no accuracy
 	// differences between codons, relative_gene_weight should be equal to the number of codons g.size().
-	double relative_site_weight = g.size()/relative_gene_weight;
-	for ( int i=0; i<m_L && !truncated; i++ ) {
+	double relative_site_weight = g.codonLength()/relative_gene_weight;
+	for ( int i=0; i<g.codonLength() && !truncated; i++) {
 		int residue = GeneticCodeUtil::geneticCode[g[i]];
 		residue_sequence[i] = residue;
 

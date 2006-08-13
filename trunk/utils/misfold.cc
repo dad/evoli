@@ -3,7 +3,7 @@
 #include "population.hh"
 #include "translator.hh"
 #include "tools.hh"
-#include "genotype-util.hh"
+#include "gene-util.hh"
 
 #include <cmath>
 #include <cstdio>
@@ -46,7 +46,7 @@ struct RunRecord
 	double cost;
 	string cost_id;
 	int runNumber;
-	Genotype gene;
+	Gene gene;
 };
 
 ostream& operator<<(ostream& os, const RunRecord& rec) {
@@ -114,20 +114,13 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	return s;
 }
 
-int getStructureID( ProteinFolder &b, const Genotype &g )
-{
-	int l = b.getProteinLength();
-	Translator t( 0, l );
-	int *seq = new int[l];
-
-	if ( t.translateErrorFree( g, seq ) )
-	{
-		b.foldProtein( seq );
-		return b.getLastFoldedProteinStructureID();
+int getStructureID( ProteinFolder &b, const Gene &g ) {
+	if ( g.encodesFullLength() ) {
+		Protein p = g.translate();
+		return p.fold(b).first;
 	}
 	else
 		return -1;
-	delete [] seq;
 }
 
 void misfoldDistExperiment(Parameters& p)
@@ -143,7 +136,6 @@ void misfoldDistExperiment(Parameters& p)
 	ProteinFolder folder(size);
 	folder.enumerateStructures();
 	FitnessEvaluator *feG = new ProteinFreeEnergyFitness(&folder);
-	FitnessDensityEvaluator fde;
 
 	// Read the results.
 	vector<RunRecord> runResults;
@@ -155,7 +147,7 @@ void misfoldDistExperiment(Parameters& p)
 	while (!fin.eof()) {
 		RunRecord rec;
 		fin >> rec.cost_id >> rec.runNumber >> rec.gene;
-		if (rec.gene.size() > 0) {
+		if (rec.gene.length() > 0) {
 			rec.cost = pow(10.0,atof(rec.cost_id.c_str()));
 			runResults.push_back(rec);
 			cout << rec;
@@ -206,11 +198,6 @@ void misfoldDistExperiment(Parameters& p)
 				rob->init( &folder, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate );
 				fe = rob;
 			}
-			else if (p.eval_type == "con") {
-				StabilityConstraint* sc = new StabilityConstraint();
-				sc->init( &folder, p.structure_ID, p.free_energy_cutoff, p.free_energy_minimum, rec.cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
-				fe = sc;
-			}
 			if (!fe) {
 				cerr << "ERROR: unknown fitness evaluator type '" << p.eval_type << "'.  Exiting..." << endl;
 				exit(1);
@@ -220,7 +207,7 @@ void misfoldDistExperiment(Parameters& p)
 
 		printCodonReport = false;
 
-		double fop = GenotypeUtil::calcFop( rec.gene, isOptimal);
+		double fop = GeneUtil::calcFop( rec.gene, isOptimal);
 		double dG = -log(feG->getFitness(rec.gene));
 
 		int numAccurate = 0;
@@ -238,7 +225,8 @@ void misfoldDistExperiment(Parameters& p)
 		double cffold, cfacc, cfrob, cftrunc;
 		double fitness = fe->calcOutcomes(rec.gene, cfacc, cfrob, cftrunc, cffold);
 		double fitnessDensity = -1; //fde.getFitnessDensity(rec.gene, *fe, p.N);
-		double nu = GenotypeUtil::calcNeutrality( folder, rec.gene, p.free_energy_cutoff );
+		Protein prot = rec.gene.translate();
+		double nu = GeneUtil::calcNeutrality( folder, prot, p.free_energy_cutoff );
 
 		// Compute fraction robust for codon-randomized genes.
 		vector<double> randrobs;
@@ -248,7 +236,7 @@ void misfoldDistExperiment(Parameters& p)
 		//cout << "\n*";
 		//GenotypeUtil::printProtein(cout, rec.gene);
 		while (ri < max_rand_trials) {
-			Genotype rg = GenotypeUtil::randomizeCodons(rec.gene);
+			Gene rg = GeneUtil::randomizeCodons(rec.gene);
 			double rfitness = fe->calcOutcomes(rg, rfacc, rfrob, rftrunc, rffold);
 			if (rfitness > 0) {
 				//cout << rg << tab << rfrob << endl;
