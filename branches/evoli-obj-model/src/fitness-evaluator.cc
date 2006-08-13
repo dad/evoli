@@ -621,7 +621,7 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 	// have facc significantly higher than average for the family.
 	int max_reps = 1000;
 	Translator t(0.5); // Translator makes errors half the time.
-	Gene g(1);
+	Gene g(3);
 	Protein p(1);
 	bool truncated = false;
 
