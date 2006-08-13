@@ -1,58 +1,61 @@
 #ifndef FITNESS_EVALUATOR_HH
 #define FITNESS_EVALUATOR_HH
 
-#include "genotype.hh"
+#include "protein.hh"
 
 class ProteinFolder;
 
-class FitnessEvaluator
-{
+class FitnessEvaluator {
 private:
-
-        FitnessEvaluator( const FitnessEvaluator & );
-        FitnessEvaluator& operator=( const FitnessEvaluator & );
+	FitnessEvaluator( const FitnessEvaluator & );
+	FitnessEvaluator& operator=( const FitnessEvaluator & );
 public:
-        FitnessEvaluator();
-        virtual ~FitnessEvaluator();
+	FitnessEvaluator();
+	virtual ~FitnessEvaluator();
 
-        virtual double getFitness( const Genotype & ) = 0;
-
+	virtual double getFitness( const Gene & ) = 0;
+	virtual double getFitness( Protein & ) = 0;
 };
 
 
-
-class ProteinFreeEnergyFitness : public FitnessEvaluator
-{
+class ProteinFreeEnergyFitness : public FitnessEvaluator {
 private:
-        ProteinFolder *m_protein_folder;
-        int m_protein_length;
-        int *m_residue_sequence;
-
+	ProteinFolder *m_protein_folder;
 public:
-        ProteinFreeEnergyFitness( ProteinFolder *protein_folder );
-        ~ProteinFreeEnergyFitness();
+	ProteinFreeEnergyFitness( ProteinFolder *protein_folder );
+	~ProteinFreeEnergyFitness();
 
-        double getFitness( const Genotype &g );
-
-
+	double getFitness( const Gene &g );
+	double getFitness( Protein &p );
 };
 
 
-class ProteinStructureFitness : public FitnessEvaluator
-{
+class ProteinStructureFitness : public FitnessEvaluator {
 private:
-        ProteinFolder *m_protein_folder;
-        int m_protein_structure_ID;
-        double m_max_free_energy;
-
-        int m_protein_length;
-        int *m_residue_sequence;
+	ProteinFolder *m_protein_folder;
+	int m_protein_structure_ID;
+	double m_max_free_energy;
 
 public:
-        ProteinStructureFitness( ProteinFolder *protein_folder, int protein_structure_ID, double max_free_energy );
-        ~ProteinStructureFitness();
+	ProteinStructureFitness( ProteinFolder *protein_folder, int protein_structure_ID, double max_free_energy );
+	~ProteinStructureFitness();
 
-        double getFitness( const Genotype &g );
+	double getFitness( const Gene &g );
+	double getFitness( Protein &p );
+};
+
+
+class NeutralFitness : public FitnessEvaluator {
+public:
+	NeutralFitness();
+	~NeutralFitness();
+
+	double getFitness( const Gene & ) {
+		return 1;
+	}
+	double getFitness( Protein & ) {
+		return 1;
+	}
 };
 
 class Accumulator {
@@ -100,13 +103,12 @@ protected:
 	vector<vector<pair<double, int> > > m_cum_weight_matrix;
 
 	double calcWeight( int co, int ct );
-	double calcSensitivity( const Genotype &g );
-	virtual bool sequenceFolds();
+	virtual bool sequenceFolds(Protein& p);
 
 	/**
 	 * Compute the translational accuracy-related gene weights of a large set of random genotypes encoding folded proteins.
 	 */
-	void setRandomWeights(const Genotype& seed_genotype, const int num_equil=5000, const int num_rand=1000);
+	void setRandomWeights(const Gene& seed_genotype, const int num_equil=5000, const int num_rand=1000);
 
 public:
 	ErrorproneTranslation();
@@ -119,10 +121,9 @@ public:
 		m_last_free_energy = 999;
 	}
 
-	double getFitnessSensitivity( const Genotype &g );
-
-	double getFitness( const Genotype &g );
-	virtual bool getFolded( const Genotype &g );
+	double getFitness( const Gene &g );
+	double getFitness( Protein& p ) { return getFitness( p.reverseTranslate() ); }
+	virtual bool getFolded( const Gene &g );
 
 	/**
 	 * Set costs for codons.  For example, may want to have variation in codon costs
@@ -137,8 +138,9 @@ public:
 	/**
 	 * Compute the per-site error rate estimated to achieve the desired fraction accurate over a large set of random (unselected) genotypes encoding folded proteins.
 	 */
-	void getWeightsForTargetAccuracy(const Genotype& seed_genotype, const double target_accuracy, double& error_rate, double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand);
-	void setTargetAccuracyOfRandomGenes(const Genotype& seed_genotype, const double facc, const int num_equil, const int num_rand);
+	void getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_accuracy, double& error_rate, 
+									 double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand);
+	void setTargetAccuracyOfRandomGenes(const Gene& seed_genotype, const double facc, const int num_equil, const int num_rand);
 	void setErrorRate(const double error_rate) { m_error_rate = error_rate; }
 	void setErrorWeights(const double error_rate, const double accuracy_weight, const double error_weight) {
 		m_error_rate = error_rate;
@@ -156,19 +158,19 @@ public:
 	 * spectrum of this FitnessEvaluator.
 	 * Returns the estimated fitness.
 	 */
-	virtual double calcOutcomes( const Genotype &g, double &frac_accurate, double &frac_robust, double& frac_truncated, double &frac_folded );
+	virtual double calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double& frac_truncated, double &frac_folded );
 
 	/**
 	 * Record the actual fractions accurately translated, folded despite mistranslation, truncated and folded, using the error
 	 * spectrum of this FitnessEvaluator, by translating num_to_fold proteins.
 	 * Returns the estimated fitness that would result.
 	 */
-	virtual double countOutcomes(const Genotype &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
+	virtual double countOutcomes(const Gene &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
 
 	/**
 	 * Record stabilities of mistranslated proteins.
 	 */
-	virtual void stabilityOutcomes( const Genotype &g, const int num_to_fold, vector<double>& ddgs );
+	virtual void stabilityOutcomes( const Gene &g, const int num_to_fold, vector<double>& ddgs );
 
 	/**
 	 * Returns the translational error probability per codon.
@@ -229,8 +231,8 @@ public:
 
 class AccuracyOnlyTranslation : public ErrorproneTranslation {
 protected:
-	int* m_target_sequence;
-	bool sequenceFolds();
+	Protein m_target_sequence;
+	bool sequenceFolds(Protein& p);
 
 public:
 	AccuracyOnlyTranslation();
@@ -238,8 +240,8 @@ public:
 
 	void init( ProteinFolder *protein_folder, const int target_structure_id, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
-	double getFitness( const Genotype &g );
-	bool getFolded( const Genotype &g );
+	double getFitness( const Gene &g );
+	bool getFolded( const Gene &g );
 };
 
 /**
@@ -257,62 +259,22 @@ public:
 
 	void init( ProteinFolder *protein_folder, const int protein_structure_ID, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate );
-	double getFitness( const Genotype &g );
+	double getFitness( const Gene &g );
 	/**
 	 * Compute the estimated fractions accurately translated, folded despite mistranslation, truncated and folded, using the error
 	 * spectrum of this FitnessEvaluator.
 	 * Returns the estimated fitness.
 	 */
-	virtual double calcOutcomes( const Genotype &g, double &frac_accurate, double &frac_robust, double& frac_truncated, double &frac_folded );
+	virtual double calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double& frac_truncated, double &frac_folded );
 
 	/**
 	 * Record the actual fractions accurately translated, folded despite mistranslation, truncated and folded, using the error
 	 * spectrum of this FitnessEvaluator, by translating num_to_fold proteins.
 	 * Returns the estimated fitness that would result.
 	 */
-	virtual double countOutcomes(const Genotype &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
-};
-
-/**
- * StabilityConstraint implements a case where translation is error-prone and any
- * mistranslation leading to a protein with stability above or below certain cutoffs incurs a cost.
- */
-
-class StabilityConstraint : public ErrorproneTranslation {
-protected:
-	double m_min_free_energy;
-	bool sequenceFolds();
-
-public:
-	StabilityConstraint();
-	virtual ~StabilityConstraint();
-
-	void init( ProteinFolder *protein_folder, const int protein_structure_ID, const double max_free_energy,
-		const double min_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
-};
-
-
-class NeutralFitness : public FitnessEvaluator {
-public:
-	NeutralFitness();
-	~NeutralFitness();
-
-	double getFitness( const Genotype & ) {
-			return 1;
-	}
+	virtual double countOutcomes(const Gene &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
 };
 
 double fixation_probability(int N, double s);
-
-
-class FitnessDensityEvaluator {
-public:
-	FitnessDensityEvaluator() {}
-	~FitnessDensityEvaluator() {}
-	double getFitnessDensity(const Genotype& g, FitnessEvaluator& fe, unsigned int pop_size) const;
-	//double getFitnessDensityNonsyn(const Genotype& g, FitnessEvaluator& fe, unsigned int pop_size) const;
-	//double getFitnessDensitySyn(const Genotype& g, FitnessEvaluator& fe, unsigned int pop_size) const;
-};
-
 
 #endif

@@ -6,7 +6,7 @@ MAINTAINERCLEANFILES += *.cutee.cc runtest.cc
 
 ## Cutee unit testing directives
 # your test files here
-test_files = t.genotype.h
+test_files = t.protein.h
 
 noinst_PROGRAMS = cutee runtest
 

@@ -2,7 +2,7 @@
 #define POPULATION_HH
 
 #include "tools.hh"
-#include "genotype.hh"
+#include "protein.hh"
 
 #include <map>
 
@@ -16,7 +16,7 @@ class FitnessEvaluator;
 class GenebankEntry
 {
 private:
-        const Genotype m_genotype; // the stored genotype
+        const Gene m_genotype; // the stored genotype
         const double m_fitness; // the fitness of this genotype
         GenebankEntry *const m_parent; // the parent genotype
         const int m_id; // genotype id
@@ -29,7 +29,7 @@ private:
         GenebankEntry( const GenebankEntry & g );
         const GenebankEntry & operator=( const GenebankEntry &g );
 public:
-        GenebankEntry( const Genotype &genotype, double fitness, GenebankEntry* parent, int id, int birthTime ) :
+        GenebankEntry( const Gene &genotype, double fitness, GenebankEntry* parent, int id, int birthTime ) :
                         m_genotype( genotype ), m_fitness( fitness ),
                         m_parent( parent ),
                         m_id( id ), m_birthTime( birthTime ), m_count( 1 ),
@@ -67,7 +67,7 @@ public:
         {
                 return m_birthTime;
         }
-        const Genotype & getGenotype() const
+        const Gene & getGenotype() const
         {
                 return m_genotype;
         }
@@ -120,7 +120,7 @@ public:
          * Creates a new genotype with the given characteristics. The genotype
          * does not need to be added.
          **/
-        GenebankEntry* createGenotype( const Genotype &g, double fitness, GenebankEntry* parent, int birthTime );
+        GenebankEntry* createGenotype( const Gene &g, double fitness, GenebankEntry* parent, int birthTime );
 
         /**
          * Reliably finds the last coalescent genotype if the given genotype is from
@@ -171,7 +171,7 @@ public:
          * Initializes the population with the given genotype and sets
          * the mutation rate to U.
          **/
-        void init( const Genotype &g, FitnessEvaluator *fe, double U );
+        void init( const Gene &g, FitnessEvaluator *fe, double U );
 
         /**
          * Create a new offspring based on a given one, with the correct
@@ -271,7 +271,7 @@ public:
         {
                 return m_pop[m_buffer] + m_N;
         }
-	const Genotype& operator[](int i) const {
+	const Gene& operator[](int i) const {
 		return (*(m_pop[m_buffer] + i))->getGenotype();
 	}
 

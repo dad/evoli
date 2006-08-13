@@ -1,6 +1,6 @@
 #include "protein-folder.hh"
 #include "translator.hh"
-#include "genotype-util.hh"
+#include "gene-util.hh"
 #include "tools.hh"
 
 #include <fstream>
@@ -49,114 +49,21 @@ Parameters getParams( int ac, char **av )
 // finds a random sequence with folding energy smaller than cutoff.
 void getSequence( ProteinFolder &b, const Parameters &p, ostream &s )
 {
-	// find a random sequence with folding energy smaller than cutoff
-	double G;
-	int id;
-	Genotype g, g2;
-	pair<double, int> fdata;
-	bool found = false;
-
-	g = GenotypeUtil::createRandomGenotypeNoStops( b.getProteinLength() );
-	fdata = GenotypeUtil::translateAndFold(b,g);
-
-	G = fdata.first;
-	id = fdata.second;
-	int fail_count = 0;
-
-	do	{
-//		 cout << "# " << fail_count << " " << G << " " << id << endl;
-		g2 = g;
-		bool changed = false;
-		do {
-			changed = GenotypeUtil::mutateGenotype( g2, 0.02 );
-		} while (!changed);
-		fdata = GenotypeUtil::translateAndFold( b, g2 );
-		if ( fdata.first < G && fdata.second >= 0 ) {
-			g = g2;
-			G = fdata.first;
-			id = fdata.second;
-			fail_count = 0;
-		}
-		else {
-			fail_count++;
-		}
-
-		if ( fail_count > 50000 )
-		{ // start again with random genotype if search is not successful after 30000 iterations
-			found = false;
-			g = GenotypeUtil::createRandomGenotypeNoStops( b.getProteinLength() );
-			fdata = GenotypeUtil::translateAndFold( b, g );
-			G = fdata.first;
-			id = fdata.second;
-			fail_count = 0;
-		}
-	}
-	while( G > p.free_energy_cutoff );
-
-	s << g << " " << G << " " << id << " " << GenotypeUtil::calcNeutrality( b, g, p.free_energy_cutoff ) << endl;
+	Gene g = Gene::getSequence(b, p.free_energy_cutoff);
+	Protein prot = g.translate();
+	pair<int,double> fdata = prot.fold(b);
+	s << g << " " << fdata.second << " " << fdata.first << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
+	  << endl;
 }
 
 // finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 void getSequenceTargeted( ProteinFolder &b, const Parameters &p, const int struct_id, ostream &s )
 {
-	// find a random sequence with folding energy smaller than cutoff
-	double G;
-	Genotype g, g2;
-	pair<double, int> fdata;
-	bool found = false;
-	Translator t(0, b.getProteinLength());
-	int *seq = new int[b.getProteinLength()];
-	double min_free_energy_for_starting = max(0.0, p.free_energy_cutoff);
-	double eps = 1e-4;
-
-	// find sequence that encodes our target
-	do	{
-		g = GenotypeUtil::createRandomGenotypeNoStops( b.getProteinLength() );
-		found = t.translateErrorFree(g, seq) && b.isFoldedBelowThreshold(seq, struct_id, min_free_energy_for_starting);
-	}
-	while ( !found );
-
-	int fail_count = 0;
-	int total_fail_count = 0;
-	G = fdata.first;
-
-	do {
-		// cout << "# " << fail_count << " " << G << " " << endl;
-		g2 = g;
-		bool changed = false;
-		do {
-			changed = GenotypeUtil::mutateGenotype( g2, 0.02 );
-		} while (!changed);
-
-		if (t.translateErrorFree(g2, seq) && b.isFoldedBelowThreshold(seq, struct_id, G-eps)) {
-			g = g2;
-			G = b.foldProtein(seq);
-			fail_count = 0;
-		}
-		else {
-			fail_count++;
-			total_fail_count++;
-		}
-
-		if ( fail_count > 50000 || total_fail_count > 1e6 )
-		{ // start again with random genotype if search is not successful after some # of iterations
-			found = false;
-			do  {
-				g = GenotypeUtil::createRandomGenotypeNoStops( b.getProteinLength() );
-				found = t.translateErrorFree(g, seq) && b.isFoldedBelowThreshold(seq, struct_id, min_free_energy_for_starting);
-			}
-			while ( !found );
-			G = fdata.first;
-			fail_count = 0;
-			total_fail_count = 0;
-		}
-	}
-	while( G > p.free_energy_cutoff );
-
-	fdata = GenotypeUtil::translateAndFold( b, g);
-	s << g << " " << fdata.first << " " << fdata.second << " " << GenotypeUtil::calcNeutrality( b, g, p.free_energy_cutoff )
+	Gene g = Gene::getSequenceForStructure(b, p.free_energy_cutoff, struct_id);
+	Protein prot = g.translate();
+	pair<int,double> fdata = prot.fold(b);
+	s << g << " " << fdata.second << " " << fdata.first << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
 	  << endl;
-	delete [] seq;
 }
 
 int main( int ac, char **av)

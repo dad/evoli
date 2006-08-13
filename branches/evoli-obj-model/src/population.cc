@@ -1,5 +1,5 @@
 #include "population.hh"
-#include "genotype-util.hh"
+#include "gene-util.hh"
 #include "fitness-evaluator.hh"
 
 #include <iostream>
@@ -47,7 +47,7 @@ void Genebank::removeGenotype( GenebankEntry *g )
         }
 }
 
-GenebankEntry* Genebank::createGenotype( const Genotype &g, double fitness, GenebankEntry* parent, int birthTime )
+GenebankEntry* Genebank::createGenotype( const Gene &g, double fitness, GenebankEntry* parent, int birthTime )
 {
         GenebankEntry *e = new GenebankEntry( g, fitness, parent, m_maxId, birthTime );
         m_genotypeMap[m_maxId] = e;
@@ -148,7 +148,7 @@ Population::~Population()
 }
 
 
-void Population::init( const Genotype &g, FitnessEvaluator *fe, double U )
+void Population::init( const Gene &g, FitnessEvaluator *fe, double U )
 {
         m_U = U;
         m_time = 0;
@@ -176,9 +176,9 @@ void Population::init( const Genotype &g, FitnessEvaluator *fe, double U )
 
 GenebankEntry* Population::createOffspring( GenebankEntry* e )
 {
-        Genotype g = e->getGenotype();
+        Gene g = e->getGenotype();
 
-        bool mutated = GenotypeUtil::mutateGenotype( g, m_U );
+        bool mutated = g.mutate( m_U );
         if ( !mutated )
         {
                 m_genebank.addGenotype( e );
@@ -362,9 +362,9 @@ bool Population::analyzeDnDs( int window_size, double &ave_dn, double &ave_ds, d
         int b_time = e->getBirthTime();
         double f = e->getFitness();
         //double fop = GenotypeUtil::calcFop( e->getGenotype(), codon_costs );
-        double fop = GenotypeUtil::calcFop( e->getGenotype(), is_optimal );
-        double sites = GenotypeUtil::calcTotalSites( e->getGenotype() );
-        double syn_sites = GenotypeUtil::calcSynonymousSites( e->getGenotype() );
+        double fop = GeneUtil::calcFop( e->getGenotype(), is_optimal );
+        double sites = GeneUtil::calcTotalSites( e->getGenotype() );
+        double syn_sites = GeneUtil::calcSynonymousSites( e->getGenotype() );
         double nsyn_sites = sites - syn_sites;
         for ( int i=b_time+1; i<end_time + 1; i++ )
         {
@@ -389,12 +389,12 @@ bool Population::analyzeDnDs( int window_size, double &ave_dn, double &ave_ds, d
                         break;
                 b_time = e2->getBirthTime();
                 f = e2->getFitness();
-                fop = GenotypeUtil::calcFop( e->getGenotype(), is_optimal );
-                sites = GenotypeUtil::calcTotalSites( e2->getGenotype() );
-                syn_sites = GenotypeUtil::calcSynonymousSites( e2->getGenotype() );
+                fop = GeneUtil::calcFop( e->getGenotype(), is_optimal );
+                sites = GeneUtil::calcTotalSites( e2->getGenotype() );
+                syn_sites = GeneUtil::calcSynonymousSites( e2->getGenotype() );
                 nsyn_sites = sites - syn_sites;
                 double dn, ds;
-                GenotypeUtil::calcDnDs( dn, ds, e2->getGenotype(), e->getGenotype() );
+                GeneUtil::calcDnDs( dn, ds, e2->getGenotype(), e->getGenotype() );
 
                 // and record
                 dn_vect[last_b_time] = dn;

@@ -1,5 +1,5 @@
 #include "protein-folder.hh"
-#include "genotype-util.hh"
+#include "gene-util.hh"
 
 #include <fstream>
 #include <sstream>
@@ -34,22 +34,19 @@ main( int ac, char **av) {
 	ProteinFolder b(size);
 	b.enumerateStructures();
 
-	Genotype g;
 	unsigned int buflen = 500;
 	char buf[buflen];
 	do {
 		in.getline(buf, buflen);
 		string s = buf;
 		if (s[0] != '#' && trim(s) != "") { // Skip comments
-			stringstream ss(buf);
-			ss >> g;
+			Gene g(s);
 			// first, get structure
-			pair<double, int> fp = GenotypeUtil::translateAndFold( b, g );
+			Protein p = g.translate();
+			pair<int, double> fp = p.fold(b);
 			// then, print
-			cout << "Sequence encodes ";
-			GenotypeUtil::printProtein(cout, g);
-			cout << endl << "Structure " << fp.second << ": " << endl;
-			b.printStructure( fp.second );
+			cout << "Sequence encodes: " << p << endl << "Structure " << fp.first << ": " << endl;
+			b.printStructure( fp.first, cout, "" );
 		}
 	} while (!in.eof());
 }
