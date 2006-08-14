@@ -32,6 +32,17 @@ Protein::Protein(const Protein& p) : Sequence(p.m_sequence) {
 	m_modified = p.m_modified;
 }
 
+Protein::Protein(const string& seq_string) : Sequence(0) {
+	stringstream s(seq_string);
+	string seq;
+	s >> seq;
+
+	m_sequence.clear();
+	for (int i=0; i<seq.size(); i++) {
+		m_sequence.push_back( GeneticCodeUtil::letter_to_residue_map[seq[i]] );
+	}
+}
+
 int Protein::distance(const Protein& p) const {
 	int diffs = 0;
 	Protein::const_iterator qit = this->begin();

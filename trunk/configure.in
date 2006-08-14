@@ -18,6 +18,7 @@ AC_PROG_RANLIB
 
 # Checks for header files.
 AC_CHECK_HEADERS(iostream sstream fstream)
+AC_CHECK_HEADERS(Python.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -28,5 +29,6 @@ AC_C_INLINE
 AC_FUNC_ERROR_AT_LINE
 AC_CHECK_FUNCS([pow sqrt])
 
-AC_CONFIG_FILES([Makefile src/Makefile driver/Makefile utils/Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile driver/Makefile utils/Makefile test/Makefile
+						  python/Makefile])
 AC_OUTPUT

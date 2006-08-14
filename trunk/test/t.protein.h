@@ -51,6 +51,17 @@ struct TEST_CLASS( genotype_basic )
 		TEST_ASSERT( g.codonLength() == p.length() );
 		return;
 	}
+	void TEST_FUNCTION( protein_from_string )
+	{
+		Gene g = Gene::createRandomNoStops(gene_length);
+		Protein p = g.translate();
+		string s = p.toString();
+		Protein p2(s);
+		cout << p << endl;
+		cout << p2 << endl;
+		TEST_ASSERT( p2 == p );
+		return;
+	}
 };
 
 

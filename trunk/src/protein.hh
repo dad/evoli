@@ -52,10 +52,10 @@ private:
 
 	Protein();
 protected:
-
 public:
 	Protein(const int length);
 	Protein(const Protein& p);
+	Protein(const string& s);
 	~Protein() {}
 
 	pair<int, double> fold(const ProteinFolder& folder);

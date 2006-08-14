@@ -3,6 +3,36 @@
 #include <vector>
 #include <ostream>
 
+
+
+pair<const char, int> letterResidues[21] =
+{
+	pair<char, int>('*', -1),
+	pair<char, int>('C', 0),
+	pair<char, int>('M', 1),
+	pair<char, int>('F', 2),
+	pair<char, int>('I', 3),
+	pair<char, int>('L', 4),
+	pair<char, int>('V', 5),
+	pair<char, int>('W', 6),
+	pair<char, int>('Y', 7),
+	pair<char, int>('A', 8),
+	pair<char, int>('G', 9),
+	pair<char, int>('T', 10),
+	pair<char, int>('S', 11),
+	pair<char, int>('Q', 12),
+	pair<char, int>('N', 13),
+	pair<char, int>('E', 14),
+	pair<char, int>('D', 15),
+	pair<char, int>('H', 16),
+	pair<char, int>('R', 17),
+	pair<char, int>('K', 18),
+	pair<char, int>('P', 19)
+
+};
+
+map<const char, int, less<const char> > GeneticCodeUtil::letter_to_residue_map(letterResidues, letterResidues+sizeof(letterResidues)/sizeof(letterResidues[0]));
+
 // this is the mapping from integer to residue that we use
 const char *GeneticCodeUtil::residues[20] =
 	{
@@ -121,6 +151,8 @@ const int GeneticCodeUtil::geneticCode[64] =
 		4,  // UUG -> LEU 62
 		2   // UUU -> PHE 63
 	};
+
+
 
 const int GeneticCodeUtil::residueToAllCodonsTable[20][7] =
 	{ // first number is number of codons, then followed by actual codons, and finished off with -1.
