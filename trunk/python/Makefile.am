@@ -2,7 +2,7 @@
 
 include $(top_srcdir)/config/Make-rules
 
-MAINTAINERCLEANFILES += build Makefile.in
+MAINTAINERCLEANFILES += Makefile.in build/
 
 all: $(top_builddir)/src/libfolder.a
 	python setup.py install
