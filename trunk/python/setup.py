@@ -4,7 +4,7 @@ import os
 folder = Extension('folder',
 				   sources = ['foldermodule.cc'],
 				   include_dirs = ['../src/'],
-				   libraries = ['protein-folder.o','protein.o','genetic-code.o','translator.o'],
+				   libraries = ['folder'],
 				   library_dirs = ['../src/'])
 
 setup (name = 'Folder',
