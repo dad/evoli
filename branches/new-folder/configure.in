@@ -1,0 +1,35 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+
+AC_INIT([evoli], [0.1], [dadrummond@gmail.com])
+AC_CONFIG_AUX_DIR([config])
+AC_CONFIG_SRCDIR([src/folder/protein-folder.cc])
+AM_INIT_AUTOMAKE([1.9 foreign])
+
+AC_LANG_CPLUSPLUS
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_RANLIB
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_CHECK_HEADERS(iostream sstream fstream)
+AC_CHECK_HEADERS(Python.h)
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_CONST
+AC_C_INLINE
+
+# Checks for library functions.
+AC_FUNC_ERROR_AT_LINE
+AC_CHECK_FUNCS([pow sqrt])
+
+AC_CONFIG_FILES([Makefile src/Makefile src/driver/Makefile src/folder/Makefile
+				src/evolver/Makefile src/python/Makefile src/utils/Makefile
+				doc/Makefile test/Makefile])
+AC_OUTPUT
