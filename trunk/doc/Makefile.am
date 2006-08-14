@@ -1,7 +1,9 @@
 ## Makefile.am
 
+if BUILD_APIDOC
 all:
 	doxygen Doxyfile
+endif
 
 clean:
 	rm -rf html
