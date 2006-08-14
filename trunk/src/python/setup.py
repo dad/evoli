@@ -3,9 +3,9 @@ import os
 
 folder = Extension('folder',
 				   sources = ['foldermodule.cc'],
-				   include_dirs = ['../src/'],
+				   include_dirs = ['../folder'],
 				   libraries = ['folder'],
-				   library_dirs = ['../src/'])
+				   library_dirs = ['../folder'])
 
 setup (name = 'Folder',
 	          version = '0.1',

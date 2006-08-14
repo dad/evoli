@@ -1,6 +1,7 @@
 ## Makefile.am
 
 include $(top_srcdir)/config/Make-rules
+INCLUDES = -I$(top_srcdir)/src/folder/ -I$(top_srcdir)/src/evolver/
 
 MAINTAINERCLEANFILES += *.cutee.cc runtest.cc
 
@@ -12,7 +13,7 @@ noinst_PROGRAMS = cutee runtest
 
 cutee_SOURCES = cutee.cc cutee.h
 
-runtest_LDADD = $(top_builddir)/src/libevolver.a
+runtest_LDADD = $(top_builddir)/src/evolver/libevolver.a $(top_builddir)/src/folder/libfolder.a
 
 autocutee.mk: cutee Makefile.am $(test_files)
 	$(CUTEE) -k -o autocutee.mk $(test_files)

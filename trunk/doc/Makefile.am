@@ -1,6 +1,6 @@
 ## Makefile.am
-.PHONY: apidoc
-apidoc:
+
+all:
 	doxygen Doxyfile
 
 clean:
