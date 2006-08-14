@@ -17,3 +17,7 @@ For a quick test of some components:
 For unit tests:
 	test/runtest
 
+To use Python bindings:
+	cd python
+	make
+	python ../test/folder-test.py

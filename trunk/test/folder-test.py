@@ -1,16 +1,22 @@
 #! /usr/local/bin/python
 
-import sys, os, math, string
-sys.path = [os.path.expanduser("~/research/lib")]+sys.path
+import random
+# Import the module
 import folder
-import translate
 
-folder.init(5)
-for line in file(os.path.expanduser("~/research/trsim/analysis/trs599ca6-genes.txt"), 'r').readlines()[2:]:
-	flds = line.strip().split()
-	gene = flds[2]
-	prot = translate.Translate(gene)
+# The 20 canonical amino acids
+aas = 'ACDEFGHIKLMNPQRSTVWY'
+# Initialize the protein folder -- very important!
+# side_length refers to the protein.  E.g., in the 5x5
+# model, side_length=5.
+side_length = 5
+folder.init(side_length)
+
+for i in range(100):
+	# Create a random polypeptide
+	prot = ''.join([random.choice(aas) for i in range(side_length*side_length)])
+	# Fold it and retrieve its lowest-free-energy conformation, sid, and its
+	# free energy of folding, dg.
 	(sid, dg) = folder.foldProtein(prot)
-	print sid, dg, prot
-	
-
+	# Print them out
+	print "%d\t%1.3f\t%s" % (sid, dg, prot)
