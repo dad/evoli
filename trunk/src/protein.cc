@@ -194,13 +194,13 @@ Gene Gene::createRandomNoStops(const int length ) {
 }
 
 bool Gene::encodesFullLength(void) const {
-	bool no_stop = true;
+	bool full_length = (length() % 3)==0;
 	Gene::const_iterator it = begin();
-	while (it != end() && no_stop) {
-		no_stop = (GeneticCodeUtil::geneticCode[*it] >= 0);
+	while (it != end() && full_length) {
+		full_length = (GeneticCodeUtil::geneticCode[*it] >= 0);
 		it++;
 	}
-	return no_stop;
+	return full_length;
 }
 
 bool Gene::mutate(const double prob) {

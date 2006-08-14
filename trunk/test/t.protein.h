@@ -13,7 +13,7 @@ struct TEST_CLASS( genotype_basic )
 		TEST_ASSERT( g.length()==gene_length );
 		return;
 	}
-	void TEST_FUNCTION( reverse_translate_test )
+	void TEST_FUNCTION( reverse_translate )
 	{
 		Gene g = Gene::createRandomNoStops(gene_length);
 		Protein p = g.translate();
@@ -21,8 +21,15 @@ struct TEST_CLASS( genotype_basic )
 		TEST_ASSERT( p == p2 );
 		return;
 	}
-
-	void TEST_FUNCTION( translate_test1 )
+	void TEST_FUNCTION( gene_string_gene )
+	{
+		Gene g = Gene::createRandom(gene_length);
+		string str(g.toString());
+		Gene g2(str);
+		TEST_ASSERT( g == g2 );
+		return;
+	}
+	void TEST_FUNCTION( translate_known )
 	{
 		Gene g("ATGTGGGGG");
 		Protein p = g.translate();
@@ -57,8 +64,6 @@ struct TEST_CLASS( genotype_basic )
 		Protein p = g.translate();
 		string s = p.toString();
 		Protein p2(s);
-		cout << p << endl;
-		cout << p2 << endl;
 		TEST_ASSERT( p2 == p );
 		return;
 	}
