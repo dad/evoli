@@ -2,7 +2,15 @@
 
 include $(top_srcdir)/config/Make-rules
 
-lib_LIBRARIES = libfolder.a libevolver.a
+all: $(top_builddir)/src/libfolder.a
+	python setup.py build
 
-libfolder_a_SOURCES = genetic-code.cc translator.cc protein-folder.cc protein.cc
-libevolver_a_SOURCES = fitness-evaluator.cc population.cc genetic-code.cc translator.cc protein-folder.cc protein.cc
+install: $(top_builddir)/src/libfolder.a
+	python setup.py install
+
+clean:
+	rm -rf build
+
+maintainer-clean: clean
+
+
