@@ -23,7 +23,7 @@ private:
 	ProteinFolder *m_protein_folder;
 public:
 	ProteinFreeEnergyFitness( ProteinFolder *protein_folder );
-	~ProteinFreeEnergyFitness();
+	virtual ~ProteinFreeEnergyFitness();
 
 	double getFitness( const Gene &g );
 	double getFitness( Protein &p );
@@ -38,7 +38,7 @@ private:
 
 public:
 	ProteinStructureFitness( ProteinFolder *protein_folder, int protein_structure_ID, double max_free_energy );
-	~ProteinStructureFitness();
+	virtual ~ProteinStructureFitness();
 
 	double getFitness( const Gene &g );
 	double getFitness( Protein &p );
@@ -48,7 +48,7 @@ public:
 class NeutralFitness : public FitnessEvaluator {
 public:
 	NeutralFitness();
-	~NeutralFitness();
+	virtual ~NeutralFitness();
 
 	double getFitness( const Gene & ) {
 		return 1;
@@ -89,7 +89,6 @@ protected:
 
 	int m_protein_structure_ID;
 	int m_protein_length;
-	int *m_residue_sequence;
 
 	int m_last_struct_id;
 	double m_last_free_energy;

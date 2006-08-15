@@ -178,7 +178,6 @@ void ErrorproneTranslation::init( ProteinFolder *protein_folder, const int lengt
 
 ErrorproneTranslation::~ErrorproneTranslation()
 {
-	delete [] m_residue_sequence;
 }
 
 
