@@ -7,6 +7,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 {
 	s << "# Parameters:" << endl;
 	s << "#   evaluation type: " << p.eval_type << endl;
+	s << "#   protein length: " << p.protein_length << endl;
 	s << "#   structure id: " << p.structure_ID << endl;
 	s << "#   free energy maximum: " << p.free_energy_cutoff << endl;
 	s << "#   free energy minimum: " << p.free_energy_minimum << endl;
