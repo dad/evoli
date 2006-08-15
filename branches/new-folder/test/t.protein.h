@@ -3,7 +3,7 @@
 #include "cutee.h"
 #include "protein.hh"
 
-struct TEST_CLASS( genotype_basic )
+struct TEST_CLASS( protein_gene_basic )
 {
 	const static int side_length = 5;
 	const static int gene_length = side_length*side_length*3;
@@ -70,5 +70,4 @@ struct TEST_CLASS( genotype_basic )
 };
 
 
-#endif //_T_GENOTYPE_H__
-
+#endif //_T_PROTEIN_H__

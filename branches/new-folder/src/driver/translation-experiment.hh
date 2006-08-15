@@ -15,6 +15,7 @@
 class Parameters {
 public:
 	string eval_type;
+	unsigned int protein_length;
 	double free_energy_cutoff;
 	double free_energy_minimum;
 	double u;
@@ -33,15 +34,16 @@ public:
 	bool valid;
 
 	Parameters( int ac, char **av ) {
-		if ( ac != 16 )	{
+		if ( ac != 17 )	{
 			valid = false;
 			cout << "Start program like this:" << endl;
-			cout << "\t" << av[0] << " <eval type> <pop size> <log10 tr cost> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <mutation rate> <window time> <equilibration time> <repetitions> <random seed>" << endl;
+			cout << "\t" << av[0] << " <eval type> <prot length> <pop size> <log10 tr cost> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <mutation rate> <window time> <equilibration time> <repetitions> <random seed>" << endl;
 			return;
 		}
 
 		int i = 1;
 		eval_type = av[i++];
+		protein_length = atoi( av[i++] );
 		N = atoi( av[i++] );
 		tr_cost_str = av[i++];
 		tr_cost = pow(10.0,atof( tr_cost_str.c_str() ));

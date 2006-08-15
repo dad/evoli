@@ -1,4 +1,4 @@
-#include "protein-folder.hh"
+#include "compact-lattice-folder.hh"
 #include "translator.hh"
 #include "gene-util.hh"
 #include "tools.hh"
@@ -8,6 +8,7 @@
 
 struct Parameters
 {
+	int protein_length;
 	double free_energy_cutoff;
 	int repetitions;
 	int random_seed;
@@ -18,6 +19,7 @@ struct Parameters
 ostream & operator<<( ostream &s, const Parameters &p )
 {
 	s << "# Parameters:" << endl;
+	s << "#   protein length: " << p.protein_length << endl;
 	s << "#   free energy cutoff: " << p.free_energy_cutoff << endl;
 	s << "#   repetitions: " << p.repetitions << endl;
 	s << "#   random seed: " << p.random_seed << endl;
@@ -28,15 +30,16 @@ ostream & operator<<( ostream &s, const Parameters &p )
 
 Parameters getParams( int ac, char **av )
 {
-	if ( ac != 5 )
+	if ( ac != 6 )
 	{
 		cout << "Start program like this:" << endl;
-		cout << "  " << av[0] << " <free_energy_cutoff> <repetitions> <random seed> [<struct id>|-1]" << endl;
+		cout << "  " << av[0] << " <prot length> <free_energy_cutoff> <repetitions> <random seed> [<struct id>|-1]" << endl;
 		exit (-1);
 	}
 
 	Parameters p;
 	int i = 1;
+	p.protein_length = atoi( av[i++] );
 	p.free_energy_cutoff = atof( av[i++] );
 	p.repetitions = atoi( av[i++] );
 	p.random_seed = atoi( av[i++] );
@@ -49,20 +52,20 @@ Parameters getParams( int ac, char **av )
 // finds a random sequence with folding energy smaller than cutoff.
 void getSequence( ProteinFolder &b, const Parameters &p, ostream &s )
 {
-	Gene g = Gene::getSequence(b, p.free_energy_cutoff);
+	Gene g = Gene::getSequence(b, p.protein_length, p.free_energy_cutoff);
 	Protein prot = g.translate();
-	pair<int,double> fdata = prot.fold(b);
-	s << g << " " << fdata.second << " " << fdata.first << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
+	FoldInfo fdata = prot.fold(b);
+	s << g << " " << fdata.getFreeEnergy() << " " << fdata.getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
 	  << endl;
 }
 
 // finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 void getSequenceTargeted( ProteinFolder &b, const Parameters &p, const int struct_id, ostream &s )
 {
-	Gene g = Gene::getSequenceForStructure(b, p.free_energy_cutoff, struct_id);
+	Gene g = Gene::getSequenceForStructure(b, p.protein_length, p.free_energy_cutoff, struct_id);
 	Protein prot = g.translate();
-	pair<int,double> fdata = prot.fold(b);
-	s << g << " " << fdata.second << " " << fdata.first << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
+	FoldInfo fdata = prot.fold(b);
+	s << g << " " << fdata.getFreeEnergy() << " " << fdata.getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
 	  << endl;
 }
 
@@ -73,11 +76,9 @@ int main( int ac, char **av)
 	// set random seed
 	srand48( p.random_seed );
 
-	// size of the lattice proteins is hardcoded
-	const int size = 5;
-
+	int side_length = (int)(sqrt(p.protein_length));
 	// initialize the protein folder
-	ProteinFolder b(size);
+	CompactLatticeFolder b(side_length);
 	b.enumerateStructures();
 
 	cout << p;

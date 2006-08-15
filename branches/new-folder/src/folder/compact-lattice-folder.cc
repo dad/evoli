@@ -1,4 +1,4 @@
-#include "protein-folder.hh"
+#include "compact-lattice-folder.hh"
 #include "genetic-code.hh"
 
 #include <cassert>
@@ -536,7 +536,7 @@ void SelfAvoidingWalk::getStructure( char * d ) const
 }
 
 
-ProteinFolder::ProteinFolder( int size )
+CompactLatticeFolder::CompactLatticeFolder( int size )
 	: m_size( size ), m_num_structures( 0 ), m_num_folded( 0 )
 {
 	if ( m_size > 15 )
@@ -551,7 +551,7 @@ ProteinFolder::ProteinFolder( int size )
 	m_ss_struct2 = new char[3*m_size*m_size];
 }
 
-ProteinFolder::~ProteinFolder()
+CompactLatticeFolder::~CompactLatticeFolder()
 {
 	delete [] m_ffw_struct;
 	delete [] m_ss_struct;
@@ -563,7 +563,7 @@ ProteinFolder::~ProteinFolder()
 		delete (*it);
 }
 
-void ProteinFolder::findFillingWalks( SelfAvoidingWalk &w, int &moves )
+void CompactLatticeFolder::findFillingWalks( SelfAvoidingWalk &w, int &moves )
 {
 	if ( w.length() == w.maxLength() )
 	{
@@ -595,7 +595,7 @@ void ProteinFolder::findFillingWalks( SelfAvoidingWalk &w, int &moves )
 }
 
 
-bool ProteinFolder::findStructure( const char *s )
+bool CompactLatticeFolder::findStructure( const char *s )
 {
 	//  cout << "Searching for structure:" << endl;
 	//StructureUtil::drawStructure( s, m_size );
@@ -610,7 +610,7 @@ bool ProteinFolder::findStructure( const char *s )
 }
 
 
-void ProteinFolder::storeStructure( const char *s )
+void CompactLatticeFolder::storeStructure( const char *s )
 {
 	//  cout << "Searching for structure:" << endl;
 	//  StructureUtil::drawStructure( s, m_size );
@@ -679,7 +679,7 @@ void ProteinFolder::storeStructure( const char *s )
 
 
 
-void ProteinFolder::enumerateStructures()
+void CompactLatticeFolder::enumerateStructures()
 {
 	if ( m_num_structures > 0 )
 	{
@@ -745,7 +745,7 @@ void ProteinFolder::enumerateStructures()
 //	 cout << "#Total number of potentially interacting pairs: " << count << endl;
 }
 
-double ProteinFolder::foldProtein( const Protein& p) const
+FoldInfo CompactLatticeFolder::foldProtein( Protein& p)
 {
 	assert( m_num_structures > 0 );
 
@@ -809,12 +809,12 @@ double ProteinFolder::foldProtein( const Protein& p) const
 	// increment folded count
 	m_num_folded += 1;
 
-	return G;
+	return FoldInfo(G, minIndex);
 }
 
 
-//inline double ProteinFolder::getEnergy(const int *p, const int structID) const {
-inline double ProteinFolder::getEnergy(const Protein& p, const int structID) const {
+//inline double CompactLatticeFolder::getEnergy(const int *p, const int structID) const {
+inline double CompactLatticeFolder::getEnergy(const Protein& p, const int structID) const {
 	const vector<pair<int,int> > &pair_list = m_structures[structID]->getInteractingPairs();
 	vector<pair<int,int> >::const_iterator it=pair_list.begin();
 	double E = 0.0;
@@ -825,8 +825,8 @@ inline double ProteinFolder::getEnergy(const Protein& p, const int structID) con
 	return E;
 }
 
-//void ProteinFolder::getMinMaxPartitionContributions(const int *p, const int ci, double& cmin, double& cmax) const {
-void ProteinFolder::getMinMaxPartitionContributions(const Protein& p, const int ci, double& cmin, double& cmax) const {
+//void CompactLatticeFolder::getMinMaxPartitionContributions(const int *p, const int ci, double& cmin, double& cmax) const {
+void CompactLatticeFolder::getMinMaxPartitionContributions(const Protein& p, const int ci, double& cmin, double& cmax) const {
 	double kT = 0.6;
 	double min_cont = 1e5;
 	double max_cont = -1e5;
@@ -848,8 +848,8 @@ void ProteinFolder::getMinMaxPartitionContributions(const Protein& p, const int 
 	//cout << cmin << tab << cmax << tab << num_contacts << endl;
 }
 
-//bool ProteinFolder::isFoldedBelowThreshold( const int *p, const int structID, double cutoff) const
-bool ProteinFolder::isFoldedBelowThreshold( const Protein& p, const int structID, double cutoff) const
+//bool CompactLatticeFolder::isFoldedBelowThreshold( const int *p, const int structID, double cutoff) const
+bool CompactLatticeFolder::isFoldedBelowThreshold( const Protein& p, const int structID, double cutoff) const
 {
 	assert( m_num_structures > 0 );
 
@@ -904,7 +904,7 @@ bool ProteinFolder::isFoldedBelowThreshold( const Protein& p, const int structID
 	return (G <= cutoff);
 }
 
-void ProteinFolder::printContactEnergyTable( ostream &s ) const
+void CompactLatticeFolder::printContactEnergyTable( ostream &s ) const
 {
 	s << "Contact energies:" << endl;
 	s << "      ";
@@ -924,7 +924,7 @@ void ProteinFolder::printContactEnergyTable( ostream &s ) const
 	}
 }
 
-void ProteinFolder::printStructure( int id, ostream& os, const char* prefix ) const
+void CompactLatticeFolder::printStructure( int id, ostream& os, const char* prefix ) const
 {
 	if ( id < 0 || id >= m_num_structures )
 		return;
@@ -936,7 +936,7 @@ void ProteinFolder::printStructure( int id, ostream& os, const char* prefix ) co
 // with a Favorable Contact Pair Term and an Unfavorable High Packing Density Term,
 // for Simulation and Threading. J. Mol. Biol. (1996) 256:623-644
 // Table III upper triangle, values e_{ij}.
-const double ProteinFolder::contactEnergies[20][20] =
+const double CompactLatticeFolder::contactEnergies[20][20] =
 	{
 		// CYS
 		{-5.44, -4.99, -5.80, -5.50, -5.83, -4.96, -4.95, -4.16, -3.57, -3.16, -3.11, -2.86, -2.59, -2.85, -2.41, -2.27, -3.60, -2.57, -1.95, -3.07},
@@ -989,7 +989,7 @@ const double ProteinFolder::contactEnergies[20][20] =
 // structures: Quasi-chemical approximation. Macromolecules 18:534-552
 // (1985).
 //Table V, values e_{ij}.
-const double ProteinFolder::contactEnergies[20][20] =
+const double CompactLatticeFolder::contactEnergies[20][20] =
 	{
 		// CYS
 		{ -5.44, -5.05, -5.63, -5.03, -5.03, -4.46, -4.76, -3.89, -3.38, -3.16, -2.88, -2.86, -2.73, -2.59, -2.08, -2.66, -3.63, -2.70, -1.54, -2.92 },
@@ -1034,7 +1034,7 @@ const double ProteinFolder::contactEnergies[20][20] =
 	};
 
 // Table VI, values e_{ij}+e_{rr}-e_{ir}-e_{jr}
-const double ProteinFolder::contactEnergies[20][20] =
+const double CompactLatticeFolder::contactEnergies[20][20] =
       {
 	      // CYS
 	      { -1.06,  0.19, -0.23,  0.16, -0.08,  0.06,  0.08,  0.04,  0.00, -0.08,  0.19, -0.02,  0.05,  0.13,  0.69,  0.03, -0.19,  0.24,  0.71,  0.00 },
