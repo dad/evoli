@@ -107,7 +107,7 @@ bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
 
 	ProteinFolder& folder = *(fe->getFolder());
 	// Find a sequence.
-	Gene g = Gene::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
+	Gene g = Gene::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
 	s << "# Starting genotype: " << g << endl;
 	// we fill the population with the genotype that we found above
 	pop.init( g, fe, p.u );

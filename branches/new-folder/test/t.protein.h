@@ -74,7 +74,7 @@ struct TEST_CLASS( protein_gene_basic )
 		folder->enumerateStructures();
 		double max_dg = -5;
 		double sid = 574;
-		Gene g = Gene::getSequenceForStructure(*folder, gene_length/3, max_dg, sid);
+		Gene g = Gene::getSequenceForStructure(*folder, gene_length, max_dg, sid);
 		Protein p = g.translate();
 		FoldInfo fi = p.fold(*folder);
 		TEST_ASSERT( fi.getFreeEnergy() <= max_dg );

@@ -230,14 +230,14 @@ Gene Gene::getSequenceForStructure( ProteinFolder &b, unsigned int length, doubl
 {
 	// find a random sequence with folding energy smaller than cutoff
 	double G;
-	Gene g(length*3);
+	Gene g(length);
 	FoldInfo fdata;
 	bool found = false;
 	double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
 
 	// find sequence that encodes the desired structure
 	do {
-		g = Gene::createRandomNoStops( length*3 );
+		g = Gene::createRandomNoStops( length );
 		//cout << g << endl;
 		Protein p = g.translate();
 		//cout << p << endl;
@@ -279,7 +279,7 @@ Gene Gene::getSequenceForStructure( ProteinFolder &b, unsigned int length, doubl
 		if ( fail_count > 50000 || total_fail_count > 1e6 )	{
 			found = false;
 			do {
-				g = Gene::createRandomNoStops( length*3 );
+				g = Gene::createRandomNoStops( length );
 				Protein p = g.translate();
 				fdata = p.fold(b);
 				found = (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= min_free_energy_for_starting);
@@ -297,14 +297,14 @@ Gene Gene::getSequence( ProteinFolder &b, unsigned int length, double free_energ
 {
 	// find a random sequence with folding energy smaller than cutoff
 	double G;
-	Gene g(length*3);
+	Gene g(length);
 	FoldInfo fdata;
 	bool found = false;
 	double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
 
 	// find sequence that encodes the desired structure
 	do {
-		g = Gene::createRandomNoStops( length*3 );
+		g = Gene::createRandomNoStops( length );
 		//cout << g << endl;
 		Protein p = g.translate();
 		//cout << p << endl;
@@ -346,7 +346,7 @@ Gene Gene::getSequence( ProteinFolder &b, unsigned int length, double free_energ
 		if ( fail_count > 50000 || total_fail_count > 1e6 )	{
 			found = false;
 			do {
-				g = Gene::createRandomNoStops( length*3 );
+				g = Gene::createRandomNoStops( length );
 				Protein p = g.translate();
 				fdata = p.fold(b);
 				found = (fdata.getFreeEnergy() <= min_free_energy_for_starting);
