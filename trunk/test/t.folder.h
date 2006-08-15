@@ -10,7 +10,6 @@ struct TEST_CLASS( folder_basic )
 {
 	const static int side_length = 5;
 	const static int gene_length = side_length*side_length*3;
-	const static double myeps = 1e-2;
 	void TEST_FUNCTION( init_lattice )
 	{
 		ProteinFolder* folder = new CompactLatticeFolder(side_length);
