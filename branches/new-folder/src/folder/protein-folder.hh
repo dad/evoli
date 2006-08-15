@@ -10,6 +10,18 @@ class Protein;
 using namespace std;
 typedef int StructureID;
 
+typedef pair<int,int> Contact;
+
+/**
+ * Stores a contact structure: a list of contacts.
+ **/
+class ContactStructure {
+private:
+protected:
+public:
+	virtual const vector<Contact>& getContacts() const = 0;
+};
+
 class FoldInfo {
 private:
 	double m_free_energy;

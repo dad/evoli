@@ -16,25 +16,28 @@ using namespace __gnu_cxx;
 
 using namespace std;
 
-class Structure
+class LatticeStructure : public ContactStructure
 {
 private:
 	int m_size;
 	char *m_structure;
-	vector<pair<int,int> > m_interacting_pairs;
+	vector<Contact> m_interacting_pairs;
 
 	void calcInteractingPairs();
-	const Structure & operator=( const Structure & );
+	const LatticeStructure & operator=( const LatticeStructure & );
 public:
-	Structure();
-	Structure( const Structure & );
-	Structure( const char *structure, int size );
-	~Structure();
+	LatticeStructure();
+	LatticeStructure( const LatticeStructure & );
+	LatticeStructure( const char *structure, int size );
+	~LatticeStructure();
 
 	char * getStructure() const	{
 		return m_structure;
 	}
-	const vector<pair<int,int> >& getInteractingPairs() const {
+	const vector<Contact>& getInteractingPairs() const {
+		return m_interacting_pairs;
+	}
+	const vector<Contact>& getContacts() const {
 		return m_interacting_pairs;
 	}
 
@@ -153,7 +156,7 @@ private:
 	mutable int m_num_folded;
 
 	int m_num_structures; // total number of structures
-	vector<Structure *> m_structures; // list of all potential structures
+	vector<LatticeStructure *> m_structures; // list of all potential structures
 	StructureMap m_structure_map; // lookup table for structures
 	mutable int m_last_folded_structure; // the id of the structure into which the last protein folded
 
@@ -193,7 +196,7 @@ public:
 		return m_structures[id]->getSurface();
 	}
 
-	Structure* getStructure(const int id) const {
+	LatticeStructure* getStructure(const int id) const {
 		return m_structures[id];
 	}
 	unsigned int getNumFolded() {

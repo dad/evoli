@@ -10,11 +10,11 @@
 #define CHARS_PER_SITE 2
 
 
-Structure::Structure()
+LatticeStructure::LatticeStructure()
 		: m_size(0), m_structure(0)
 {}
 
-Structure::Structure( const char *structure, int size )
+LatticeStructure::LatticeStructure( const char *structure, int size )
 		: m_size(size), m_structure(0)
 {
 	m_structure = new char[3*size*size];
@@ -22,7 +22,7 @@ Structure::Structure( const char *structure, int size )
 	calcInteractingPairs();
 }
 
-Structure::Structure( const Structure &rhs )
+LatticeStructure::LatticeStructure( const LatticeStructure &rhs )
 		: m_size(rhs.m_size), m_structure(0)
 {
 	m_structure = new char[3*m_size*m_size];
@@ -30,7 +30,7 @@ Structure::Structure( const Structure &rhs )
 	calcInteractingPairs();
 }
 
-void Structure::calcInteractingPairs()
+void LatticeStructure::calcInteractingPairs()
 {
 	m_interacting_pairs.clear();
 
@@ -47,13 +47,13 @@ void Structure::calcInteractingPairs()
 }
 
 
-Structure::~Structure()
+LatticeStructure::~LatticeStructure()
 {
 	delete [] m_structure;
 }
 
 
-vector<int> Structure::getSurface() const
+vector<int> LatticeStructure::getSurface() const
 {
 	int l = m_size*m_size;
 	vector<int> v;
@@ -77,7 +77,7 @@ vector<int> Structure::getSurface() const
 	return v;
 }
 
-void Structure::draw(ostream& os, const char* prefix) const
+void LatticeStructure::draw(ostream& os, const char* prefix) const
 {
 	StructureUtil::drawStructure( os, m_structure, m_size, prefix );
 	vector<pair<int,int> >::const_iterator it,e;
@@ -557,7 +557,7 @@ CompactLatticeFolder::~CompactLatticeFolder()
 	delete [] m_ss_struct;
 	delete [] m_ss_struct2;
 
-	vector<Structure *>::iterator it = m_structures.begin();
+	vector<LatticeStructure *>::iterator it = m_structures.begin();
 
 	for ( ; it != m_structures.end(); it++ )
 		delete (*it);
@@ -671,7 +671,7 @@ void CompactLatticeFolder::storeStructure( const char *s )
 	//  cout << "Structure does not exist yet." << endl;
 	//  cout << "Adding structure no "<< m_num_structures << endl;
 
-	Structure *structure = new Structure( s, m_size );
+	LatticeStructure *structure = new LatticeStructure( s, m_size );
 
 	m_structures.push_back( structure );
 	m_structure_map[structure->getStructure()]=m_num_structures++;
@@ -710,7 +710,7 @@ void CompactLatticeFolder::enumerateStructures()
 		pairs[i].resize(m_size*m_size);
 	}
 
-	vector<Structure *>::const_iterator it = m_structures.begin();
+	vector<LatticeStructure *>::const_iterator it = m_structures.begin();
 	for ( ; it!=m_structures.end(); it++ )
 	{
 		//(*it)->draw();
@@ -775,8 +775,7 @@ FoldInfo CompactLatticeFolder::foldProtein( Protein& p)
 		//    m_structures[i]->draw();
 
 		// calculate binding energy of this fold
-		const vector<pair<int,int> > &pair_list
-		= m_structures[i]->getInteractingPairs();
+		const vector<Contact> &pair_list = m_structures[i]->getInteractingPairs();
 		vector<pair<int,int> >::const_iterator it=pair_list.begin();
 		for ( ; it!=pair_list.end(); it++ )
 		{
