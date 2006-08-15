@@ -1,4 +1,5 @@
 #include "translation-experiment.hh"
+#include "compact-lattice-folder.hh"
 #include <sstream>
 
 
@@ -6,6 +7,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 {
 	s << "# Parameters:" << endl;
 	s << "#   evaluation type: " << p.eval_type << endl;
+	s << "#   protein length: " << p.protein_length << endl;
 	s << "#   structure id: " << p.structure_ID << endl;
 	s << "#   free energy maximum: " << p.free_energy_cutoff << endl;
 	s << "#   free energy minimum: " << p.free_energy_minimum << endl;
@@ -25,13 +27,13 @@ ostream & operator<<( ostream &s, const Parameters &p )
 }
 
 
-int getStructureID( ProteinFolder &b, const Gene &g ) {
+StructureID getStructureID( ProteinFolder &b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
-		return p.fold(b).first;
+		return p.fold(b).getStructure();
 	}
 	else
-		return -1;
+		return (StructureID)-1;
 }
 
 void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
@@ -47,7 +49,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 
 	Population pop( p.N );
 	ProteinFolder& folder = *(fe.getFolder());
-	Gene g = Gene::getSequenceForStructure(folder, p.free_energy_cutoff, p.structure_ID);
+	Gene g = Gene::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
 	pop.init(g, &fe, p.u);
 
 	vector<bool> is_optimal = fe.getOptimalCodons();
@@ -72,8 +74,8 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 			double dG = 0;
 			if (folded) {
 				Protein p = g.translate();
-				pair<int,double> fold_data = p.fold(folder);
-				dG = fold_data.second;
+				FoldInfo fold_data = p.fold(folder);
+				dG = fold_data.getFreeEnergy();
 			}
 			double facc, frob, ftrunc, ffold;
 			fe.calcOutcomes( g, facc, frob, ftrunc, ffold);
@@ -96,7 +98,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 	}
 }
 
-bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s, vector<bool>& is_optimal,
+bool runAndAnalyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s, vector<bool>& is_optimal,
 		     double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f,
 		     double &ave_fop )
 {
@@ -105,22 +107,20 @@ bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
 
 	ProteinFolder& folder = *(fe->getFolder());
 	// Find a sequence.
-	Gene g = Gene::getSequenceForStructure(folder, p.free_energy_cutoff, p.structure_ID);
+	Gene g = Gene::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
 	s << "# Starting genotype: " << g << endl;
-	// we fill the population with the genotype that we found above
+	// Fill the population with the genotype that we found above
 	pop.init( g, fe, p.u );
 
 	int loop_length = 100;
 	int n_folded = 0;
 	for ( int i=0; ; i++ ) 	{
-		//n_folded = folder.getNumFolded();
 		for ( int j=0; j<loop_length; j++ ) {
 			pop.evolve();
 		}
 		pop.prepareCoalescenceCalcs();
 		if ( pop.calcCoalescenceTime() > p.equilibration_time + p.window_size )
 			break;
-		//cout << "t=" << i*loop_length+1 << " (" << (folder.getNumFolded()-n_folded) << "); " << flush;
 		cout << "t=" << i*loop_length+1 << "; " << flush;
 	}
 	cout << endl;
@@ -163,7 +163,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe)
 		ofstream gen_file( filename.c_str(), ios::out );
 		gen_file << p;
 
-		if ( analyzeReplica( &fe, p, gen_file, is_optimal, dn, ds, N, S, f, fop ) )
+		if ( runAndAnalyzeReplica( &fe, p, gen_file, is_optimal, dn, ds, N, S, f, fop ) )
 		{
 			count += 1;
 			data_file << "# " << dn << tab << ds << tab << N << tab << S << tab << f
@@ -178,8 +178,11 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe)
 		cout << "[" << i+1 << "/" << p.repetitions << "] " << endl;
 	}
 	cout << endl;
-	cout << "# Folded " << fe.getFolder()->getNumFolded() << " proteins" << endl;
-	data_file << "# Folded " << fe.getFolder()->getNumFolded() << " proteins" << endl;
+	CompactLatticeFolder* clf = dynamic_cast<CompactLatticeFolder*>(fe.getFolder());
+	if (clf != NULL) {
+		cout << "# Folded " << clf->getNumFolded() << " proteins" << endl;
+		data_file << "# Folded " << clf->getNumFolded() << " proteins" << endl;
+	}
 
 
 	data_file << "# Summary:\n# <tr cost> <ca cost> <pop. size> <nonsyn. substs.> <var> <syn. substs.> <var> <nonsyn. sites> <var> <syn. sites> <var> <ave. fitness> <var> <ave fop> <var>" << endl;

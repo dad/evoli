@@ -20,19 +20,15 @@ int Sequence::operator[](const int index) const {
 
 
 
-Protein::Protein(const int length) : Sequence(length) {
-	m_free_energy = 1000000;
-	m_structure_id = -1;
+Protein::Protein(const int length) : Sequence(length), m_fold_info(0,0) {
 	m_modified = true;
 }
 
-Protein::Protein(const Protein& p) : Sequence(p.m_sequence) {
-	m_free_energy = p.m_free_energy;
-	m_structure_id = p.m_structure_id;
+Protein::Protein(const Protein& p) : Sequence(p.m_sequence), m_fold_info(p.m_fold_info) {
 	m_modified = p.m_modified;
 }
 
-Protein::Protein(const string& seq_string) : Sequence(0) {
+Protein::Protein(const string& seq_string) : Sequence(0), m_fold_info(0,0) {
 	stringstream s(seq_string);
 	string seq;
 	s >> seq;
@@ -56,18 +52,12 @@ int Protein::distance(const Protein& p) const {
 	return diffs;
 }
 
-pair<int, double> Protein::fold(const ProteinFolder& folder) {
-	if (m_structure_id < 0 || m_modified) {
-		m_free_energy = folder.foldProtein(*this);
-		m_structure_id = folder.getLastFoldedProteinStructureID();
+FoldInfo Protein::fold(ProteinFolder& folder) {
+	if (m_fold_info.getStructure() || m_modified) {
+		m_fold_info = folder.foldProtein(*this);
 		m_modified = false;
 	}
-	return pair<int, double>(m_structure_id, m_free_energy);
-}
-
-vector<Contact> Protein::getContacts(const ProteinFolder& folder) {
-	fold(folder);
-	return folder.getStructure(m_structure_id)->getInteractingPairs();
+	return m_fold_info;
 }
 
 Gene Protein::reverseTranslate() const {
@@ -236,13 +226,12 @@ Protein Gene::translate(void) const {
 	return prot;
 }
 
-Gene Gene::getSequenceForStructure( ProteinFolder &b, double free_energy_cutoff, const int struct_id )
+Gene Gene::getSequenceForStructure( ProteinFolder &b, unsigned int length, double free_energy_cutoff, const int struct_id )
 {
 	// find a random sequence with folding energy smaller than cutoff
 	double G;
-	int length = 3*b.getProteinLength();
 	Gene g(length);
-	pair<int, double> fdata;
+	FoldInfo fdata;
 	bool found = false;
 	double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
 
@@ -253,13 +242,13 @@ Gene Gene::getSequenceForStructure( ProteinFolder &b, double free_energy_cutoff,
 		Protein p = g.translate();
 		//cout << p << endl;
 		fdata = p.fold(b);
-		found = (fdata.first == struct_id && fdata.second <= min_free_energy_for_starting);
+		found = (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= min_free_energy_for_starting);
 		//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
 	} while ( !found );
 
 	int fail_count = 0;
 	int total_fail_count = 0;
-	G = fdata.second;
+	G = fdata.getFreeEnergy();
 
 	// optimize the sequence for stability
 	do {
@@ -277,10 +266,10 @@ Gene Gene::getSequenceForStructure( ProteinFolder &b, double free_energy_cutoff,
 			Protein p = g2.translate();
 			fdata = p.fold(b);
 			//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
-			if (fdata.first == struct_id && fdata.second <= G-0.001) {
+			if (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= G-0.001) {
 				// we found an improved sequence. grab it, and reset failure count
 				g = g2;
-				G = fdata.second;
+				G = fdata.getFreeEnergy();
 				fail_count = 0;
 				//cout << G << endl;
 			}
@@ -293,9 +282,9 @@ Gene Gene::getSequenceForStructure( ProteinFolder &b, double free_energy_cutoff,
 				g = Gene::createRandomNoStops( length );
 				Protein p = g.translate();
 				fdata = p.fold(b);
-				found = (fdata.first == struct_id && fdata.second <= min_free_energy_for_starting);
+				found = (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= min_free_energy_for_starting);
 			} while ( !found );
-			G = fdata.first;
+			G = fdata.getFreeEnergy();
 			fail_count = 0;
 			total_fail_count = 0;
 		}
@@ -304,13 +293,12 @@ Gene Gene::getSequenceForStructure( ProteinFolder &b, double free_energy_cutoff,
 	return g;
 }
 
-Gene Gene::getSequence( ProteinFolder &b, double free_energy_cutoff)
+Gene Gene::getSequence( ProteinFolder &b, unsigned int length, double free_energy_cutoff)
 {
 	// find a random sequence with folding energy smaller than cutoff
 	double G;
-	int length = 3*b.getProteinLength();
 	Gene g(length);
-	pair<int, double> fdata;
+	FoldInfo fdata;
 	bool found = false;
 	double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
 
@@ -321,13 +309,13 @@ Gene Gene::getSequence( ProteinFolder &b, double free_energy_cutoff)
 		Protein p = g.translate();
 		//cout << p << endl;
 		fdata = p.fold(b);
-		found = (fdata.second <= min_free_energy_for_starting);
+		found = (fdata.getFreeEnergy() <= min_free_energy_for_starting);
 		//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
 	} while ( !found );
 
 	int fail_count = 0;
 	int total_fail_count = 0;
-	G = fdata.second;
+	G = fdata.getFreeEnergy();
 
 	// optimize the sequence for stability
 	do {
@@ -345,10 +333,10 @@ Gene Gene::getSequence( ProteinFolder &b, double free_energy_cutoff)
 			Protein p = g2.translate();
 			fdata = p.fold(b);
 			//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
-			if (fdata.second <= G-0.001) {
+			if (fdata.getFreeEnergy() <= G-0.001) {
 				// we found an improved sequence. grab it, and reset failure count
 				g = g2;
-				G = fdata.second;
+				G = fdata.getFreeEnergy();
 				fail_count = 0;
 				//cout << G << endl;
 			}
@@ -361,9 +349,9 @@ Gene Gene::getSequence( ProteinFolder &b, double free_energy_cutoff)
 				g = Gene::createRandomNoStops( length );
 				Protein p = g.translate();
 				fdata = p.fold(b);
-				found = (fdata.second <= min_free_energy_for_starting);
+				found = (fdata.getFreeEnergy() <= min_free_energy_for_starting);
 			} while ( !found );
-			G = fdata.first;
+			G = fdata.getFreeEnergy();
 			fail_count = 0;
 			total_fail_count = 0;
 		}

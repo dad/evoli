@@ -1,4 +1,4 @@
-#include "protein-folder.hh"
+#include "compact-lattice-folder.hh"
 #include "fitness-evaluator.hh"
 #include "population.hh"
 #include "translator.hh"
@@ -57,6 +57,7 @@ ostream& operator<<(ostream& os, const RunRecord& rec) {
 class Parameters {
 public:
 	string eval_type;
+	int protein_length;
 	int N;
 	double ca_cost;
 	double error_rate;
@@ -72,13 +73,14 @@ public:
 
 
 	Parameters( int ac, char **av ) {
-		if ( ac != 13 )	{
+		if ( ac != 14 )	{
 			valid = false;
 			return;
 		}
 
 		int i = 1;
 		eval_type = av[i++];
+		protein_length = atoi( av[i++] );
 		N = atoi( av[i++] );
 		ca_cost = atof( av[i++] );
 		error_rate = atof( av[i++] );
@@ -100,6 +102,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 {
 	s << "# Parameters:" << endl;
 	s << "#   evaluation type: " << p.eval_type << endl;
+	s << "#   protein_length: " << p.protein_length << endl;
 	s << "#   structure id: " << p.structure_ID << endl;
 	s << "#   free energy maximum: " << p.free_energy_cutoff << endl;
 	s << "#   free energy minimum: " << p.free_energy_minimum << endl;
@@ -114,28 +117,25 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	return s;
 }
 
-int getStructureID( ProteinFolder &b, const Gene &g ) {
+StructureID getStructureID( ProteinFolder &b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
-		return p.fold(b).first;
+		return p.fold(b).getStructure();
 	}
 	else
-		return -1;
+		return (StructureID)-1;
 }
 
 void misfoldDistExperiment(Parameters& p)
 {
-	// size of the lattice proteins is hardcoded
-	const int size = 5;
-
 	// Seed random number generator
 	long seconds = (long)time(NULL);
 	srand48(seconds);
 
+	int side_length = (int)(sqrt(p.protein_length));
 	// initialize the protein folder
-	ProteinFolder folder(size);
+	CompactLatticeFolder folder(side_length);
 	folder.enumerateStructures();
-	FitnessEvaluator *feG = new ProteinFreeEnergyFitness(&folder);
 
 	// Read the results.
 	vector<RunRecord> runResults;
@@ -168,7 +168,7 @@ void misfoldDistExperiment(Parameters& p)
 	}
 	ErrorproneTranslation* fe = NULL;
 	ErrorproneTranslation* ept = new ErrorproneTranslation();
-	ept->init( &folder, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+	ept->init( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 	fe = ept;
 	vector<bool> isOptimal = fe->getOptimalCodons(printCodonReport);
 
@@ -185,17 +185,17 @@ void misfoldDistExperiment(Parameters& p)
 			delete fe;
 			if (p.eval_type == "tr") {
 				ErrorproneTranslation* ept = new ErrorproneTranslation();
-				ept->init( &folder, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+				ept->init( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 				fe = ept;
 			}
 			else if (p.eval_type == "acc") {
 				AccuracyOnlyTranslation* afe = new AccuracyOnlyTranslation();
-				afe->init( &folder, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+				afe->init( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 				fe = afe;
 			}
 			else if (p.eval_type == "rob") {
 				RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation();
-				rob->init( &folder, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate );
+				rob->init( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate );
 				fe = rob;
 			}
 			if (!fe) {
@@ -208,7 +208,8 @@ void misfoldDistExperiment(Parameters& p)
 		printCodonReport = false;
 
 		double fop = GeneUtil::calcFop( rec.gene, isOptimal);
-		double dG = -log(feG->getFitness(rec.gene));
+		Protein prot = rec.gene.translate();
+		double dG = prot.fold(folder).getFreeEnergy();
 
 		int numAccurate = 0;
 		int numTruncated = 0;
@@ -225,7 +226,6 @@ void misfoldDistExperiment(Parameters& p)
 		double cffold, cfacc, cfrob, cftrunc;
 		double fitness = fe->calcOutcomes(rec.gene, cfacc, cfrob, cftrunc, cffold);
 		double fitnessDensity = -1; //fde.getFitnessDensity(rec.gene, *fe, p.N);
-		Protein prot = rec.gene.translate();
 		double nu = GeneUtil::calcNeutrality( folder, prot, p.free_energy_cutoff );
 
 		// Compute fraction robust for codon-randomized genes.
@@ -270,7 +270,7 @@ int main( int ac, char **av)
 	}
 	else {
 		cout << "Start program like this:" << endl;
-		cout << "\t" << av[0] << " <eval type> <pop size> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <random seed> <gene file name> <num. to fold>" << endl;
+		cout << "\t" << av[0] << " <eval type> <prot length> <pop size> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <random seed> <gene file name> <num. to fold>" << endl;
 	}
 }
 

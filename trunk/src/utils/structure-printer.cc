@@ -1,4 +1,4 @@
-#include "protein-folder.hh"
+#include "compact-lattice-folder.hh"
 #include "gene-util.hh"
 
 #include <fstream>
@@ -31,7 +31,7 @@ main( int ac, char **av) {
 	const int size = 5;
 
 	// initialize the protein folder
-	ProteinFolder b(size);
+	CompactLatticeFolder b(size);
 	b.enumerateStructures();
 
 	unsigned int buflen = 500;
@@ -43,10 +43,10 @@ main( int ac, char **av) {
 			Gene g(s);
 			// first, get structure
 			Protein p = g.translate();
-			pair<int, double> fp = p.fold(b);
+			FoldInfo fp = p.fold(b);
 			// then, print
-			cout << "Sequence encodes: " << p << endl << "Structure " << fp.first << ": " << endl;
-			b.printStructure( fp.first, cout, "" );
+			cout << "Sequence encodes: " << p << endl << "Structure " << fp.getStructure() << ": " << endl;
+			b.printStructure( fp.getStructure(), cout, "" );
 		}
 	} while (!in.eof());
 }

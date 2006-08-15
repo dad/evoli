@@ -23,7 +23,7 @@ private:
 	ProteinFolder *m_protein_folder;
 public:
 	ProteinFreeEnergyFitness( ProteinFolder *protein_folder );
-	~ProteinFreeEnergyFitness();
+	virtual ~ProteinFreeEnergyFitness();
 
 	double getFitness( const Gene &g );
 	double getFitness( Protein &p );
@@ -38,7 +38,7 @@ private:
 
 public:
 	ProteinStructureFitness( ProteinFolder *protein_folder, int protein_structure_ID, double max_free_energy );
-	~ProteinStructureFitness();
+	virtual ~ProteinStructureFitness();
 
 	double getFitness( const Gene &g );
 	double getFitness( Protein &p );
@@ -48,7 +48,7 @@ public:
 class NeutralFitness : public FitnessEvaluator {
 public:
 	NeutralFitness();
-	~NeutralFitness();
+	virtual ~NeutralFitness();
 
 	double getFitness( const Gene & ) {
 		return 1;
@@ -89,7 +89,6 @@ protected:
 
 	int m_protein_structure_ID;
 	int m_protein_length;
-	int *m_residue_sequence;
 
 	int m_last_struct_id;
 	double m_last_free_energy;
@@ -114,7 +113,7 @@ public:
 	ErrorproneTranslation();
 	virtual ~ErrorproneTranslation();
 
-	void init(ProteinFolder *protein_folder, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
+	void init(ProteinFolder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 
 	void changeStructure( const int structureID ) {
 		m_protein_structure_ID = structureID;
@@ -238,7 +237,7 @@ public:
 	AccuracyOnlyTranslation();
 	virtual ~AccuracyOnlyTranslation();
 
-	void init( ProteinFolder *protein_folder, const int target_structure_id, const double max_free_energy,
+	void init( ProteinFolder *protein_folder, const int length, const int target_structure_id, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 	double getFitness( const Gene &g );
 	bool getFolded( const Gene &g );
@@ -257,7 +256,7 @@ public:
 	RobustnessOnlyTranslation();
 	virtual ~RobustnessOnlyTranslation();
 
-	void init( ProteinFolder *protein_folder, const int protein_structure_ID, const double max_free_energy,
+	void init( ProteinFolder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate );
 	double getFitness( const Gene &g );
 	/**

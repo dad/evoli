@@ -2,6 +2,7 @@
 #include <iostream>
 #include "protein.hh"
 #include "protein-folder.hh"
+#include "compact-lattice-folder.hh"
 
 #include "Python.h"
 
@@ -13,7 +14,7 @@ static char folder_foldProtein__doc__[] =
 ""
 ;
 
-static ProteinFolder* folder = NULL;
+static CompactLatticeFolder* folder = NULL;
 static PyObject *
 folder_foldProtein(PyObject *self /* Not used */, PyObject *args)
 {
@@ -26,8 +27,8 @@ folder_foldProtein(PyObject *self /* Not used */, PyObject *args)
         return NULL;
 	}
 	Protein p(protein_sequence);
-	pair<int,double> folding_data = p.fold(*folder);
-    return Py_BuildValue("if", folding_data.first, folding_data.second);
+	FoldInfo folding_data = p.fold(*folder);
+    return Py_BuildValue("if", folding_data.getStructure(), folding_data.getFreeEnergy());
 }
 
 static char folder_init__doc__[] =
@@ -40,7 +41,7 @@ folder_init(PyObject *self /* Not used */, PyObject *args)
 	int side_length;
     if (!PyArg_ParseTuple(args, "i", &side_length))
         return NULL;
-	folder = new ProteinFolder(side_length);
+	folder = new CompactLatticeFolder(side_length);
 	folder->enumerateStructures();
 	Py_INCREF(Py_None);
 	return Py_None;

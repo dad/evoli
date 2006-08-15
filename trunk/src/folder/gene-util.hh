@@ -129,10 +129,10 @@ public:
 	 **/
 	static double calcNeutrality( ProteinFolder &b, Protein &p, double cutoff )
 	{
-		pair<int,double> fold_data = p.fold(b);
-		if ( fold_data.second > cutoff )
+		FoldInfo fold_data = p.fold(b);
+		if ( fold_data.getFreeEnergy() > cutoff )
 			return 0;
-		int structure_id = fold_data.first;
+		int structure_id = fold_data.getStructure();
 
 		int count = 0;
 		// go through all positions in the protein
@@ -148,7 +148,7 @@ public:
 				p[i] = tempres;
 				// sequence folds into correct structure with low free energy?
 				fold_data = p.fold(b);
-				if (fold_data.first == structure_id && fold_data.second < cutoff) {
+				if (fold_data.getStructure() == structure_id && fold_data.getFreeEnergy() < cutoff) {
 					count += 1;
 				}
 				tempres++;
@@ -160,7 +160,7 @@ public:
 				p[i] = tempres;
 				// sequence folds into correct structure with low free energy?
 				fold_data = p.fold(b);
-				if (fold_data.first == structure_id && fold_data.second < cutoff) {
+				if (fold_data.getStructure() == structure_id && fold_data.getFreeEnergy() < cutoff) {
 					count += 1;
 				}
 				tempres++;

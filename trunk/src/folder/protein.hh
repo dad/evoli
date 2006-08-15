@@ -5,9 +5,10 @@
 #include <utility>
 #include <iostream>
 #include "genotype.hh"
+#include "protein-folder.hh"
+
 using namespace std;
 
-class ProteinFolder;
 class Translator;
 class Gene;
 
@@ -47,8 +48,7 @@ public:
 
 class Protein : public Sequence {
 private:
-	int m_structure_id;
-	double m_free_energy;
+	FoldInfo m_fold_info;
 
 	Protein();
 protected:
@@ -58,9 +58,8 @@ public:
 	Protein(const string& s);
 	~Protein() {}
 
-	pair<int, double> fold(const ProteinFolder& folder);
+	FoldInfo fold(ProteinFolder& folder);
 	int distance(const Protein& p) const;
-	vector<Contact> getContacts(const ProteinFolder& folder);
 	string toString() const;
 
 	Gene reverseTranslate() const;
@@ -96,11 +95,11 @@ public:
 	/**
 	 * Finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 	 */
-	static Gene getSequenceForStructure( ProteinFolder &b, double free_energy_cutoff, const int struct_id );
+	static Gene getSequenceForStructure( ProteinFolder &b, unsigned int length, double free_energy_cutoff, const int struct_id );
 	/**
 	 * Finds a random sequence with folding energy smaller than cutoff
 	 */
-	static Gene getSequence( ProteinFolder &b, double free_energy_cutoff);
+	static Gene getSequence( ProteinFolder &b, unsigned int length, double free_energy_cutoff);
 };
 
 /*
