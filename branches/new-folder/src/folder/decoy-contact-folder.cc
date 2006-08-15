@@ -1,12 +1,31 @@
 #include "decoy-contact-folder.hh"
 #include "protein.hh"
+#include <fstream>
 #include <cmath>
 
 
 void DecoyContactStructure::read(ifstream& fin) {
-	
+	int r1, r2;
+	string r1aa, r2aa;
+	while (!fin.eof()) {
+		fin >> r1 >> r1aa >> r2 >> r2aa;
+		if (r1 >= 0 && r2 >= 0) {
+			m_contacts.push_back(Contact(r1,r2));
+		}
+	}
 }
 
+int DecoyContactStructure::getMaxResidueNumber() {
+	int max_res = -1;
+	vector<Contact>::const_iterator it=m_contacts.begin();
+	for ( ; it!=m_contacts.end(); it++ )	{
+		if ((*it).first > max_res)
+			max_res = (*it).first;
+		if ((*it).second > max_res)
+			max_res = (*it).second;
+	}
+	return max_res;
+}
 
 DecoyContactFolder::DecoyContactFolder(int length, double m_log_num_confs, vector<DecoyContactStructure*>& structs) {
 	m_length = length;
@@ -32,15 +51,11 @@ FoldInfo DecoyContactFolder::foldProtein(Protein& p) {
 		const vector<Contact> &pair_list = m_structures[sid]->getContacts();
 		vector<Contact>::const_iterator it=pair_list.begin();
 		for ( ; it!=pair_list.end(); it++ )	{
-			int ind1 = (*it).first-1;
-			int ind2 = (*it).second-1;
-			int aa1 = p[ind1];
-			int aa2 = p[ind1];
-			double contact_G = contactEnergies[aa1][aa2];
+			double contact_G = contactEnergies[p[(*it).first]][p[(*it).second]];
 			G += contact_G;
 
-			//cout << "(" << (*it).first << ", " << (*it).second << ") -> " << GeneticCodeUtil::residues[p[(*it).first-1]] 
-			//	 << ":" << GeneticCodeUtil::residues[p[(*it).second-1]] << " " << contact_G << " " << G << endl;
+			//cout << "(" << (*it).first << ", " << (*it).second << ") -> " << GeneticCodeUtil::residues[p[(*it).first]] 
+			//	 << ":" << GeneticCodeUtil::residues[p[(*it).second]] << " " << contact_G << " " << G << endl << flush;
 		}
 		// check if binding energy is lower than any previously calculated one
 		if ( G < minG )
@@ -59,9 +74,10 @@ FoldInfo DecoyContactFolder::foldProtein(Protein& p) {
 	// calculate free energy of folding
 	dG = minG + (var_G - 2*kT*mean_G)/(2.0*kT) + kT * m_log_num_conformations;
 
-	//cout <<  Z << " " << exp(-minE/kT) << " " << G << endl;
-	//cout << "Folding energy: " << minE << endl;
-	//cout << "Folding free energy: " << G << endl;
+	//cout << "minG:" << minG << endl;
+	//cout << "mean_G:" << mean_G << endl;
+	//cout << "var_G:" << var_G << endl;
+	//cout << "dG:" << dG << endl;
 
 	// increment folded count
 	m_num_folded += 1;
@@ -75,6 +91,7 @@ FoldInfo DecoyContactFolder::foldProtein(Protein& p) {
 // structures: Quasi-chemical approximation. Macromolecules 18:534-552
 // (1985).
 //Table V, values e_{ij}.
+/*
 const double DecoyContactFolder::contactEnergies[20][20] =
 	{
 		// CYS
@@ -119,7 +136,7 @@ const double DecoyContactFolder::contactEnergies[20][20] =
 		{ -2.92, -4.11, -3.73, -3.47, -3.06, -2.96, -3.66, -2.80, -1.81, -1.72, -1.66, -1.35, -1.73, -1.43, -1.40, -1.19, -2.17, -1.85, -0.67, -1.18 }
 	};
 
-	/*
+*/
 // Table VI, values e_{ij}+e_{rr}-e_{ir}-e_{jr}
 const double DecoyContactFolder::contactEnergies[20][20] =
       {
@@ -164,4 +181,52 @@ const double DecoyContactFolder::contactEnergies[20][20] =
 	      // PRO
 	      {  0.00, -0.34,  0.20,  0.25,  0.42,  0.09, -0.28, -0.33,  0.10, -0.11, -0.07,  0.01, -0.42, -0.18, -0.10,  0.04, -0.21, -0.38,  0.11,  0.26 }
       };
+
+/*// Contact energies according to Miyazawa and Jernigan, Residue-Residue Potentials
+// with a Favorable Contact Pair Term and an Unfavorable High Packing Density Term,
+// for Simulation and Threading. J. Mol. Biol. (1996) 256:623-644
+// Table III upper triangle, values e_{ij}.
+const double DecoyContactFolder::contactEnergies[20][20] =
+	{
+		// CYS
+		{-5.44, -4.99, -5.80, -5.50, -5.83, -4.96, -4.95, -4.16, -3.57, -3.16, -3.11, -2.86, -2.59, -2.85, -2.41, -2.27, -3.60, -2.57, -1.95, -3.07},
+		// MET
+		{-4.99, -5.46, -6.56, -6.02, -6.41, -5.32, -5.55, -4.91, -3.94, -3.39, -3.51, -3.03, -2.95, -3.30, -2.57, -2.89, -3.98, -3.12, -2.48, -3.45},
+		// PHE
+		{-5.80, -6.56, -7.26, -6.84, -7.28, -6.29, -6.16, -5.66, -4.81, -4.13, -4.28, -4.02, -3.75, -4.10, -3.48, -3.56, -4.77, -3.98, -3.36, -4.25},
+		// ILE
+		{-5.50, -6.02, -6.84, -6.54, -7.04, -6.05, -5.78, -5.25, -4.58, -3.78, -4.03, -3.52, -3.24, -3.67, -3.17, -3.27, -4.14, -3.63, -3.01, -3.76},
+		// LEU
+		{-5.83, -6.41, -7.28, -7.04, -7.37, -6.48, -6.14, -5.67, -4.91, -4.16, -4.34, -3.92, -3.74, -4.04, -3.40, -3.59, -4.54, -4.03, -3.37, -4.20},
+		// VAL
+		{-4.96, -5.32, -6.29, -6.05, -6.48, -5.52, -5.18, -4.62, -4.04, -3.38, -3.46, -3.05, -2.83, -3.07, -2.48, -2.67, -3.58, -3.07, -2.49, -3.32},
+		// TRP
+		{-4.95, -5.55, -6.16, -5.78, -6.14, -5.18, -5.06, -4.66, -3.82, -3.42, -3.22, -2.99, -3.07, -3.11, -2.84, -2.99, -3.98, -3.41, -2.69, -3.73},
+		// TYR
+		{-4.16, -4.91, -5.66, -5.25, -5.67, -4.62, -4.66, -4.17, -3.36, -3.01, -3.01, -2.78, -2.76, -2.97, -2.76, -2.79, -3.52, -3.16, -2.60, -3.19},
+		// ALA
+		{-3.57, -3.94, -4.81, -4.58, -4.91, -4.04, -3.82, -3.36, -2.72, -2.31, -2.32, -2.01, -1.84, -1.89, -1.70, -1.51, -2.41, -1.83, -1.31, -2.03},
+		// GLY
+		{-3.16, -3.39, -4.13, -3.78, -4.16, -3.38, -3.42, -3.01, -2.31, -2.24, -2.08, -1.82, -1.74, -1.66, -1.59, -1.22, -2.15, -1.72, -1.15, -1.87},
+		// THR
+		{-3.11, -3.51, -4.28, -4.03, -4.34, -3.46, -3.22, -3.01, -2.32, -2.08, -2.12, -1.96, -1.88, -1.90, -1.80, -1.74, -2.42, -1.90, -1.31, -1.90},
+		// SER
+		{-2.86, -3.03, -4.02, -3.52, -3.92, -3.05, -2.99, -2.78, -2.01, -1.82, -1.96, -1.67, -1.58, -1.49, -1.63, -1.48, -2.11, -1.62, -1.05, -1.57},
+		// GLN
+		{-2.59, -2.95, -3.75, -3.24, -3.74, -2.83, -3.07, -2.76, -1.84, -1.74, -1.88, -1.58, -1.68, -1.71, -1.68, -1.51, -2.08, -1.64, -1.21, -1.53},
+		// ASN
+		{-2.85, -3.30, -4.10, -3.67, -4.04, -3.07, -3.11, -2.97, -1.89, -1.66, -1.90, -1.49, -1.71, -1.54, -1.46, -1.42, -1.98, -1.80, -1.29, -1.73},
+		// GLU
+		{-2.41, -2.57, -3.48, -3.17, -3.40, -2.48, -2.84, -2.76, -1.70, -1.59, -1.80, -1.63, -1.68, -1.46, -1.21, -1.02, -2.32, -2.29, -1.68, -1.33},
+		// ASP
+		{-2.27, -2.89, -3.56, -3.27, -3.59, -2.67, -2.99, -2.79, -1.51, -1.22, -1.74, -1.48, -1.51, -1.42, -1.02, -0.91, -2.15, -2.27, -1.80, -1.26},
+		// HIS
+		{-3.60, -3.98, -4.77, -4.14, -4.54, -3.58, -3.98, -3.52, -2.41, -2.15, -2.42, -2.11, -2.08, -1.98, -2.32, -2.15, -3.05, -2.16, -1.35, -2.25},
+		// ARG
+		{-2.57, -3.12, -3.98, -3.63, -4.03, -3.07, -3.41, -3.16, -1.83, -1.72, -1.90, -1.62, -1.64, -1.80, -2.29, -2.27, -2.16, -1.55, -0.59, -1.70},
+		// LYS
+		{-1.95, -2.48, -3.36, -3.01, -3.37, -2.49, -2.69, -2.60, -1.31, -1.15, -1.31, -1.05, -1.21, -1.29, -1.68, -1.80, -1.35, -0.59, -0.12, -0.97},
+		// PRO
+		{-3.07, -3.45, -4.25, -3.76, -4.20, -3.32, -3.73, -3.19, -2.03, -1.87, -1.90, -1.57, -1.53, -1.73, -1.33, -1.26, -2.25, -1.70, -0.97, -1.75}
+	};
 */

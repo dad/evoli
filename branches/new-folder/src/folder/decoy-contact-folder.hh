@@ -24,6 +24,7 @@ public:
 	 **/
 	void read(ifstream& fin);
 	virtual const vector<Contact>& getContacts() const { return m_contacts; }
+	int getMaxResidueNumber();
 };
 
 class DecoyContactFolder : public ProteinFolder {
