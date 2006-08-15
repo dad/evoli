@@ -9,5 +9,6 @@ clean:
 	rm -rf html
 
 maintainer-clean: clean
+	rm Makefile Makefile.in
 
 

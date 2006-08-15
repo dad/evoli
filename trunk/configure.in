@@ -43,7 +43,13 @@ AC_CHECK_FUNCS([pow sqrt])
 AC_ARG_ENABLE(debug,
 [  --enable-debug: Compile with debugging symbols],
   CPPFLAGS="-g -DDEBUG",
-  CPPFLAGS="-O3 -ffast-math -fomit-frame-pointer")
+  CPPFLAGS="-O2")
+
+AC_ARG_ENABLE(optimization,
+[  --enable-optimization: Compile with optimization],
+  CPPFLAGS="${CPPFLAGS} -O3 -ffast-math -fomit-frame-pointer",
+)
+
 AC_ARG_ENABLE(profile,
 [  --enable-profile: Compile with profiling symbols],
   CPPFLAGS="${CPPFLAGS} -pg -a")
