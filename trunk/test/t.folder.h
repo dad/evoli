@@ -72,6 +72,9 @@ struct TEST_CLASS( folder_basic )
 			DecoyContactStructure* cstruct = new DecoyContactStructure();
 			string filename = "test/data/contact_maps/"+fnames[i];
 			fin.open(filename.c_str());
+			TEST_ASSERT( fin.good() );
+			if (!fin.good()) // if we can't read the contact maps, bail out
+				return;
 			cstruct->read(fin);
 			fin.close();
 			int maxres = cstruct->getMaxResidueNumber();
