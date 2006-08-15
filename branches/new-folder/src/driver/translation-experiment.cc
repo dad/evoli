@@ -98,7 +98,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 	}
 }
 
-bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s, vector<bool>& is_optimal,
+bool runAndAnalyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s, vector<bool>& is_optimal,
 		     double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f,
 		     double &ave_fop )
 {
@@ -109,7 +109,7 @@ bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
 	// Find a sequence.
 	Gene g = Gene::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
 	s << "# Starting genotype: " << g << endl;
-	// we fill the population with the genotype that we found above
+	// Fill the population with the genotype that we found above
 	pop.init( g, fe, p.u );
 
 	int loop_length = 100;
@@ -163,7 +163,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe)
 		ofstream gen_file( filename.c_str(), ios::out );
 		gen_file << p;
 
-		if ( analyzeReplica( &fe, p, gen_file, is_optimal, dn, ds, N, S, f, fop ) )
+		if ( runAndAnalyzeReplica( &fe, p, gen_file, is_optimal, dn, ds, N, S, f, fop ) )
 		{
 			count += 1;
 			data_file << "# " << dn << tab << ds << tab << N << tab << S << tab << f
