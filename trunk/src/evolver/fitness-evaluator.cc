@@ -32,7 +32,7 @@ double ProteinFreeEnergyFitness::getFitness( const Gene &g ) {
 }
 
 double ProteinFreeEnergyFitness::getFitness( Protein &p ) {
-	FoldInfo pf = p.fold(*m_protein_folder);
+	FoldInfo pf = m_protein_folder->fold(p);
 	return exp(-pf.getFreeEnergy());
 }
 
@@ -58,7 +58,7 @@ double ProteinStructureFitness::getFitness( const Gene &g ) {
 }
 
 double ProteinStructureFitness::getFitness( Protein &p ) {
-	FoldInfo pf = p.fold(*m_protein_folder);
+	FoldInfo pf = m_protein_folder->fold(p);
 	if ( pf.getFreeEnergy() > m_max_free_energy )
 		return 0;
 
@@ -184,7 +184,7 @@ ErrorproneTranslation::~ErrorproneTranslation()
 bool ErrorproneTranslation::sequenceFolds(Protein& p)
 {
 	// test if residue sequence folds into correct structure and has correct free energy
-	FoldInfo fold_data = p.fold(*m_protein_folder);
+	FoldInfo fold_data = m_protein_folder->fold(p);
 	
 	if ( fold_data.getFreeEnergy() > m_max_free_energy )
 		return false;  // free energy above cutoff
@@ -250,6 +250,10 @@ bool ErrorproneTranslation::getFolded( const Gene &g ) {
 		res = sequenceFolds(p);
 	}
 	return res;
+}
+
+double ErrorproneTranslation::getFitness( Protein& p ) {
+	return getFitness( GeneUtil::reverseTranslate(p) );
 }
 
 double ErrorproneTranslation::getFitness( const Gene &g ) {
@@ -501,7 +505,7 @@ void ErrorproneTranslation::stabilityOutcomes( const Gene &g, const int num_to_f
 		int numErrors = t.translateRelativeWeighted(g, p, m_error_weight, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
 		// Only record mistranslations that are folded into the correct structure
 		if (numErrors>0 && !truncated) {
-			FoldInfo fold_data = p.fold(*m_protein_folder);
+			FoldInfo fold_data = m_protein_folder->fold(p);
 			if (fold_data.getStructure() == m_protein_structure_ID) {
 				ddgs.push_back(fold_data.getFreeEnergy());
 				i++;

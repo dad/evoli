@@ -2,6 +2,7 @@
 #define _T_PROTEIN_H__
 #include "cutee.h"
 #include "protein.hh"
+#include "gene-util.hh"
 #include "compact-lattice-folder.hh"
 
 struct TEST_CLASS( protein_gene_basic )
@@ -18,7 +19,7 @@ struct TEST_CLASS( protein_gene_basic )
 	{
 		Gene g = Gene::createRandomNoStops(gene_length);
 		Protein p = g.translate();
-		Protein p2 = p.reverseTranslate().translate();
+		Protein p2 = GeneUtil::reverseTranslate(p).translate();
 		TEST_ASSERT( p == p2 );
 		return;
 	}
@@ -68,15 +69,22 @@ struct TEST_CLASS( protein_gene_basic )
 		TEST_ASSERT( p2 == p );
 		return;
 	}
+
+	void TEST_FUNCTION( protein_from_strings_equality ) {
+		Gene g = Gene::createRandomNoStops(gene_length);
+		Protein p1 = g.translate();
+		Protein p2(p1.toString());
+		TEST_ASSERT( p1 == p2 );
+	}
 	void TEST_FUNCTION( sequence_for_structure )
 	{
 		CompactLatticeFolder* folder = new CompactLatticeFolder(side_length);
 		folder->enumerateStructures();
 		double max_dg = -5;
 		double sid = 574;
-		Gene g = Gene::getSequenceForStructure(*folder, gene_length, max_dg, sid);
+		Gene g = GeneUtil::getSequenceForStructure(*folder, gene_length, max_dg, sid);
 		Protein p = g.translate();
-		FoldInfo fi = p.fold(*folder);
+		FoldInfo fi = folder->fold(p);
 		TEST_ASSERT( fi.getFreeEnergy() <= max_dg );
 		TEST_ASSERT( fi.getStructure() == (StructureID)sid );
 		delete folder;

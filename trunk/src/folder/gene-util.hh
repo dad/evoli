@@ -129,7 +129,7 @@ public:
 	 **/
 	static double calcNeutrality( ProteinFolder &b, Protein &p, double cutoff )
 	{
-		FoldInfo fold_data = p.fold(b);
+		FoldInfo fold_data = b.fold(p);
 		if ( fold_data.getFreeEnergy() > cutoff )
 			return 0;
 		int structure_id = fold_data.getStructure();
@@ -147,7 +147,7 @@ public:
 			{
 				p[i] = tempres;
 				// sequence folds into correct structure with low free energy?
-				fold_data = p.fold(b);
+				fold_data = b.fold(p);
 				if (fold_data.getStructure() == structure_id && fold_data.getFreeEnergy() < cutoff) {
 					count += 1;
 				}
@@ -159,7 +159,7 @@ public:
 			{
 				p[i] = tempres;
 				// sequence folds into correct structure with low free energy?
-				fold_data = p.fold(b);
+				fold_data = b.fold(p);
 				if (fold_data.getStructure() == structure_id && fold_data.getFreeEnergy() < cutoff) {
 					count += 1;
 				}
@@ -244,6 +244,160 @@ public:
 		}
 		return result;
 	}
+
+	static Gene reverseTranslate(const Protein& p) {
+		Gene g(p.length()*3);
+		Protein::const_iterator it = p.begin();
+		
+		for (uint16 i=0; it != p.end(); it++, i++) {
+			int aa = *it;
+			int codon = GeneticCodeUtil::residueToCodonTable[aa+1];
+			g[i] = codon;
+		}
+		
+		return g;
+	}
+
+	/**
+	 * Finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
+	 */
+	static Gene getSequenceForStructure( ProteinFolder &b, unsigned int length, double free_energy_cutoff, const int struct_id )
+	{
+		// find a random sequence with folding energy smaller than cutoff
+		double G;
+		Gene g(length);
+		FoldInfo fdata;
+		bool found = false;
+		double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
+
+		// find sequence that encodes the desired structure
+		do {
+			g = Gene::createRandomNoStops( length );
+			//cout << g << endl;
+			Protein p = g.translate();
+			//cout << p << endl;
+			fdata = b.fold(p);
+			found = (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= min_free_energy_for_starting);
+			//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
+		} while ( !found );
+
+		int fail_count = 0;
+		int total_fail_count = 0;
+		G = fdata.getFreeEnergy();
+
+		// optimize the sequence for stability
+		do {
+			Gene g2 = g;
+			bool changed = false;
+			do {
+				changed = g2.mutate( 0.02 );
+			} while (!changed);
+
+			if (!g2.encodesFullLength()) {
+				fail_count++;
+				total_fail_count++;
+			}
+			else {
+				Protein p = g2.translate();
+				fdata = b.fold(p);
+				//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
+				if (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= G-0.001) {
+					// we found an improved sequence. grab it, and reset failure count
+					g = g2;
+					G = fdata.getFreeEnergy();
+					fail_count = 0;
+					//cout << G << endl;
+				}
+			}
+
+			// start again with random genotype if search is not successful after 50000 failures
+			if ( fail_count > 50000 || total_fail_count > 1e6 )	{
+				found = false;
+				do {
+					g = Gene::createRandomNoStops( length );
+					Protein p = g.translate();
+					fdata = b.fold(p);
+					found = (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= min_free_energy_for_starting);
+				} while ( !found );
+				G = fdata.getFreeEnergy();
+				fail_count = 0;
+				total_fail_count = 0;
+			}
+		} while( G > free_energy_cutoff );
+
+		return g;
+	}
+
+	/**
+	 * Finds a random sequence with folding energy smaller than cutoff
+	 */
+	static Gene getSequence( ProteinFolder &b, unsigned int length, double free_energy_cutoff)
+	{
+		// find a random sequence with folding energy smaller than cutoff
+		double G;
+		Gene g(length);
+		FoldInfo fdata;
+		bool found = false;
+		double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
+
+		// find sequence that encodes the desired structure
+		do {
+			g = Gene::createRandomNoStops( length );
+			//cout << g << endl;
+			Protein p = g.translate();
+			//cout << p << endl;
+			fdata = b.fold(p);
+			found = (fdata.getFreeEnergy() <= min_free_energy_for_starting);
+			//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
+		} while ( !found );
+
+		int fail_count = 0;
+		int total_fail_count = 0;
+		G = fdata.getFreeEnergy();
+
+		// optimize the sequence for stability
+		do {
+			Gene g2 = g;
+			bool changed = false;
+			do {
+				changed = g2.mutate( 0.02 );
+			} while (!changed);
+
+			if (!g2.encodesFullLength()) {
+				fail_count++;
+				total_fail_count++;
+			}
+			else {
+				Protein p = g2.translate();
+				fdata = b.fold(p);
+				//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
+				if (fdata.getFreeEnergy() <= G-0.001) {
+					// we found an improved sequence. grab it, and reset failure count
+					g = g2;
+					G = fdata.getFreeEnergy();
+					fail_count = 0;
+					//cout << G << endl;
+				}
+			}
+
+			// start again with random genotype if search is not successful after 50000 failures
+			if ( fail_count > 50000 || total_fail_count > 1e6 )	{
+				found = false;
+				do {
+					g = Gene::createRandomNoStops( length );
+					Protein p = g.translate();
+					fdata = b.fold(p);
+					found = (fdata.getFreeEnergy() <= min_free_energy_for_starting);
+				} while ( !found );
+				G = fdata.getFreeEnergy();
+				fail_count = 0;
+				total_fail_count = 0;
+			}
+		} while( G > free_energy_cutoff );
+
+		return g;
+	}
+
 };
 
 

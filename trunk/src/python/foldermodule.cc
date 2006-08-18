@@ -27,7 +27,7 @@ folder_foldProtein(PyObject *self /* Not used */, PyObject *args)
         return NULL;
 	}
 	Protein p(protein_sequence);
-	FoldInfo folding_data = p.fold(*folder);
+	FoldInfo folding_data = folder->fold(p);
     return Py_BuildValue("if", folding_data.getStructure(), folding_data.getFreeEnergy());
 }
 

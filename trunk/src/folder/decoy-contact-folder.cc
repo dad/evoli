@@ -27,14 +27,15 @@ int DecoyContactStructure::getMaxResidueNumber() {
 	return max_res;
 }
 
-DecoyContactFolder::DecoyContactFolder(int length, double m_log_num_confs, vector<DecoyContactStructure*>& structs) {
+DecoyContactFolder::DecoyContactFolder(int length, double m_log_num_confs, vector<DecoyContactStructure*>& structs, DecoyContactStructure* target) {
 	m_length = length;
 	m_structures = structs;
 	m_log_num_conformations = m_log_num_confs;
 	m_num_folded = 0;
+	m_target = target;
 }
 
-FoldInfo DecoyContactFolder::foldProtein(Protein& p) {
+FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 	double kT = 0.6;
 	double minG = 1e50;
 	int minIndex = 0;
@@ -51,8 +52,12 @@ FoldInfo DecoyContactFolder::foldProtein(Protein& p) {
 		const vector<Contact> &pair_list = m_structures[sid]->getContacts();
 		vector<Contact>::const_iterator it=pair_list.begin();
 		for ( ; it!=pair_list.end(); it++ )	{
-			double contact_G = contactEnergies[p[(*it).first]][p[(*it).second]];
-			G += contact_G;
+			int s1 = (*it).first;
+			int s2 = (*it).second;
+			if (s1 < m_length && s2 < m_length) {
+				double contact_G = contactEnergies[s[s1]][s[s2]];
+				G += contact_G;
+			}
 
 			//cout << "(" << (*it).first << ", " << (*it).second << ") -> " << GeneticCodeUtil::residues[p[(*it).first]] 
 			//	 << ":" << GeneticCodeUtil::residues[p[(*it).second]] << " " << contact_G << " " << G << endl << flush;
@@ -67,6 +72,22 @@ FoldInfo DecoyContactFolder::foldProtein(Protein& p) {
 		sumG += G;
 		sumsqG += G*G;
 	}
+
+
+	// Compare to native state
+	// DAD: debugging
+	minG = 0.0;
+	const vector<Contact> &pair_list = m_target->getContacts();
+	vector<Contact>::const_iterator it=pair_list.begin();
+	for ( ; it!=pair_list.end(); it++ )	{
+		int s1 = (*it).first;
+		int s2 = (*it).second;
+		if (s1 < m_length && s2 < m_length) {
+			double contact_G = contactEnergies[s[s1]][s[s2]];
+			minG += contact_G;
+		}
+	}
+
 
 	unsigned int num_confs = m_structures.size();
 	double mean_G = sumG/num_confs;
@@ -91,7 +112,7 @@ FoldInfo DecoyContactFolder::foldProtein(Protein& p) {
 // structures: Quasi-chemical approximation. Macromolecules 18:534-552
 // (1985).
 //Table V, values e_{ij}.
-/*
+
 const double DecoyContactFolder::contactEnergies[20][20] =
 	{
 		// CYS
@@ -136,7 +157,8 @@ const double DecoyContactFolder::contactEnergies[20][20] =
 		{ -2.92, -4.11, -3.73, -3.47, -3.06, -2.96, -3.66, -2.80, -1.81, -1.72, -1.66, -1.35, -1.73, -1.43, -1.40, -1.19, -2.17, -1.85, -0.67, -1.18 }
 	};
 
-*/
+
+/*
 // Table VI, values e_{ij}+e_{rr}-e_{ir}-e_{jr}
 const double DecoyContactFolder::contactEnergies[20][20] =
       {
@@ -181,7 +203,7 @@ const double DecoyContactFolder::contactEnergies[20][20] =
 	      // PRO
 	      {  0.00, -0.34,  0.20,  0.25,  0.42,  0.09, -0.28, -0.33,  0.10, -0.11, -0.07,  0.01, -0.42, -0.18, -0.10,  0.04, -0.21, -0.38,  0.11,  0.26 }
       };
-
+*/
 /*// Contact energies according to Miyazawa and Jernigan, Residue-Residue Potentials
 // with a Favorable Contact Pair Term and an Unfavorable High Packing Density Term,
 // for Simulation and Threading. J. Mol. Biol. (1996) 256:623-644

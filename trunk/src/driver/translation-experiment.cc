@@ -30,7 +30,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 StructureID getStructureID( ProteinFolder &b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
-		return p.fold(b).getStructure();
+		return b.fold(p).getStructure();
 	}
 	else
 		return (StructureID)-1;
@@ -49,7 +49,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 
 	Population pop( p.N );
 	ProteinFolder& folder = *(fe.getFolder());
-	Gene g = Gene::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
+	Gene g = GeneUtil::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
 	pop.init(g, &fe, p.u);
 
 	vector<bool> is_optimal = fe.getOptimalCodons();
@@ -74,7 +74,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 			double dG = 0;
 			if (folded) {
 				Protein p = g.translate();
-				FoldInfo fold_data = p.fold(folder);
+				FoldInfo fold_data = folder.fold(p);
 				dG = fold_data.getFreeEnergy();
 			}
 			double facc, frob, ftrunc, ffold;
@@ -107,7 +107,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostre
 
 	ProteinFolder& folder = *(fe->getFolder());
 	// Find a sequence.
-	Gene g = Gene::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
+	Gene g = GeneUtil::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
 	s << "# Starting genotype: " << g << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, p.u );

@@ -4,8 +4,7 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
-
-class Protein;
+#include "sequence.hh"
 
 using namespace std;
 typedef int StructureID;
@@ -48,7 +47,7 @@ public:
 	 * foldProtein(): core interface
 	 * Pure virtual to force overriding.
 	 **/
-	virtual FoldInfo foldProtein(Protein& p) = 0;
+	virtual FoldInfo fold(const Sequence& s) = 0;
 };
 
 #endif // PROTEIN_FOLDER_HH

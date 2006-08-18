@@ -1,34 +1,19 @@
 #include "protein.hh"
-#include "protein-folder.hh"
 #include "translator.hh"
-#include "genotype.hh"
+#include "codon.hh"
 #include <sstream>
 
 
-Sequence::Sequence(const vector<int>& v) {
-	m_sequence = v;
-}
 
-int& Sequence::operator[](const int index) {
-	m_modified = true;
-	return m_sequence[index];
-}
-
-int Sequence::operator[](const int index) const {
-	return m_sequence[index];
-}
-
-
-
-Protein::Protein(const int length) : Sequence(length), m_fold_info(0,0) {
+Protein::Protein(const int length) : Sequence(length) {
 	m_modified = true;
 }
 
-Protein::Protein(const Protein& p) : Sequence(p.m_sequence), m_fold_info(p.m_fold_info) {
+Protein::Protein(const Protein& p) : Sequence(p.m_sequence) {
 	m_modified = p.m_modified;
 }
 
-Protein::Protein(const string& seq_string) : Sequence(0), m_fold_info(0,0) {
+Protein::Protein(const string& seq_string) : Sequence(0) {
 	stringstream s(seq_string);
 	string seq;
 	s >> seq;
@@ -52,37 +37,6 @@ int Protein::distance(const Protein& p) const {
 	return diffs;
 }
 
-FoldInfo Protein::fold(ProteinFolder& folder) {
-	if (m_fold_info.getStructure() || m_modified) {
-		m_fold_info = folder.foldProtein(*this);
-		m_modified = false;
-	}
-	return m_fold_info;
-}
-
-Gene Protein::reverseTranslate() const {
-	Gene g(length()*3);
-	Protein::const_iterator it = begin();
-
-	for (uint16 i=0; it != end(); it++, i++) {
-		int aa = *it;
-		int codon = GeneticCodeUtil::residueToCodonTable[aa+1];
-		g[i] = codon;
-	}
-
-	return g;
-}
-
-bool Protein::operator==(const Protein& p) const {
-	bool identical = (length() == p.length());
-	Protein::const_iterator qit = begin();
-	Protein::const_iterator pit = p.begin();
-
-	for (; qit != end() && pit != p.end() && identical; qit++, pit++) {
-		identical = (*pit == *qit);
-	}
-	return identical;
-}
 
 string Protein::toString() const {
 	string res;
@@ -207,10 +161,6 @@ bool Gene::mutate(const double prob) {
 	return changed;
 }
 
-Gene::operator const Genotype&(void) const {
-	return m_sequence;
-}
-
 Protein Gene::translate(const Translator& t) const {
 	Protein prot(length()/3);
 	t.translate(*this, prot);
@@ -226,137 +176,4 @@ Protein Gene::translate(void) const {
 	return prot;
 }
 
-Gene Gene::getSequenceForStructure( ProteinFolder &b, unsigned int length, double free_energy_cutoff, const int struct_id )
-{
-	// find a random sequence with folding energy smaller than cutoff
-	double G;
-	Gene g(length);
-	FoldInfo fdata;
-	bool found = false;
-	double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
-
-	// find sequence that encodes the desired structure
-	do {
-		g = Gene::createRandomNoStops( length );
-		//cout << g << endl;
-		Protein p = g.translate();
-		//cout << p << endl;
-		fdata = p.fold(b);
-		found = (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= min_free_energy_for_starting);
-		//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
-	} while ( !found );
-
-	int fail_count = 0;
-	int total_fail_count = 0;
-	G = fdata.getFreeEnergy();
-
-	// optimize the sequence for stability
-	do {
-		Gene g2 = g;
-		bool changed = false;
-		do {
-			changed = g2.mutate( 0.02 );
-		} while (!changed);
-
-		if (!g2.encodesFullLength()) {
-			fail_count++;
-			total_fail_count++;
-		}
-		else {
-			Protein p = g2.translate();
-			fdata = p.fold(b);
-			//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
-			if (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= G-0.001) {
-				// we found an improved sequence. grab it, and reset failure count
-				g = g2;
-				G = fdata.getFreeEnergy();
-				fail_count = 0;
-				//cout << G << endl;
-			}
-		}
-
-		// start again with random genotype if search is not successful after 50000 failures
-		if ( fail_count > 50000 || total_fail_count > 1e6 )	{
-			found = false;
-			do {
-				g = Gene::createRandomNoStops( length );
-				Protein p = g.translate();
-				fdata = p.fold(b);
-				found = (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= min_free_energy_for_starting);
-			} while ( !found );
-			G = fdata.getFreeEnergy();
-			fail_count = 0;
-			total_fail_count = 0;
-		}
-	} while( G > free_energy_cutoff );
-
-	return g;
-}
-
-Gene Gene::getSequence( ProteinFolder &b, unsigned int length, double free_energy_cutoff)
-{
-	// find a random sequence with folding energy smaller than cutoff
-	double G;
-	Gene g(length);
-	FoldInfo fdata;
-	bool found = false;
-	double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
-
-	// find sequence that encodes the desired structure
-	do {
-		g = Gene::createRandomNoStops( length );
-		//cout << g << endl;
-		Protein p = g.translate();
-		//cout << p << endl;
-		fdata = p.fold(b);
-		found = (fdata.getFreeEnergy() <= min_free_energy_for_starting);
-		//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
-	} while ( !found );
-
-	int fail_count = 0;
-	int total_fail_count = 0;
-	G = fdata.getFreeEnergy();
-
-	// optimize the sequence for stability
-	do {
-		Gene g2 = g;
-		bool changed = false;
-		do {
-			changed = g2.mutate( 0.02 );
-		} while (!changed);
-
-		if (!g2.encodesFullLength()) {
-			fail_count++;
-			total_fail_count++;
-		}
-		else {
-			Protein p = g2.translate();
-			fdata = p.fold(b);
-			//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
-			if (fdata.getFreeEnergy() <= G-0.001) {
-				// we found an improved sequence. grab it, and reset failure count
-				g = g2;
-				G = fdata.getFreeEnergy();
-				fail_count = 0;
-				//cout << G << endl;
-			}
-		}
-
-		// start again with random genotype if search is not successful after 50000 failures
-		if ( fail_count > 50000 || total_fail_count > 1e6 )	{
-			found = false;
-			do {
-				g = Gene::createRandomNoStops( length );
-				Protein p = g.translate();
-				fdata = p.fold(b);
-				found = (fdata.getFreeEnergy() <= min_free_energy_for_starting);
-			} while ( !found );
-			G = fdata.getFreeEnergy();
-			fail_count = 0;
-			total_fail_count = 0;
-		}
-	} while( G > free_energy_cutoff );
-
-	return g;
-}
 

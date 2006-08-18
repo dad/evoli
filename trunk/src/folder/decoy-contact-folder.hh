@@ -7,7 +7,6 @@
 
 #include "protein-folder.hh"
 
-
 using namespace std;
 
 /**
@@ -36,14 +35,19 @@ protected:
 	vector<DecoyContactStructure*> m_structures;
 	static const double DecoyContactFolder::contactEnergies [20][20];
 	int m_num_folded;
+	DecoyContactStructure* m_target;
 
 public:
-	DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs);
+	DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs, DecoyContactStructure* target);
 	/**
-	 * foldProtein(): core interface
+	 * fold
+	 * Fold the protein and return folding information (structure, free energy).
 	 **/
-	virtual FoldInfo foldProtein(Protein& p);
-
+	virtual FoldInfo fold(const Sequence& s);
+	/**
+	 * Returns the number of proteins that have been folded since initialization.
+	 **/
+	int getNumFolded() { return m_num_folded; }
 	
 };
 

@@ -177,7 +177,8 @@ public:
 	~CompactLatticeFolder();
 
 	void enumerateStructures();
-	virtual FoldInfo foldProtein( Protein& p );
+	virtual FoldInfo fold( const Sequence& s );
+	FoldInfo foldProtein( Protein& p );
 	bool isFoldedBelowThreshold( const Protein& p, const int structID, double cutoff) const;
 	void getMinMaxPartitionContributions(const Protein& p, const int ci, double& cmin, double& cmax) const;
 	double getEnergy(const Protein& p, const int structID) const;

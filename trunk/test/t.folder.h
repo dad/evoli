@@ -1,6 +1,7 @@
 #ifndef _T_FOLDER_H__
 #define _T_FOLDER_H__
 #include "cutee.h"
+#include "sequence.hh"
 #include "protein-folder.hh"
 #include "decoy-contact-folder.hh"
 #include "compact-lattice-folder.hh"
@@ -15,7 +16,7 @@ struct TEST_CLASS( folder_basic )
 		ProteinFolder* folder = new CompactLatticeFolder(side_length);
 		dynamic_cast<CompactLatticeFolder*>(folder)->enumerateStructures();
 		Protein p("CSVMQGGKTVFQMPIIERVMQAYNI"); //Gene::createRandomNoStops(gene_length);
-		FoldInfo fi = p.fold(*folder);
+		FoldInfo fi = folder->fold(p);
 		TEST_ASSERT(abs(fi.getFreeEnergy()-0.564) < 1e-2);
 		TEST_ASSERT(fi.getStructure() == (StructureID)225);
 		delete folder;
@@ -91,12 +92,12 @@ struct TEST_CLASS( folder_basic )
 		cout << flush;
 
 		double log_nconf = 160.0*log(10.0);
-		ProteinFolder* folder = new DecoyContactFolder(protein_length, log_nconf, structs);
+		ProteinFolder* folder = new DecoyContactFolder(protein_length, log_nconf, structs, structs[0]);
 		int num_to_fold = 100;
 		for (int j=0; j<num_to_fold; j++) {
 			Gene g = Gene::createRandomNoStops(protein_length*3);
 			Protein p = g.translate();
-			FoldInfo fi = p.fold(*folder);
+			FoldInfo fi = folder->fold(p);
 			TEST_ASSERT(fi.getStructure()>-1);
 			//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
 		}
@@ -107,6 +108,84 @@ struct TEST_CLASS( folder_basic )
 		}
 
 		return;
+	}
+
+	void TEST_FUNCTION( contact_reader ) {
+		string seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
+		const char* fname = "1qhwA_6_CB.cmap";
+		ifstream fin;
+		DecoyContactStructure structure;
+		string filename = string("test/data/williams_contact_maps/")+fname;
+		fin.open(filename.c_str());
+		TEST_ASSERT( fin.good() );
+		if (!fin.good()) // if we can't read the contact maps, bail out
+			return;
+		structure.read(fin);
+		fin.close();
+		fin.open(filename.c_str());
+		vector<Contact> contacts = structure.getContacts();
+		int r1, r2;
+		char r1aa, r2aa;
+		for (int i=0; i<contacts.size() && !fin.eof(); i++) {
+			fin >> r1 >> r1aa >> r2 >> r2aa;
+			TEST_ASSERT(contacts[i].first == r1);
+			TEST_ASSERT(contacts[i].second == r2);
+			TEST_ASSERT(seq[r1] == r1aa);
+			TEST_ASSERT(seq[r2] == r2aa);
+			//cout << contacts[i].first << " " << r1 << " " << contacts[i].second << " " << r2 << " " << seq[r1] << " " << r1aa << " " << seq[r2] << " " << r2aa << endl;
+		}
+		fin.close();
+		
+	}
+
+	void TEST_FUNCTION( williams_test ) {
+		// Compare to 
+		// Load the real sequence
+		// Compute free energy
+		string native_1qhw_seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
+		const char* filenames[] = {"1qhwA_6_CB.cmap","1dmhA_6_CB.cmap","1hm4A_6_CB.cmap","1mj5A_6_CB.cmap","1pa1A_6_CB.cmap","1tdb _6_CB.cmap",
+								 "16vpA_6_CB.cmap","1dmwA_6_CB.cmap","1hynP_6_CB.cmap","1mkdA_6_CB.cmap","1pp9A_6_CB.cmap","1tux _6_CB.cmap",
+								 "1b65A_6_CB.cmap","1dtdA_6_CB.cmap","1i9zA_6_CB.cmap","1msvA_6_CB.cmap","1uby _6_CB.cmap","12asA_6_CB.cmap",
+								 "1b7bA_6_CB.cmap","1eg1A_6_CB.cmap","1idm _6_CB.cmap","1nl4A_6_CB.cmap","1qoyA_6_CB.cmap","1uf5A_6_CB.cmap",
+								 "1bg2 _6_CB.cmap","1g9nG_6_CB.cmap","1io7A_6_CB.cmap","1ofzA_6_CB.cmap","1rozA_6_CB.cmap","2bbvA_6_CB.cmap",
+								 "1bt3A_6_CB.cmap","1ghqA_6_CB.cmap","1jfpA_6_CB.cmap","1ogqA_6_CB.cmap","1sdeA_6_CB.cmap","3por _6_CB.cmap",
+								 "1bwdA_6_CB.cmap","1gq8A_6_CB.cmap","1lhpA_6_CB.cmap","1oquA_6_CB.cmap","1sidA_6_CB.cmap","3pvaA_6_CB.cmap",
+								 "1by8A_6_CB.cmap","1gxrA_6_CB.cmap","1m50A_6_CB.cmap","1p8rA_6_CB.cmap","1sig _6_CB.cmap"};
+		vector<string> fnames(filenames, filenames + sizeof(filenames)/sizeof(filenames[0]));
+		vector<DecoyContactStructure*> structs;
+		DecoyContactStructure* target_struct;
+		ifstream fin;
+		int protein_length = 300;
+		for (int i=0; i<fnames.size(); i++) {
+			DecoyContactStructure* cstruct = new DecoyContactStructure();
+			string filename = "test/data/williams_contact_maps/"+fnames[i];
+			fin.open(filename.c_str());
+			TEST_ASSERT( fin.good() );
+			if (!fin.good()) // if we can't read the contact maps, bail out
+				return;
+			cstruct->read(fin);
+			fin.close();
+			if (i==0) {
+				target_struct = cstruct;
+			}
+			else {
+				structs.push_back(cstruct);
+			}
+		}
+		cout << "loaded " << structs.size() << " contact sets" << endl << flush;
+		cout << "length = " << native_1qhw_seq.size() << endl;
+		double log_nconf = 160.0*log(10.0);
+		ProteinFolder* folder = new DecoyContactFolder(protein_length, log_nconf, structs, target_struct);
+		Protein p(native_1qhw_seq);
+		FoldInfo fi = folder->fold(p);
+		//TEST_ASSERT(fi.getStructure()>-1);
+		cout << "Williams:" << endl;
+		cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
+		// Clean up
+		delete folder;
+		for (int i=0; i<structs.size(); i++) {
+			delete structs[i];
+		}
 	}
 };
 

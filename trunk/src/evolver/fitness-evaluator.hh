@@ -121,7 +121,7 @@ public:
 	}
 
 	double getFitness( const Gene &g );
-	double getFitness( Protein& p ) { return getFitness( p.reverseTranslate() ); }
+	double getFitness( Protein& p );
 	virtual bool getFolded( const Gene &g );
 
 	/**

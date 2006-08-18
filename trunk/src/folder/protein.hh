@@ -2,54 +2,17 @@
 #define PROTEIN_HH
 
 #include <vector>
-#include <utility>
-#include <iostream>
-#include "genotype.hh"
-#include "protein-folder.hh"
+#include <string>
+#include "tools.hh"
+#include "sequence.hh"
+#include "genetic-code.hh"
 
 using namespace std;
 
-class Translator;
-class Gene;
-
 typedef pair<int, int> Contact;
-
-class Sequence {
-private:
-	Sequence();
-protected:
-	vector<int> m_sequence;
-	bool m_modified;
-
-	virtual ~Sequence(void) {}
-
-public:
-	Sequence(const vector<int>& v);
-	Sequence(const int length) : m_sequence(length) {}
-
-	virtual uint16 length() const { return m_sequence.size(); }
-	bool modified() const { return m_modified; }
-	int& operator[](const int index);
-	int operator[](const int index) const;
-	void clear() {
-		m_sequence.clear();
-		m_modified = true;
-	}
-
-	typedef vector<int>::iterator iterator;
-	typedef vector<int>::const_iterator const_iterator;
-
-	iterator begin() { return m_sequence.begin(); }
-	iterator end() { return m_sequence.end(); }
-
-	const_iterator begin() const { return m_sequence.begin(); }
-	const_iterator end() const { return m_sequence.end(); }
-};
 
 class Protein : public Sequence {
 private:
-	FoldInfo m_fold_info;
-
 	Protein();
 protected:
 public:
@@ -58,15 +21,11 @@ public:
 	Protein(const string& s);
 	~Protein() {}
 
-	FoldInfo fold(ProteinFolder& folder);
 	int distance(const Protein& p) const;
 	string toString() const;
-
-	Gene reverseTranslate() const;
-	bool operator==(const Protein& p) const;
 };
 
-
+class Translator;
 
 class Gene : public Sequence {
 private:
@@ -90,17 +49,8 @@ public:
 	char getBase(const uint16 index) const;
 	string toString() const;
 
-	operator const Genotype&(void) const;
-
-	/**
-	 * Finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
-	 */
-	static Gene getSequenceForStructure( ProteinFolder &b, unsigned int length, double free_energy_cutoff, const int struct_id );
-	/**
-	 * Finds a random sequence with folding energy smaller than cutoff
-	 */
-	static Gene getSequence( ProteinFolder &b, unsigned int length, double free_energy_cutoff);
 };
+
 
 /*
 ostream & operator<<( ostream &s, const Gene& g );

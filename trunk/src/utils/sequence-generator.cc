@@ -52,9 +52,9 @@ Parameters getParams( int ac, char **av )
 // finds a random sequence with folding energy smaller than cutoff.
 void getSequence( ProteinFolder &b, const Parameters &p, ostream &s )
 {
-	Gene g = Gene::getSequence(b, p.protein_length, p.free_energy_cutoff);
+	Gene g = GeneUtil::getSequence(b, p.protein_length, p.free_energy_cutoff);
 	Protein prot = g.translate();
-	FoldInfo fdata = prot.fold(b);
+	FoldInfo fdata = b.fold(prot);
 	s << g << " " << fdata.getFreeEnergy() << " " << fdata.getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
 	  << endl;
 }
@@ -62,9 +62,9 @@ void getSequence( ProteinFolder &b, const Parameters &p, ostream &s )
 // finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 void getSequenceTargeted( ProteinFolder &b, const Parameters &p, const int struct_id, ostream &s )
 {
-	Gene g = Gene::getSequenceForStructure(b, p.protein_length, p.free_energy_cutoff, struct_id);
+	Gene g = GeneUtil::getSequenceForStructure(b, p.protein_length, p.free_energy_cutoff, struct_id);
 	Protein prot = g.translate();
-	FoldInfo fdata = prot.fold(b);
+	FoldInfo fdata = b.fold(prot);
 	s << g << " " << fdata.getFreeEnergy() << " " << fdata.getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
 	  << endl;
 }

@@ -120,7 +120,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 StructureID getStructureID( ProteinFolder &b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
-		return p.fold(b).getStructure();
+		return b.fold(p).getStructure();
 	}
 	else
 		return (StructureID)-1;
@@ -209,7 +209,7 @@ void misfoldDistExperiment(Parameters& p)
 
 		double fop = GeneUtil::calcFop( rec.gene, isOptimal);
 		Protein prot = rec.gene.translate();
-		double dG = prot.fold(folder).getFreeEnergy();
+		double dG = folder.fold(prot).getFreeEnergy();
 
 		int numAccurate = 0;
 		int numTruncated = 0;

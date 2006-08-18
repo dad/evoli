@@ -755,18 +755,6 @@ FoldInfo CompactLatticeFolder::foldProtein( Protein& p)
 	double Z = 0;
 	double G;
 
-	// print protein sequence
-	//for ( int i=0; i<m_size*m_size; i++ ){
-	//  cout.width(3);
-	//  cout.fill(' ');
-	//  cout << i+1 << " ";
-	//}
-	//cout << endl;
-	//for ( int i=0; i<m_size*m_size; i++ ){
-	//  cout << GeneticCodeUtil::residues[p[i]] << " ";
-	//}
-	//cout << endl;
-
 	for ( int i=0; i<m_num_structures; i++ )
 	{
 		double E = 0;
@@ -781,8 +769,6 @@ FoldInfo CompactLatticeFolder::foldProtein( Protein& p)
 		{
 			double deltaE = contactEnergies[p[(*it).first-1]][p[(*it).second-1]];
 			E += deltaE;
-
-			//	cout << "(" << (*it).first << ", " << (*it).second << ") -> " << GeneticCodeUtil::residues[p[(*it).first-1]] << ":" << GeneticCodeUtil::residues[p[(*it).second-1]] << " " << deltaE << " " << E << endl;
 		}
 		// check if binding energy is lower than any previously calculated one
 		if ( E < minE )
@@ -811,6 +797,57 @@ FoldInfo CompactLatticeFolder::foldProtein( Protein& p)
 	return FoldInfo(G, minIndex);
 }
 
+FoldInfo CompactLatticeFolder::fold( const Sequence& s )
+{
+	assert( m_num_structures > 0 );
+
+	double kT = 0.6;
+	double minE = 1e50;
+	int minIndex = 0;
+	double Z = 0;
+	double G;
+
+	for ( int i=0; i<m_num_structures; i++ )
+	{
+		double E = 0;
+
+		//    cout << "Testing structure " << i << endl;
+		//    m_structures[i]->draw();
+
+		// calculate binding energy of this fold
+		const vector<Contact> &pair_list = m_structures[i]->getInteractingPairs();
+		vector<pair<int,int> >::const_iterator it=pair_list.begin();
+		for ( ; it!=pair_list.end(); it++ )
+		{
+			double deltaE = contactEnergies[s[(*it).first-1]][s[(*it).second-1]];
+			E += deltaE;
+		}
+		// check if binding energy is lower than any previously calculated one
+		if ( E < minE )
+		{
+			minE = E;
+			minIndex = i;
+		}
+		// add energy to partition sum
+		Z +=  exp(-E/kT);
+
+	}
+
+
+	// calculate free energy of folding
+	G = minE + kT * log( Z - exp(-minE/kT) );
+
+	//cout <<  Z << " " << exp(-minE/kT) << " " << G << endl;
+	//cout << "Folding energy: " << minE << endl;
+	//cout << "Folding free energy: " << G << endl;
+
+	// record the structure into which this protein folds
+	m_last_folded_structure = minIndex;
+	// increment folded count
+	m_num_folded += 1;
+
+	return FoldInfo(G, minIndex);
+}
 
 //inline double CompactLatticeFolder::getEnergy(const int *p, const int structID) const {
 inline double CompactLatticeFolder::getEnergy(const Protein& p, const int structID) const {
