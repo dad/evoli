@@ -1,7 +1,7 @@
 #include <Python.h>
 #include <iostream>
 #include "protein.hh"
-#include "protein-folder.hh"
+#include "folder.hh"
 #include "compact-lattice-folder.hh"
 
 #include "Python.h"
