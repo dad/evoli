@@ -16,7 +16,7 @@ cutee_SOURCES = cutee.cc cutee.h
 
 runtest_LDADD = $(top_builddir)/src/evolver/libevolver.a $(top_builddir)/src/folder/libfolder.a
 
-autocutee.mk: cutee Makefile.am $(test_files)
+autocutee.mk: cutee Makefile.am $(test_files) $(runtest_LDADD)
 	$(CUTEE) -k -o autocutee.mk $(test_files)
 
 include autocutee.mk
