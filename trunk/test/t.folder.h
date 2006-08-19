@@ -170,6 +170,7 @@ struct TEST_CLASS( folder_basic )
 			}
 			else {
 				structs.push_back(cstruct);
+				cout << filename << endl;
 			}
 		}
 		cout << "loaded " << structs.size() << " contact sets" << endl << flush;
