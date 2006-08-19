@@ -117,7 +117,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	return s;
 }
 
-StructureID getStructureID( ProteinFolder &b, const Gene &g ) {
+StructureID getStructureID( Folder &b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
 		return b.fold(p).getStructure();

@@ -50,7 +50,7 @@ Parameters getParams( int ac, char **av )
 
 
 // finds a random sequence with folding energy smaller than cutoff.
-void getSequence( ProteinFolder &b, const Parameters &p, ostream &s )
+void getSequence( Folder &b, const Parameters &p, ostream &s )
 {
 	Gene g = GeneUtil::getSequence(b, p.protein_length, p.free_energy_cutoff);
 	Protein prot = g.translate();
@@ -60,7 +60,7 @@ void getSequence( ProteinFolder &b, const Parameters &p, ostream &s )
 }
 
 // finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
-void getSequenceTargeted( ProteinFolder &b, const Parameters &p, const int struct_id, ostream &s )
+void getSequenceTargeted( Folder &b, const Parameters &p, const int struct_id, ostream &s )
 {
 	Gene g = GeneUtil::getSequenceForStructure(b, p.protein_length, p.free_energy_cutoff, struct_id);
 	Protein prot = g.translate();

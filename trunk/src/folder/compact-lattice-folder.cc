@@ -745,58 +745,9 @@ void CompactLatticeFolder::enumerateStructures()
 //	 cout << "#Total number of potentially interacting pairs: " << count << endl;
 }
 
-FoldInfo CompactLatticeFolder::foldProtein( Protein& p)
-{
-	assert( m_num_structures > 0 );
-
-	double kT = 0.6;
-	double minE = 1e50;
-	int minIndex = 0;
-	double Z = 0;
-	double G;
-
-	for ( int i=0; i<m_num_structures; i++ )
-	{
-		double E = 0;
-
-		//    cout << "Testing structure " << i << endl;
-		//    m_structures[i]->draw();
-
-		// calculate binding energy of this fold
-		const vector<Contact> &pair_list = m_structures[i]->getInteractingPairs();
-		vector<pair<int,int> >::const_iterator it=pair_list.begin();
-		for ( ; it!=pair_list.end(); it++ )
-		{
-			double deltaE = contactEnergies[p[(*it).first-1]][p[(*it).second-1]];
-			E += deltaE;
-		}
-		// check if binding energy is lower than any previously calculated one
-		if ( E < minE )
-		{
-			minE = E;
-			minIndex = i;
-		}
-		// add energy to partition sum
-		Z +=  exp(-E/kT);
-
-	}
-
-
-	// calculate free energy of folding
-	G = minE + kT * log( Z - exp(-minE/kT) );
-
-	//cout <<  Z << " " << exp(-minE/kT) << " " << G << endl;
-	//cout << "Folding energy: " << minE << endl;
-	//cout << "Folding free energy: " << G << endl;
-
-	// record the structure into which this protein folds
-	m_last_folded_structure = minIndex;
-	// increment folded count
-	m_num_folded += 1;
-
-	return FoldInfo(G, minIndex);
-}
-
+/**
+ * Fold the sequence and return information about the result (structure, free energy).
+ */
 FoldInfo CompactLatticeFolder::fold( const Sequence& s )
 {
 	assert( m_num_structures > 0 );
@@ -810,9 +761,6 @@ FoldInfo CompactLatticeFolder::fold( const Sequence& s )
 	for ( int i=0; i<m_num_structures; i++ )
 	{
 		double E = 0;
-
-		//    cout << "Testing structure " << i << endl;
-		//    m_structures[i]->draw();
 
 		// calculate binding energy of this fold
 		const vector<Contact> &pair_list = m_structures[i]->getInteractingPairs();
@@ -849,10 +797,9 @@ FoldInfo CompactLatticeFolder::fold( const Sequence& s )
 	return FoldInfo(G, minIndex);
 }
 
-//inline double CompactLatticeFolder::getEnergy(const int *p, const int structID) const {
-inline double CompactLatticeFolder::getEnergy(const Protein& p, const int structID) const {
-	const vector<pair<int,int> > &pair_list = m_structures[structID]->getInteractingPairs();
-	vector<pair<int,int> >::const_iterator it=pair_list.begin();
+inline double CompactLatticeFolder::getEnergy(const Sequence& p, const int structID) const {
+	const vector<Contact> &pair_list = m_structures[structID]->getInteractingPairs();
+	vector<Contact>::const_iterator it=pair_list.begin();
 	double E = 0.0;
 	for ( ; it!=pair_list.end(); it++ ){
 		double deltaE = contactEnergies[p[(*it).first-1]][p[(*it).second-1]];
@@ -861,8 +808,7 @@ inline double CompactLatticeFolder::getEnergy(const Protein& p, const int struct
 	return E;
 }
 
-//void CompactLatticeFolder::getMinMaxPartitionContributions(const int *p, const int ci, double& cmin, double& cmax) const {
-void CompactLatticeFolder::getMinMaxPartitionContributions(const Protein& p, const int ci, double& cmin, double& cmax) const {
+void CompactLatticeFolder::getMinMaxPartitionContributions(const Sequence& p, const int ci, double& cmin, double& cmax) const {
 	double kT = 0.6;
 	double min_cont = 1e5;
 	double max_cont = -1e5;
@@ -884,8 +830,7 @@ void CompactLatticeFolder::getMinMaxPartitionContributions(const Protein& p, con
 	//cout << cmin << tab << cmax << tab << num_contacts << endl;
 }
 
-//bool CompactLatticeFolder::isFoldedBelowThreshold( const int *p, const int structID, double cutoff) const
-bool CompactLatticeFolder::isFoldedBelowThreshold( const Protein& p, const int structID, double cutoff) const
+bool CompactLatticeFolder::isFoldedBelowThreshold( const Sequence& p, const int structID, double cutoff) const
 {
 	assert( m_num_structures > 0 );
 

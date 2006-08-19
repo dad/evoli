@@ -1,7 +1,6 @@
 #include "fitness-evaluator.hh"
 
 #include "genetic-code.hh"
-#include "protein-folder.hh"
 #include "translator.hh"
 #include "gene-util.hh"
 
@@ -14,7 +13,7 @@ FitnessEvaluator::FitnessEvaluator()
 FitnessEvaluator::~FitnessEvaluator()
 {}
 
-ProteinFreeEnergyFitness::ProteinFreeEnergyFitness( ProteinFolder *protein_folder )
+ProteinFreeEnergyFitness::ProteinFreeEnergyFitness( Folder *protein_folder )
 	: m_protein_folder( protein_folder )
 {
 }
@@ -32,13 +31,15 @@ double ProteinFreeEnergyFitness::getFitness( const Gene &g ) {
 }
 
 double ProteinFreeEnergyFitness::getFitness( Protein &p ) {
-	FoldInfo pf = m_protein_folder->fold(p);
-	return exp(-pf.getFreeEnergy());
+	double kT = 0.6;
+	double dG = m_protein_folder->fold(p).getFreeEnergy();
+	double x = exp(-dG/kT);
+	return x/(1.0+x);
 }
 
 
 
-ProteinStructureFitness::ProteinStructureFitness( ProteinFolder *protein_folder, int protein_structure_ID, double max_free_energy )
+ProteinStructureFitness::ProteinStructureFitness( Folder *protein_folder, int protein_structure_ID, double max_free_energy )
 	: m_protein_folder( protein_folder ),
 	  m_protein_structure_ID( protein_structure_ID ),
 	  m_max_free_energy( max_free_energy )
@@ -90,7 +91,7 @@ ErrorproneTranslation::ErrorproneTranslation() {
 	m_error_weight = 1;
 }
 
-void ErrorproneTranslation::init( ProteinFolder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight )
+void ErrorproneTranslation::init( Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight )
 {
 	m_protein_folder = protein_folder;
 	m_protein_length = length;
@@ -866,7 +867,7 @@ AccuracyOnlyTranslation::AccuracyOnlyTranslation() : m_target_sequence(0) {
 AccuracyOnlyTranslation::~AccuracyOnlyTranslation() {
 }
 
-void AccuracyOnlyTranslation::init( ProteinFolder *protein_folder, const int length, const int structure_id, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight ) {
+void AccuracyOnlyTranslation::init( Folder *protein_folder, const int length, const int structure_id, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight ) {
 	m_target_sequence = Protein(length);
 	//t.translateErrorFree( target_gene_sequence, m_target_sequence );
 	//m_last_free_energy = protein_folder->foldProtein( m_target_sequence );
@@ -916,7 +917,7 @@ RobustnessOnlyTranslation::RobustnessOnlyTranslation() {
 RobustnessOnlyTranslation::~RobustnessOnlyTranslation() {
 }
 
-void RobustnessOnlyTranslation::init(ProteinFolder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy,
+void RobustnessOnlyTranslation::init(Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate ) {
 
 	ErrorproneTranslation::init( protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, length, length );

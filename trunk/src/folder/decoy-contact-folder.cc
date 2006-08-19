@@ -1,5 +1,4 @@
 #include "decoy-contact-folder.hh"
-#include "protein.hh"
 #include <fstream>
 #include <cmath>
 
@@ -27,12 +26,14 @@ int DecoyContactStructure::getMaxResidueNumber() {
 	return max_res;
 }
 
-DecoyContactFolder::DecoyContactFolder(int length, double m_log_num_confs, vector<DecoyContactStructure*>& structs, DecoyContactStructure* target) {
+/**
+ * Fold the protein and return folding information (structure, free energy).
+ **/
+DecoyContactFolder::DecoyContactFolder(int length, double m_log_num_confs, vector<DecoyContactStructure*>& structs) {
 	m_length = length;
 	m_structures = structs;
 	m_log_num_conformations = m_log_num_confs;
 	m_num_folded = 0;
-	m_target = target;
 }
 
 FoldInfo DecoyContactFolder::fold(const Sequence& s) {
@@ -73,22 +74,6 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 		sumsqG += G*G;
 	}
 
-
-	// Compare to native state
-	// DAD: debugging
-	minG = 0.0;
-	const vector<Contact> &pair_list = m_target->getContacts();
-	vector<Contact>::const_iterator it=pair_list.begin();
-	for ( ; it!=pair_list.end(); it++ )	{
-		int s1 = (*it).first;
-		int s2 = (*it).second;
-		if (s1 < m_length && s2 < m_length) {
-			double contact_G = contactEnergies[s[s1]][s[s2]];
-			minG += contact_G;
-		}
-	}
-
-
 	unsigned int num_confs = m_structures.size();
 	double mean_G = sumG/num_confs;
 	double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
@@ -112,7 +97,7 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 // structures: Quasi-chemical approximation. Macromolecules 18:534-552
 // (1985).
 //Table V, values e_{ij}.
-
+/*
 const double DecoyContactFolder::contactEnergies[20][20] =
 	{
 		// CYS
@@ -156,9 +141,9 @@ const double DecoyContactFolder::contactEnergies[20][20] =
 		// PRO
 		{ -2.92, -4.11, -3.73, -3.47, -3.06, -2.96, -3.66, -2.80, -1.81, -1.72, -1.66, -1.35, -1.73, -1.43, -1.40, -1.19, -2.17, -1.85, -0.67, -1.18 }
 	};
+*/
 
 
-/*
 // Table VI, values e_{ij}+e_{rr}-e_{ir}-e_{jr}
 const double DecoyContactFolder::contactEnergies[20][20] =
       {
@@ -203,7 +188,7 @@ const double DecoyContactFolder::contactEnergies[20][20] =
 	      // PRO
 	      {  0.00, -0.34,  0.20,  0.25,  0.42,  0.09, -0.28, -0.33,  0.10, -0.11, -0.07,  0.01, -0.42, -0.18, -0.10,  0.04, -0.21, -0.38,  0.11,  0.26 }
       };
-*/
+
 /*// Contact energies according to Miyazawa and Jernigan, Residue-Residue Potentials
 // with a Favorable Contact Pair Term and an Unfavorable High Packing Density Term,
 // for Simulation and Threading. J. Mol. Biol. (1996) 256:623-644
@@ -252,3 +237,19 @@ const double DecoyContactFolder::contactEnergies[20][20] =
 		{-3.07, -3.45, -4.25, -3.76, -4.20, -3.32, -3.73, -3.19, -2.03, -1.87, -1.90, -1.57, -1.53, -1.73, -1.33, -1.26, -2.25, -1.70, -0.97, -1.75}
 	};
 */
+
+void readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs) {
+	string filename;
+	char buf[100];
+	while (!fin.eof()) {
+		fin.getline(buf, 100);
+		string path = dir + string(buf);
+		ifstream cfile(path.c_str());
+		if (!fin.good())
+			continue;
+		DecoyContactStructure* cstruct = new DecoyContactStructure();
+		cstruct->read(cfile);
+		cfile.close();
+		structs.push_back(cstruct);
+	}
+}

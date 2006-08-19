@@ -2,8 +2,7 @@
 #define FITNESS_EVALUATOR_HH
 
 #include "protein.hh"
-
-class ProteinFolder;
+#include "folder.hh"
 
 class FitnessEvaluator {
 private:
@@ -20,9 +19,9 @@ public:
 
 class ProteinFreeEnergyFitness : public FitnessEvaluator {
 private:
-	ProteinFolder *m_protein_folder;
+	Folder *m_protein_folder;
 public:
-	ProteinFreeEnergyFitness( ProteinFolder *protein_folder );
+	ProteinFreeEnergyFitness( Folder *protein_folder );
 	virtual ~ProteinFreeEnergyFitness();
 
 	double getFitness( const Gene &g );
@@ -32,12 +31,12 @@ public:
 
 class ProteinStructureFitness : public FitnessEvaluator {
 private:
-	ProteinFolder *m_protein_folder;
+	Folder *m_protein_folder;
 	int m_protein_structure_ID;
 	double m_max_free_energy;
 
 public:
-	ProteinStructureFitness( ProteinFolder *protein_folder, int protein_structure_ID, double max_free_energy );
+	ProteinStructureFitness( Folder *protein_folder, int protein_structure_ID, double max_free_energy );
 	virtual ~ProteinStructureFitness();
 
 	double getFitness( const Gene &g );
@@ -81,7 +80,7 @@ public:
 class ErrorproneTranslation : public FitnessEvaluator
 {
 protected:
-	ProteinFolder *m_protein_folder;
+	Folder *m_protein_folder;
 	double m_max_free_energy;
 	double m_tr_cost;
 	double m_ca_cost;
@@ -113,7 +112,7 @@ public:
 	ErrorproneTranslation();
 	virtual ~ErrorproneTranslation();
 
-	void init(ProteinFolder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
+	void init(Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 
 	void changeStructure( const int structureID ) {
 		m_protein_structure_ID = structureID;
@@ -206,7 +205,7 @@ public:
 			return m_last_sensitivity_no_stop;
 	}
 
-	ProteinFolder* getFolder() {
+	Folder* getFolder() {
 		return m_protein_folder;
 	}
 
@@ -237,7 +236,7 @@ public:
 	AccuracyOnlyTranslation();
 	virtual ~AccuracyOnlyTranslation();
 
-	void init( ProteinFolder *protein_folder, const int length, const int target_structure_id, const double max_free_energy,
+	void init( Folder *protein_folder, const int length, const int target_structure_id, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 	double getFitness( const Gene &g );
 	bool getFolded( const Gene &g );
@@ -256,7 +255,7 @@ public:
 	RobustnessOnlyTranslation();
 	virtual ~RobustnessOnlyTranslation();
 
-	void init( ProteinFolder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy,
+	void init( Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate );
 	double getFitness( const Gene &g );
 	/**

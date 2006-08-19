@@ -1,4 +1,4 @@
-#include "protein-folder.hh"
+#include "folder.hh"
 #include "fitness-evaluator.hh"
 #include "population.hh"
 #include "translator.hh"
@@ -66,7 +66,7 @@ public:
 
 ostream & operator<<( ostream &s, const Parameters &p );
 
-int getStructureID( ProteinFolder &b, const Gene &g );
+int getStructureID( Folder &b, const Gene &g );
 bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
 		     double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f,
 		     double &ave_fop );

@@ -5,8 +5,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "protein-folder.hh"
-#include "protein.hh"
+#include "folder.hh"
 
 // uncomment next line for older versions of gcc
 //#include <hash_map>
@@ -141,7 +140,7 @@ struct ltstr {
 };
 
 
-class CompactLatticeFolder : public ProteinFolder {
+class CompactLatticeFolder : public Folder {
 private:
 	// some useful typedefs
 	typedef hash_map<const char*, int, hash<const char*>, eqstr> StructureMap;
@@ -178,18 +177,10 @@ public:
 
 	void enumerateStructures();
 	virtual FoldInfo fold( const Sequence& s );
-	FoldInfo foldProtein( Protein& p );
-	bool isFoldedBelowThreshold( const Protein& p, const int structID, double cutoff) const;
-	void getMinMaxPartitionContributions(const Protein& p, const int ci, double& cmin, double& cmax) const;
-	double getEnergy(const Protein& p, const int structID) const;
-	int getLastFoldedProteinStructureID() const
-	{
-		return m_last_folded_structure;
-	}
-	int getProteinLength() const
-	{
-		return m_size*m_size;
-	}
+	bool isFoldedBelowThreshold( const Sequence&s, const int structID, double cutoff) const;
+	void getMinMaxPartitionContributions(const Sequence& s, const int ci, double& cmin, double& cmax) const;
+	double getEnergy(const Sequence& s, const int structID) const;
+
 	void printContactEnergyTable( ostream &s ) const;
 	void printStructure( int id, ostream& os, const char* prefix ) const;
 	vector<int> getSurface( int id ) const

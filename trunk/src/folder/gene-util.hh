@@ -5,7 +5,7 @@
 #include "genetic-code.hh"
 #include "tools.hh"
 #include "translator.hh"
-#include "protein-folder.hh"
+#include "folder.hh"
 #include "protein.hh"
 
 #include <algorithm>
@@ -127,7 +127,7 @@ public:
 	 * Calculates the neutrality of the given protein. Cutoff is the free energy cutoff
 	 * below which the protein folds.
 	 **/
-	static double calcNeutrality( ProteinFolder &b, Protein &p, double cutoff )
+	static double calcNeutrality( Folder &b, Protein &p, double cutoff )
 	{
 		FoldInfo fold_data = b.fold(p);
 		if ( fold_data.getFreeEnergy() > cutoff )
@@ -261,7 +261,7 @@ public:
 	/**
 	 * Finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 	 */
-	static Gene getSequenceForStructure( ProteinFolder &b, unsigned int length, double free_energy_cutoff, const int struct_id )
+	static Gene getSequenceForStructure( Folder &b, unsigned int length, double free_energy_cutoff, const int struct_id )
 	{
 		// find a random sequence with folding energy smaller than cutoff
 		double G;
@@ -331,7 +331,7 @@ public:
 	/**
 	 * Finds a random sequence with folding energy smaller than cutoff
 	 */
-	static Gene getSequence( ProteinFolder &b, unsigned int length, double free_energy_cutoff)
+	static Gene getSequence( Folder &b, unsigned int length, double free_energy_cutoff)
 	{
 		// find a random sequence with folding energy smaller than cutoff
 		double G;

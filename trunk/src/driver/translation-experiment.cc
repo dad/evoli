@@ -27,7 +27,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 }
 
 
-StructureID getStructureID( ProteinFolder &b, const Gene &g ) {
+StructureID getStructureID( Folder &b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
 		return b.fold(p).getStructure();
@@ -48,7 +48,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 	srand48( p.random_seed );
 
 	Population pop( p.N );
-	ProteinFolder& folder = *(fe.getFolder());
+	Folder& folder = *(fe.getFolder());
 	Gene g = GeneUtil::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
 	pop.init(g, &fe, p.u);
 
@@ -105,7 +105,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostre
 	// initialize the population
 	Population pop( p.N );
 
-	ProteinFolder& folder = *(fe->getFolder());
+	Folder& folder = *(fe->getFolder());
 	// Find a sequence.
 	Gene g = GeneUtil::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
 	s << "# Starting genotype: " << g << endl;

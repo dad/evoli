@@ -4,8 +4,9 @@
 #include <vector>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
-#include "protein-folder.hh"
+#include "folder.hh"
 
 using namespace std;
 
@@ -26,7 +27,7 @@ public:
 	int getMaxResidueNumber();
 };
 
-class DecoyContactFolder : public ProteinFolder {
+class DecoyContactFolder : public Folder {
 private:
 	DecoyContactFolder();
 protected:
@@ -35,12 +36,10 @@ protected:
 	vector<DecoyContactStructure*> m_structures;
 	static const double DecoyContactFolder::contactEnergies [20][20];
 	int m_num_folded;
-	DecoyContactStructure* m_target;
 
 public:
-	DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs, DecoyContactStructure* target);
+	DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs);
 	/**
-	 * fold
 	 * Fold the protein and return folding information (structure, free energy).
 	 **/
 	virtual FoldInfo fold(const Sequence& s);
@@ -50,6 +49,8 @@ public:
 	int getNumFolded() { return m_num_folded; }
 	
 };
+
+void readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs);
 
 #endif // DECOY_CONTACT_FOLDER_HH
 
