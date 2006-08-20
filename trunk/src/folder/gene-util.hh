@@ -267,8 +267,9 @@ public:
 		double G;
 		Gene g(length);
 		FoldInfo fdata;
+		double mutation_rate = 1.0/length;
 		bool found = false;
-		double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
+		double min_free_energy_for_starting = max(300.0, free_energy_cutoff);
 
 		// find sequence that encodes the desired structure
 		do {
@@ -290,7 +291,7 @@ public:
 			Gene g2 = g;
 			bool changed = false;
 			do {
-				changed = g2.mutate( 0.02 );
+				changed = g2.mutate( mutation_rate );
 			} while (!changed);
 
 			if (!g2.encodesFullLength()) {
@@ -337,6 +338,7 @@ public:
 		double G;
 		Gene g(length);
 		FoldInfo fdata;
+		double mutation_rate = 1.0/length;
 		bool found = false;
 		double min_free_energy_for_starting = max(300.0, free_energy_cutoff);
 
@@ -360,7 +362,7 @@ public:
 			Gene g2 = g;
 			bool changed = false;
 			do {
-				changed = g2.mutate( 0.02 );
+				changed = g2.mutate( mutation_rate );
 			} while (!changed);
 
 			if (!g2.encodesFullLength()) {
@@ -376,7 +378,7 @@ public:
 					g = g2;
 					G = fdata.getFreeEnergy();
 					fail_count = 0;
-					cout << G << endl;
+					//cout << G << endl;
 				}
 			}
 
