@@ -22,16 +22,13 @@ struct TEST_CLASS( folder_basic )
 	}
 	void TEST_FUNCTION( init_decoy )
 	{
-		vector<DecoyContactStructure*> structs;
 		ifstream fin("test/data/contact_maps/maps.txt");
-		TEST_ASSERT( fin.good() );
-		if (!fin.good()) // if we can't read the contact maps file, bail out
-			return;
-		ContactMapUtil::readContactMapsFromFile(fin, "test/data/contact_maps/", structs);
 		int protein_length = 300;
-
 		double log_nconf = 160.0*log(10.0);
-		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, structs);
+		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/contact_maps/");
+		TEST_ASSERT( folder->good() );
+		if (!folder->good() )
+			return;
 		int num_to_fold = 100;
 		for (int j=0; j<num_to_fold; j++) {
 			Gene g = Gene::createRandomNoStops(protein_length*3);
@@ -42,10 +39,6 @@ struct TEST_CLASS( folder_basic )
 		}
 		// Clean up
 		delete folder;
-		for (int i=0; i<structs.size(); i++) {
-			delete structs[i];
-		}
-
 		return;
 	}
 
@@ -85,17 +78,12 @@ struct TEST_CLASS( folder_basic )
 		string native_1qhw_seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
 
 		int protein_length = 300;
-		vector<DecoyContactStructure*> structs;
-		ifstream fin("test/data/williams_contact_maps/maps.txt");
-		TEST_ASSERT( fin.good() );
-		if (!fin.good()) // if we can't read the contact maps file, bail out
-			return;
-		ContactMapUtil::readContactMapsFromFile(fin, "test/data/williams_contact_maps/", structs);
-
-		//cout << "loaded " << structs.size() << " contact sets" << endl << flush;
-		//cout << "length = " << native_1qhw_seq.size() << endl;
 		double log_nconf = 160.0*log(10.0);
-		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, structs);
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		TEST_ASSERT( folder->good() );
+		if (!folder->good() )
+			return;
 		Protein p(native_1qhw_seq);
 		FoldInfo fi = folder->fold(p);
 		//TEST_ASSERT(fi.getStructure()>-1);
@@ -103,9 +91,6 @@ struct TEST_CLASS( folder_basic )
 		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
 		// Clean up
 		delete folder;
-		for (int i=0; i<structs.size(); i++) {
-			delete structs[i];
-		}
 	}
 };
 

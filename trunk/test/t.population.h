@@ -35,16 +35,9 @@ struct TEST_CLASS( population )
 		double U = 1.0/(N*protein_length);
 		Population pop( N );
 
-
-		vector<DecoyContactStructure*> structs;
 		ifstream fin("test/data/contact_maps/maps.txt");
-		TEST_ASSERT( fin.good() );
-		if (!fin.good()) // if we can't read the contact maps file, bail out
-			return;
-		ContactMapUtil::readContactMapsFromFile(fin, "test/data/contact_maps/", structs);
-
 		double log_nconf = 160 * log(10);
-		DecoyContactFolder folder( protein_length, log_nconf, structs);
+		DecoyContactFolder folder( protein_length, log_nconf, fin, "test/data/contact_maps/");
 		ProteinFreeEnergyFitness fe( &folder );
 		Gene g;
 		FoldInfo fi;

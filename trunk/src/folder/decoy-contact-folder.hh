@@ -48,6 +48,9 @@ public:
 	 * log_num_confs is a numerical fudge-factor; use log(10^160).
 	 **/
 	DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir);
+
+	~DecoyContactFolder();
+
 	/**
 	 * Fold the protein and return folding information (structure, free energy).
 	 **/

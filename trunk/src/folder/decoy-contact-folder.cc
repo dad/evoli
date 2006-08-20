@@ -40,6 +40,13 @@ DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstrea
 	m_num_folded = 0;
 }
 
+DecoyContactFolder::~DecoyContactFolder() {
+	vector<DecoyContactStructure*>::iterator it = m_structures.begin();
+	for ( ; it != m_structures.end(); it++) {
+		delete *it;
+	}
+}
+
 bool DecoyContactFolder::good() {
 	return m_structures.size() > 0;
 }
