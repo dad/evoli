@@ -85,7 +85,7 @@ struct TEST_CLASS( folder_basic )
 		if (!folder->good() )
 			return;
 		Protein p(native_1qhw_seq);
-		FoldInfo fi = folder->fold(p);
+		FoldInfo fi = folder->fold( p );
 		//TEST_ASSERT(fi.getStructure()>-1);
 		//cout << "Williams:" << endl;
 		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
