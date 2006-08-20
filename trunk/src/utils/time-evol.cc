@@ -89,7 +89,6 @@ int main( int ac, char **av)
 
         // initialize the protein folder
         ProteinFolder b(size);
-        b.enumerateStructures();
 
         // let the population evolve
         doAnalysis( b, dataFile );

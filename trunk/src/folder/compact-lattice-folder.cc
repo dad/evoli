@@ -541,7 +541,7 @@ CompactLatticeFolder::CompactLatticeFolder( int size )
 {
 	if ( m_size > 15 )
 	{
-		cout << "Maximally suported size: 15 (because char is being used to enumerate sites" << endl;
+		cout << "Maximally suported size: 15 (because char is being used to enumerate sites)" << endl;
 		exit(-1);
 	}
 	m_last_folded_structure = -1;

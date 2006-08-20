@@ -361,7 +361,6 @@ int main( int ac, char **av)
 
         // initialize the protein folder
         ProteinFolder b(size);
-        b.enumerateStructures();
 
         Params p;
         vector<GenebankData> v;

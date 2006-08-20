@@ -170,13 +170,13 @@ protected:
 	void findFillingWalks( SelfAvoidingWalk &w, int &moves );
 	bool findStructure( const char*s );
 	void storeStructure( const char* s );
+	void enumerateStructures();
 
 public:
 	CompactLatticeFolder( int size );
 	virtual ~CompactLatticeFolder();
 
 	virtual bool good() { return m_structures.size() > 0; }
-	void enumerateStructures();
 	virtual FoldInfo fold( const Sequence& s );
 	bool isFoldedBelowThreshold( const Sequence&s, const int structID, double cutoff) const;
 	void getMinMaxPartitionContributions(const Sequence& s, const int ci, double& cmin, double& cmax) const;

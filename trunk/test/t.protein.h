@@ -79,7 +79,6 @@ struct TEST_CLASS( protein_gene_basic )
 	void TEST_FUNCTION( sequence_for_structure )
 	{
 		CompactLatticeFolder* folder = new CompactLatticeFolder(side_length);
-		folder->enumerateStructures();
 		double max_dg = -5;
 		double sid = 574;
 		Gene g = GeneUtil::getSequenceForStructure(*folder, gene_length, max_dg, sid);
