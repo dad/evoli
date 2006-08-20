@@ -13,7 +13,6 @@ struct TEST_CLASS( folder_basic )
 	void TEST_FUNCTION( init_lattice )
 	{
 		Folder* folder = new CompactLatticeFolder(side_length);
-		dynamic_cast<CompactLatticeFolder*>(folder)->enumerateStructures();
 		Protein p("CSVMQGGKTVFQMPIIERVMQAYNI"); //Gene::createRandomNoStops(gene_length);
 		FoldInfo fi = folder->fold(p);
 		TEST_ASSERT(abs(fi.getFreeEnergy()-0.564) < 1e-2);
@@ -28,7 +27,7 @@ struct TEST_CLASS( folder_basic )
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps file, bail out
 			return;
-		readContactMapsFromFile(fin, "test/data/contact_maps/", structs);
+		ContactMapUtil::readContactMapsFromFile(fin, "test/data/contact_maps/", structs);
 		int protein_length = 300;
 
 		double log_nconf = 160.0*log(10.0);
@@ -91,7 +90,7 @@ struct TEST_CLASS( folder_basic )
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps file, bail out
 			return;
-		readContactMapsFromFile(fin, "test/data/williams_contact_maps/", structs);
+		ContactMapUtil::readContactMapsFromFile(fin, "test/data/williams_contact_maps/", structs);
 
 		//cout << "loaded " << structs.size() << " contact sets" << endl << flush;
 		//cout << "length = " << native_1qhw_seq.size() << endl;

@@ -338,7 +338,7 @@ public:
 		Gene g(length);
 		FoldInfo fdata;
 		bool found = false;
-		double min_free_energy_for_starting = max(0.0, free_energy_cutoff);
+		double min_free_energy_for_starting = max(300.0, free_energy_cutoff);
 
 		// find sequence that encodes the desired structure
 		do {
@@ -376,7 +376,7 @@ public:
 					g = g2;
 					G = fdata.getFreeEnergy();
 					fail_count = 0;
-					//cout << G << endl;
+					cout << G << endl;
 				}
 			}
 

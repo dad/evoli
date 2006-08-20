@@ -549,6 +549,8 @@ CompactLatticeFolder::CompactLatticeFolder( int size )
 	m_ffw_struct = new char[3*m_size*m_size];
 	m_ss_struct = new char[3*m_size*m_size];
 	m_ss_struct2 = new char[3*m_size*m_size];
+	
+	enumerateStructures();
 }
 
 CompactLatticeFolder::~CompactLatticeFolder()

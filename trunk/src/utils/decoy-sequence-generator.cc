@@ -1,4 +1,4 @@
-#include "compact-lattice-folder.hh"
+#include "decoy-contact-folder.hh"
 #include "translator.hh"
 #include "gene-util.hh"
 #include "tools.hh"
@@ -8,7 +8,8 @@
 
 struct Parameters
 {
-	string folder_type;
+	string structure_file;
+	string structure_dir;
 	int protein_length;
 	double free_energy_cutoff;
 	int repetitions;
@@ -31,15 +32,17 @@ ostream & operator<<( ostream &s, const Parameters &p )
 
 Parameters getParams( int ac, char **av )
 {
-	if ( ac != 6 )
+	if ( ac != 8 )
 	{
 		cout << "Start program like this:" << endl;
-		cout << "  " << av[0] << " <prot length> <free_energy_cutoff> <repetitions> <random seed> [<struct id>|-1]" << endl;
+		cout << "  " << av[0] << " <struct list file> <struct dir> <prot length> <free_energy_cutoff> <repetitions> <random seed> [<struct id>|-1]" << endl;
 		exit (-1);
 	}
 
 	Parameters p;
 	int i = 1;
+	p.structure_file = av[i++];
+	p.structure_dir = av[i++];
 	p.protein_length = atoi( av[i++] );
 	p.free_energy_cutoff = atof( av[i++] );
 	p.repetitions = atoi( av[i++] );
@@ -77,9 +80,14 @@ int main( int ac, char **av)
 	// set random seed
 	srand48( p.random_seed );
 
-	int side_length = (int)(sqrt(p.protein_length));
-	// initialize the protein folder
-	CompactLatticeFolder b(side_length);
+	vector<DecoyContactStructure*> structs;
+	string path = (p.structure_dir+p.structure_file);
+	ifstream fin(path.c_str());
+	if (!fin.good()) // if we can't read the contact maps file, bail out
+		return 1;
+	ContactMapUtil::readContactMapsFromFile(fin, p.structure_dir, structs);
+	double log_nconf = 160.0*log(10.0);
+	DecoyContactFolder folder(p.protein_length, log_nconf, structs);
 
 	cout << p;
 	cout << "# <sequence> <free energy> <structure id> <neutrality>" << endl;
@@ -87,12 +95,17 @@ int main( int ac, char **av)
 	for ( int i=0; i<p.repetitions; i++ )
 	{
 		if (p.struct_id < 0) {
-			getSequence( b, p, cout );
+			getSequence( folder, p, cout );
 		}
 		else {
-			getSequenceTargeted( b, p, p.struct_id, cout );
+			getSequenceTargeted( folder, p, p.struct_id, cout );
 		}
 	}
+	for (int i=0; i<structs.size(); i++) {
+		delete structs[i];
+	}
+
+	return 0;
 }
 
 

@@ -42,7 +42,6 @@ folder_init(PyObject *self /* Not used */, PyObject *args)
     if (!PyArg_ParseTuple(args, "i", &side_length))
         return NULL;
 	folder = new CompactLatticeFolder(side_length);
-	folder->enumerateStructures();
 	Py_INCREF(Py_None);
 	return Py_None;
 }

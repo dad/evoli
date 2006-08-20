@@ -26,16 +26,27 @@ int DecoyContactStructure::getMaxResidueNumber() {
 	return max_res;
 }
 
-/**
- * Fold the protein and return folding information (structure, free energy).
- **/
-DecoyContactFolder::DecoyContactFolder(int length, double m_log_num_confs, vector<DecoyContactStructure*>& structs) {
+DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs) {
 	m_length = length;
 	m_structures = structs;
-	m_log_num_conformations = m_log_num_confs;
+	m_log_num_conformations = log_num_confs;
 	m_num_folded = 0;
 }
 
+DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir): m_structures(0) {
+	m_length = length;
+	ContactMapUtil::readContactMapsFromFile(fin, dir, m_structures);
+	m_log_num_conformations = log_num_confs;
+	m_num_folded = 0;
+}
+
+bool DecoyContactFolder::good() {
+	return m_structures.size() > 0;
+}
+
+/**
+ * Fold the protein and return folding information (structure, free energy).
+ **/
 FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 	double kT = 0.6;
 	double minG = 1e50;
@@ -238,7 +249,7 @@ const double DecoyContactFolder::contactEnergies[20][20] =
 	};
 */
 
-void readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs) {
+void ContactMapUtil::readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs) {
 	string filename;
 	char buf[100];
 	while (!fin.eof()) {

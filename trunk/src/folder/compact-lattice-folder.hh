@@ -173,8 +173,9 @@ protected:
 
 public:
 	CompactLatticeFolder( int size );
-	~CompactLatticeFolder();
+	virtual ~CompactLatticeFolder();
 
+	virtual bool good() { return m_structures.size() > 0; }
 	void enumerateStructures();
 	virtual FoldInfo fold( const Sequence& s );
 	bool isFoldedBelowThreshold( const Sequence&s, const int structID, double cutoff) const;

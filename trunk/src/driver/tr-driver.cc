@@ -15,7 +15,6 @@ int main( int ac, char **av)
 	// initialize the protein folder
 	int side_length = (int)(sqrt(p.protein_length));
 	CompactLatticeFolder* folder = new CompactLatticeFolder(side_length);
-	folder->enumerateStructures();
 
 	cout << p;
 

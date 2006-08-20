@@ -18,6 +18,7 @@ class ContactStructure {
 private:
 protected:
 public:
+	virtual ~ContactStructure() {}
 	virtual const vector<Contact>& getContacts() const = 0;
 };
 
@@ -35,6 +36,8 @@ public:
 		m_free_energy = fe;
 		m_structure_id = sid;
 	}
+	virtual ~FoldInfo() {}
+	
 	StructureID getStructure() const { return m_structure_id; }
 	double getFreeEnergy() const { return m_free_energy; }
 };
@@ -43,11 +46,15 @@ class Folder {
 private:
 protected:
 public:
+	virtual ~Folder() {}
 	/**
-	 * fold(): core interface
-	 * Pure virtual to force overriding.
+	 * Fold sequence and return folding information.
 	 **/
 	virtual FoldInfo fold(const Sequence& s) = 0;
+	/**
+	 * Has the folder been properly initialized?
+	 **/
+	virtual bool good() = 0;
 };
 
 #endif // FOLDER_HH

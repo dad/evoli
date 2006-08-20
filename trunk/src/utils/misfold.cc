@@ -135,7 +135,6 @@ void misfoldDistExperiment(Parameters& p)
 	int side_length = (int)(sqrt(p.protein_length));
 	// initialize the protein folder
 	CompactLatticeFolder folder(side_length);
-	folder.enumerateStructures();
 
 	// Read the results.
 	vector<RunRecord> runResults;

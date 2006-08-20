@@ -18,7 +18,6 @@ struct TEST_CLASS( population )
 		double U = .001;
 		Population pop( N );
 		CompactLatticeFolder folder( 4 );
-		folder.enumerateStructures();
 		ProteinFreeEnergyFitness fe( &folder );
 		Gene g( "AAAAAAAAGAGUCCUACCACCCUUGACCUCAUGUCCUGUGCAGAUAAU" );
 		
@@ -31,35 +30,45 @@ struct TEST_CLASS( population )
 
 	void TEST_FUNCTION( decoy_folder )
 	{
+		int protein_length = 300;
 		int N = 100;
-		double U = .001;
+		double U = 1.0/(N*protein_length);
 		Population pop( N );
 
-		int protein_length = 300;
+
 		vector<DecoyContactStructure*> structs;
-		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		ifstream fin("test/data/contact_maps/maps.txt");
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps file, bail out
 			return;
-		readContactMapsFromFile(fin, "test/data/williams_contact_maps/", structs);
+		ContactMapUtil::readContactMapsFromFile(fin, "test/data/contact_maps/", structs);
 
 		double log_nconf = 160 * log(10);
 		DecoyContactFolder folder( protein_length, log_nconf, structs);
 		ProteinFreeEnergyFitness fe( &folder );
 		Gene g;
 		FoldInfo fi;
+		StructureID target_struct = (StructureID)0;
 		do {
 			g = Gene::createRandomNoStops(protein_length*3);
 			Protein p = g.translate();
 			fi = folder.fold(p);
-		} while (fi.getStructure() != (StructureID)0);
+		} while (fi.getStructure() != target_struct);
 
-		double dG = fi.getFreeEnergy();
-		double fitness = exp(-dG/0.6)/(1+exp(-dG/0.6));
+		double fitness = fe.getFitness(g);
 		
 		pop.init( g, &fe, U );
-		// without evolution, mean fitness should equal the fitness
-		// of the incoming gene, which should be 0.691722
+		// with evolution, mean fitness should be greater than the fitness
+		// of the incoming gene.
+		
+		for (int i=0, j=0; i<50; i++, j++) {
+			pop.evolve();
+			//if (j>=100){
+			//	cout << i << "\t" << pop.getAveFitness() << endl;
+			//	j = 0;
+			//}
+		}
+		
 		TEST_ASSERT( pop.getAveFitness() > fitness );
 	}
 };

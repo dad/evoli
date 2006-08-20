@@ -32,7 +32,6 @@ main( int ac, char **av) {
 
 	// initialize the protein folder
 	CompactLatticeFolder b(size);
-	b.enumerateStructures();
 
 	unsigned int buflen = 500;
 	char buf[buflen];

@@ -38,7 +38,16 @@ protected:
 	int m_num_folded;
 
 public:
+	/**
+	 * Create DCF using structures provided in structs.
+	 * log_num_confs is a numerical fudge-factor; use log(10^160).
+	 **/
 	DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs);
+	/**
+	 * Create DCF; obtain structures from files listed in fin and stored in directory dir.
+	 * log_num_confs is a numerical fudge-factor; use log(10^160).
+	 **/
+	DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir);
 	/**
 	 * Fold the protein and return folding information (structure, free energy).
 	 **/
@@ -47,10 +56,17 @@ public:
 	 * Returns the number of proteins that have been folded since initialization.
 	 **/
 	int getNumFolded() { return m_num_folded; }
+
+	/**
+	 * Has folder been properly initialized?
+	 **/
+	virtual bool good();
 	
 };
 
-void readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs);
+struct ContactMapUtil {
+	static void readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs);
+};
 
 #endif // DECOY_CONTACT_FOLDER_HH
 
