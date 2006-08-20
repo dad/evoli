@@ -59,8 +59,7 @@ void getSequence( Folder &b, const Parameters &p, ostream &s )
 	Gene g = GeneUtil::getSequence(b, 3*p.protein_length, p.free_energy_cutoff);
 	Protein prot = g.translate();
 	FoldInfo fdata = b.fold(prot);
-	s << g << " " << fdata.getFreeEnergy() << " " << fdata.getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
-	  << endl;
+	s << g << " " << fdata.getFreeEnergy() << " " << fdata.getStructure() << endl; //" " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff ) << endl;
 }
 
 // finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
@@ -69,8 +68,7 @@ void getSequenceTargeted( Folder &b, const Parameters &p, const int struct_id, o
 	Gene g = GeneUtil::getSequenceForStructure(b, 3*p.protein_length, p.free_energy_cutoff, struct_id);
 	Protein prot = g.translate();
 	FoldInfo fdata = b.fold(prot);
-	s << g << " " << fdata.getFreeEnergy() << " " << fdata.getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
-	  << endl;
+	s << g << " " << fdata.getFreeEnergy() << " " << fdata.getStructure() << endl; // << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff ) << endl;
 }
 
 int main( int ac, char **av)
@@ -86,11 +84,11 @@ int main( int ac, char **av)
 	if (!fin.good()) // if we can't read the contact maps file, bail out
 		return 1;
 	ContactMapUtil::readContactMapsFromFile(fin, p.structure_dir, structs);
-	double log_nconf = 160.0*log(10.0);
+	double log_nconf = 0; //50.0*log(10.0);
 	DecoyContactFolder folder(p.protein_length, log_nconf, structs);
 
 	cout << p;
-	cout << "# <sequence> <free energy> <structure id> <neutrality>" << endl;
+	cout << "# <sequence> <free energy> <structure id>" << endl;
 
 	for ( int i=0; i<p.repetitions; i++ )
 	{
@@ -100,9 +98,6 @@ int main( int ac, char **av)
 		else {
 			getSequenceTargeted( folder, p, p.struct_id, cout );
 		}
-	}
-	for (int i=0; i<structs.size(); i++) {
-		delete structs[i];
 	}
 
 	return 0;
