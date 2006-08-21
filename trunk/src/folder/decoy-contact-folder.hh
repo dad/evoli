@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "folder.hh"
+#include "protein-contact-energies.hh"
 
 using namespace std;
 
@@ -65,8 +66,20 @@ protected:
 	int m_length; ///< Length of the proteins to fold.
 	double m_log_num_conformations; ///< Fudge factor for the folding process.
 	vector<DecoyContactStructure*> m_structures; ///< Vector of the contact maps used as decoys.
-	static const double DecoyContactFolder::contactEnergies [20][20]; ///< Table of contact energies.
+//	static const double DecoyContactFolder::contactEnergies [20][20]; ///< Table of contact energies.
 	int m_num_folded; ///< Number of proteins folded since creation of the folder object.
+
+	/**
+	* Wrapper function to encapsulate the lookup of the
+	* contact energy from a table.
+	*
+	* @param residue1 The first of the two contacting residues.
+	* Mapping from int to residue type is as in class @ref ProteinContactEnergies.
+	* @param residue2 The second of the two contacting residues.
+	* @return The contact energy between the two residues.
+	**/
+	double contactEnergy( int residue1, int residue2 ) const {
+		return ProteinContactEnergies::MJ85TableVI[residue1][residue2]; }
 
 public:
 	/**

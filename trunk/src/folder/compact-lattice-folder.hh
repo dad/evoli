@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "folder.hh"
+#include "protein-contact-energies.hh"
 
 // uncomment next line for older versions of gcc
 //#include <hash_map>
@@ -148,7 +149,7 @@ private:
 	typedef hash_map<const char*, int, hash<const char*>, eqstr>::const_iterator StructureMapConstIterator;
 
 	// the contact energies between residues
-	static const double contactEnergies[20][20];
+//	static const double contactEnergies[20][20];
 	// the size of the square lattice (protein length is size^2)
 	const int m_size;
 	// the number of proteins folded
@@ -171,6 +172,17 @@ protected:
 	bool findStructure( const char*s );
 	void storeStructure( const char* s );
 	void enumerateStructures();
+	/**
+	* Wrapper function to encapsulate the lookup of the
+	* contact energy from a table.
+	*
+	* @param residue1 The first of the two contacting residues.
+	* Mapping from int to residue type is as in class @ref ProteinContactEnergies.
+	* @param residue2 The second of the two contacting residues.
+	* @return The contact energy between the two residues.
+	**/
+	double contactEnergy( int residue1, int residue2 ) const {
+		return ProteinContactEnergies::MJ96TableIII[residue1][residue2]; }
 
 public:
 	CompactLatticeFolder( int size );
