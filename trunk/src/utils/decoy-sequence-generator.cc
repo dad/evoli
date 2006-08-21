@@ -84,7 +84,7 @@ int main( int ac, char **av)
 	if (!fin.good()) // if we can't read the contact maps file, bail out
 		return 1;
 	ContactMapUtil::readContactMapsFromFile(fin, p.structure_dir, structs);
-	double log_nconf = 0; //50.0*log(10.0);
+	double log_nconf = 160.0*log(10.0);
 	DecoyContactFolder folder(p.protein_length, log_nconf, structs);
 
 	cout << p;

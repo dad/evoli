@@ -29,7 +29,7 @@ struct TEST_CLASS( folder_basic )
 		TEST_ASSERT( folder->good() );
 		if (!folder->good() )
 			return;
-		int num_to_fold = 100;
+		int num_to_fold = 1;
 		for (int j=0; j<num_to_fold; j++) {
 			Gene g = Gene::createRandomNoStops(protein_length*3);
 			Protein p = g.translate();

@@ -35,9 +35,9 @@ struct TEST_CLASS( population )
 		double U = 1.0/(N*protein_length);
 		Population pop( N );
 
-		ifstream fin("test/data/contact_maps/maps.txt");
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
 		double log_nconf = 160 * log(10);
-		DecoyContactFolder folder( protein_length, log_nconf, fin, "test/data/contact_maps/");
+		DecoyContactFolder folder( protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
 		ProteinFreeEnergyFitness fe( &folder );
 		Gene g;
 		FoldInfo fi;

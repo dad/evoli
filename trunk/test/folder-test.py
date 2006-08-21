@@ -10,7 +10,7 @@ aas = 'ACDEFGHIKLMNPQRSTVWY'
 # side_length refers to the protein.  E.g., in the 5x5
 # model, side_length=5.
 side_length = 5
-folder.init(side_length)
+folder.init(side_length, "hello")
 
 for i in range(100):
 	# Create a random polypeptide

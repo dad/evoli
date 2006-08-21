@@ -1,7 +1,7 @@
 #include "decoy-contact-folder.hh"
 #include <fstream>
 #include <cmath>
-
+#include "genetic-code.hh"
 
 void DecoyContactStructure::read(ifstream& fin) {
 	int r1, r2;
@@ -58,8 +58,6 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 	double kT = 0.6;
 	double minG = 1e50;
 	int minIndex = 0;
-	double Z = 0;
-	double dG;
 
 	double sumG = 0.0;
 	double sumsqG = 0.0;
@@ -76,10 +74,9 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 			if (s1 < m_length && s2 < m_length) {
 				double contact_G = contactEnergies[s[s1]][s[s2]];
 				G += contact_G;
+				//cout << "(" << s1 << ", " << s2 << ") -> " << GeneticCodeUtil::residues[s[s1]] 
+				//	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
 			}
-
-			//cout << "(" << (*it).first << ", " << (*it).second << ") -> " << GeneticCodeUtil::residues[p[(*it).first]] 
-			//	 << ":" << GeneticCodeUtil::residues[p[(*it).second]] << " " << contact_G << " " << G << endl << flush;
 		}
 		// check if binding energy is lower than any previously calculated one
 		if ( G < minG )
@@ -96,12 +93,14 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 	double mean_G = sumG/num_confs;
 	double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
 	// calculate free energy of folding
-	dG = minG + (var_G - 2*kT*mean_G)/(2.0*kT) + kT * m_log_num_conformations;
+	double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
 
 	//cout << "minG:" << minG << endl;
 	//cout << "mean_G:" << mean_G << endl;
 	//cout << "var_G:" << var_G << endl;
 	//cout << "dG:" << dG << endl;
+	//cout << "(var_G - 2*kT*mean_G)/(2.0*kT): " << ((var_G - 2*kT*mean_G)/(2.0*kT)) << endl;
+	//cout << "kT ln N: " << kT * m_log_num_conformations << endl;
 
 	// increment folded count
 	m_num_folded += 1;
@@ -159,8 +158,8 @@ const double DecoyContactFolder::contactEnergies[20][20] =
 		// PRO
 		{ -2.92, -4.11, -3.73, -3.47, -3.06, -2.96, -3.66, -2.80, -1.81, -1.72, -1.66, -1.35, -1.73, -1.43, -1.40, -1.19, -2.17, -1.85, -0.67, -1.18 }
 	};
-*/
 
+*/
 
 // Table VI, values e_{ij}+e_{rr}-e_{ir}-e_{jr}
 const double DecoyContactFolder::contactEnergies[20][20] =

@@ -14,7 +14,7 @@ static char folder_foldProtein__doc__[] =
 ""
 ;
 
-static CompactLatticeFolder* folder = NULL;
+static Folder* folder = NULL;
 static PyObject *
 folder_foldProtein(PyObject *self /* Not used */, PyObject *args)
 {

@@ -83,8 +83,8 @@ public:
 	 *
 	 * @param length Length of the proteins to fold.
 	 * @param log_num_confs A numerical fudge-factor; use log(10^160).
-	 * @param fin Instream that contains filenames of the contact map files to be read.
-	 * @param dir Directory in which contact maps are stored.
+	 * @param fin An ifstream that contains filenames of the contact map files to be read.
+	 * @param dir Directory in which contact maps are stored (must end with "/" or platform-appropriate directory separator)
 	 **/
 	DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir);
 
