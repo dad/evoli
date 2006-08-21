@@ -9,7 +9,9 @@ void DecoyContactStructure::read(ifstream& fin) {
 	while (!fin.eof()) {
 		fin >> r1 >> r1aa >> r2 >> r2aa;
 		if (r1 >= 0 && r2 >= 0) {
-			m_contacts.push_back(Contact(r1,r2));
+// COW debugging: what happens if we leave out trivial contacts
+//			if ( r1-r2 > 0 || r1-r2 < -0 )
+				m_contacts.push_back(Contact(r1,r2));
 		}
 	}
 }
@@ -89,18 +91,22 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 		sumsqG += G*G;
 	}
 
-	unsigned int num_confs = m_structures.size();
+	// remove min. energy
+	sumG -= minG;
+	sumsqG -= minG*minG;
+
+	unsigned int num_confs = m_structures.size() -1;
 	double mean_G = sumG/num_confs;
 	double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
 	// calculate free energy of folding
 	double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
 
-	//cout << "minG:" << minG << endl;
-	//cout << "mean_G:" << mean_G << endl;
-	//cout << "var_G:" << var_G << endl;
-	//cout << "dG:" << dG << endl;
-	//cout << "(var_G - 2*kT*mean_G)/(2.0*kT): " << ((var_G - 2*kT*mean_G)/(2.0*kT)) << endl;
-	//cout << "kT ln N: " << kT * m_log_num_conformations << endl;
+//	cout << "minG:" << minG << endl;
+//	cout << "mean_G:" << mean_G << endl;
+//	cout << "var_G:" << var_G << endl;
+//	cout << "dG:" << dG << endl;
+//	cout << "(var_G - 2*kT*mean_G)/(2.0*kT): " << ((var_G - 2*kT*mean_G)/(2.0*kT)) << endl;
+//	cout << "kT ln N: " << kT * m_log_num_conformations << endl;
 
 	// increment folded count
 	m_num_folded += 1;
