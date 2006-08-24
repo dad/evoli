@@ -799,8 +799,8 @@ FoldInfo CompactLatticeFolder::fold( const Sequence& s )
 	return FoldInfo(G, minIndex);
 }
 
-inline double CompactLatticeFolder::getEnergy(const Sequence& p, const int structID) const {
-	const vector<Contact> &pair_list = m_structures[structID]->getInteractingPairs();
+inline double CompactLatticeFolder::getEnergy(const Sequence& p, StructureID sid) const {
+	const vector<Contact> &pair_list = m_structures[sid]->getInteractingPairs();
 	vector<Contact>::const_iterator it=pair_list.begin();
 	double E = 0.0;
 	for ( ; it!=pair_list.end(); it++ ){

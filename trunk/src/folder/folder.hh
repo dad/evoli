@@ -49,12 +49,20 @@ public:
 	virtual ~Folder() {}
 	/**
 	 * Fold sequence and return folding information.
+	 * @param s The sequence whose energy is sought.
+	 * @return Folding information (e.g. free energy, structure identifier).
 	 **/
 	virtual FoldInfo fold(const Sequence& s) = 0;
 	/**
+	 * @param s The sequence whose energy is sought.
+	 * @param sid The structure ID of the target conformation.
+	 * @return The contact energy of a sequence in the target conformation.
+	 **/ 
+	virtual double getEnergy(const Sequence& s, StructureID sid) const = 0;
+	/**
 	 * Has the folder been properly initialized?
 	 **/
-	virtual bool good() = 0;
+	virtual bool good() const = 0;
 };
 
 #endif // FOLDER_HH

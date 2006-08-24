@@ -23,7 +23,7 @@ public:
 	/**
 	 * Read from a file.
 	 **/
-	void read(ifstream& fin);
+	void read(istream& fin);
 	virtual const vector<Contact>& getContacts() const { return m_contacts; }
 	int getMaxResidueNumber();
 };
@@ -111,6 +111,12 @@ public:
 	 **/
 	virtual FoldInfo fold(const Sequence& s);
 	/**
+	 * @param s The sequence whose energy is sought.
+	 * @param sid The structure ID of the target conformation.
+	 * @return The contact energy of a sequence in the target conformation.
+	 **/ 
+	double getEnergy(const Sequence& s, StructureID sid) const;
+	/**
 	 * @return The number of proteins that have been folded since initialization.
 	 **/
 	int getNumFolded() { return m_num_folded; }
@@ -118,7 +124,7 @@ public:
 	/**
 	 * @return A bool indicating whether the folder is in a usable state.
 	 **/
-	virtual bool good();
+	virtual bool good() const;
 	
 };
 

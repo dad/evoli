@@ -79,8 +79,8 @@ struct TEST_CLASS( folder_basic )
 
 		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
-		ifstream fin("test/data/williams_contact_maps/maps.txt");
-		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		ifstream fin("test/data/rand_contact_maps/maps.txt");
+		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/rand_contact_maps/");
 		TEST_ASSERT( folder->good() );
 		if (!folder->good() )
 			return;

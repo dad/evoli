@@ -10,13 +10,13 @@ static PyObject *FolderErrorObject;
 
 /* ----------------------------------------------------- */
 
-static char folder_foldProtein__doc__[] =
+static char folder_fold__doc__[] =
 ""
 ;
 
 static Folder* folder = NULL;
 static PyObject *
-folder_foldProtein(PyObject *self /* Not used */, PyObject *args)
+folder_fold(PyObject *self /* Not used */, PyObject *args)
 {
     const char *protein_sequence;
 	if (!folder) {
@@ -29,6 +29,27 @@ folder_foldProtein(PyObject *self /* Not used */, PyObject *args)
 	Protein p(protein_sequence);
 	FoldInfo folding_data = folder->fold(p);
     return Py_BuildValue("if", folding_data.getStructure(), folding_data.getFreeEnergy());
+}
+
+static char folder_getEnergy__doc__[] =
+""
+;
+
+static PyObject *
+folder_getEnergy(PyObject *self /* Not used */, PyObject *args)
+{
+    const char *protein_sequence;
+	int sid;
+	if (!folder) {
+		PyErr_SetString(FolderErrorObject, "uninitialized folder: call 'folder.init(...)'");
+		return NULL;
+	}
+    if (!PyArg_ParseTuple(args, "si", &protein_sequence, &sid)) {
+        return NULL;
+	}
+	Protein p(protein_sequence);
+	double energy = folder->getEnergy(p, sid);
+    return Py_BuildValue("f", energy);
 }
 
 static char folder_init__doc__[] =
@@ -49,9 +70,9 @@ folder_init(PyObject *self /* Not used */, PyObject *args)
 /* List of methods defined in the module */
 
 static struct PyMethodDef folder_methods[] = {
-	{"foldProtein",	(PyCFunction)folder_foldProtein,	METH_VARARGS,	folder_foldProtein__doc__},
- {"init",	(PyCFunction)folder_init,	METH_VARARGS,	folder_init__doc__},
- 
+	{"fold",	(PyCFunction)folder_fold,	METH_VARARGS, folder_fold__doc__},
+	{"init",	(PyCFunction)folder_init,	METH_VARARGS, folder_init__doc__},
+	{"getEnergy",	(PyCFunction)folder_getEnergy,	METH_VARARGS, folder_getEnergy__doc__}, 
 	{NULL,	 (PyCFunction)NULL, 0, NULL}		/* sentinel */
 };
 

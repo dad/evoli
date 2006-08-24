@@ -3,11 +3,12 @@
 #include <cmath>
 #include "genetic-code.hh"
 
-void DecoyContactStructure::read(ifstream& fin) {
+void DecoyContactStructure::read(istream& fin) {
 	int r1, r2;
 	string r1aa, r2aa;
 	while (!fin.eof()) {
 		fin >> r1 >> r1aa >> r2 >> r2aa;
+		//cout << r1 << r1aa << r2 << r2aa << endl;
 		if (r1 >= 0 && r2 >= 0) {
 // COW debugging: what happens if we leave out trivial contacts
 //			if ( r1-r2 > 0 || r1-r2 < -0 )
@@ -38,6 +39,7 @@ DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, vector<
 DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir): m_structures(0) {
 	m_length = length;
 	ContactMapUtil::readContactMapsFromFile(fin, dir, m_structures);
+	//cout << "# structures = " << m_structures.size() << endl;
 	m_log_num_conformations = log_num_confs;
 	m_num_folded = 0;
 }
@@ -49,8 +51,28 @@ DecoyContactFolder::~DecoyContactFolder() {
 	}
 }
 
-bool DecoyContactFolder::good() {
+bool DecoyContactFolder::good() const {
 	return m_structures.size() > 0;
+}
+
+double DecoyContactFolder::getEnergy(const Sequence& s, StructureID sid) const {
+	double G = 0;
+	if (sid >= m_structures.size()) {
+		return 999999;
+	}
+	const vector<Contact> &pair_list = m_structures[sid]->getContacts();
+	vector<Contact>::const_iterator it=pair_list.begin();
+	for ( ; it!=pair_list.end(); it++ )	{
+		int s1 = (*it).first;
+		int s2 = (*it).second;
+		if (s1 < m_length && s2 < m_length) {
+			double contact_G = contactEnergy( s[s1], s[s2] );
+			G += contact_G;
+			//cout << "(" << s1 << ", " << s2 << ") -> " << GeneticCodeUtil::residues[s[s1]] 
+			//	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
+		}
+	}
+	return G;
 }
 
 /**
@@ -59,14 +81,13 @@ bool DecoyContactFolder::good() {
 FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 	double kT = 0.6;
 	double minG = 1e50;
-	int minIndex = 0;
+	int minIndex = -1;
 
 	double sumG = 0.0;
 	double sumsqG = 0.0;
 
 	for ( unsigned int sid = 0; sid < m_structures.size(); sid++) {
 		double G = 0;
-
 		// calculate binding energy of this fold
 		const vector<Contact> &pair_list = m_structures[sid]->getContacts();
 		vector<Contact>::const_iterator it=pair_list.begin();
@@ -101,16 +122,15 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 	// calculate free energy of folding
 	double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
 
-//	cout << "minG:" << minG << endl;
-//	cout << "mean_G:" << mean_G << endl;
-//	cout << "var_G:" << var_G << endl;
-//	cout << "dG:" << dG << endl;
-//	cout << "(var_G - 2*kT*mean_G)/(2.0*kT): " << ((var_G - 2*kT*mean_G)/(2.0*kT)) << endl;
-//	cout << "kT ln N: " << kT * m_log_num_conformations << endl;
-
+	/*cout << "minG:" << minG << endl;
+	cout << "mean_G:" << mean_G << endl;
+	cout << "var_G:" << var_G << endl;
+	cout << "dG:" << dG << endl;
+	cout << "(var_G - 2*kT*mean_G)/(2.0*kT): " << ((var_G - 2*kT*mean_G)/(2.0*kT)) << endl;
+	cout << "kT ln N: " << kT * m_log_num_conformations << endl;
+	*/
 	// increment folded count
 	m_num_folded += 1;
-
 	return FoldInfo(dG, minIndex);
 }
 
@@ -121,11 +141,15 @@ void ContactMapUtil::readContactMapsFromFile(ifstream& fin, const string& dir, v
 		fin.getline(buf, 100);
 		string path = dir + string(buf);
 		ifstream cfile(path.c_str());
-		if (!fin.good())
-			continue;
-		DecoyContactStructure* cstruct = new DecoyContactStructure();
-		cstruct->read(cfile);
-		cfile.close();
-		structs.push_back(cstruct);
+		//cout << path << endl;
+		if (cfile.good()) {
+			DecoyContactStructure* cstruct = new DecoyContactStructure();
+			cstruct->read(cfile);
+			cfile.close();
+			structs.push_back(cstruct);
+		}
+		else {
+			//cout << "not good" << endl;
+		}
 	}
 }

@@ -183,16 +183,22 @@ protected:
 	**/
 	double contactEnergy( int residue1, int residue2 ) const {
 		return ProteinContactEnergies::MJ96TableIII[residue1][residue2]; }
+	//return ProteinContactEnergies::MJ85TableVI[residue1][residue2]; }
 
 public:
 	CompactLatticeFolder( int size );
 	virtual ~CompactLatticeFolder();
 
-	virtual bool good() { return m_structures.size() > 0; }
+	virtual bool good() const { return m_structures.size() > 0; }
 	virtual FoldInfo fold( const Sequence& s );
 	bool isFoldedBelowThreshold( const Sequence&s, const int structID, double cutoff) const;
 	void getMinMaxPartitionContributions(const Sequence& s, const int ci, double& cmin, double& cmax) const;
-	double getEnergy(const Sequence& s, const int structID) const;
+	/**
+	 * @param s The sequence whose energy is sought.
+	 * @param sid The structure ID of the target conformation.
+	 * @return The contact energy of a sequence in the target conformation.
+	 **/ 
+	virtual double getEnergy(const Sequence& s, StructureID sid) const;
 
 	void printContactEnergyTable( ostream &s ) const;
 	void printStructure( int id, ostream& os, const char* prefix ) const;
