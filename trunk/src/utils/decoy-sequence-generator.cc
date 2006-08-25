@@ -81,8 +81,10 @@ int main( int ac, char **av)
 	vector<DecoyContactStructure*> structs;
 	string path = (p.structure_dir+p.structure_file);
 	ifstream fin(path.c_str());
-	if (!fin.good()) // if we can't read the contact maps file, bail out
+	if (!fin.good()){ // if we can't read the contact maps file, bail out
+		cout << "Folder initialization failed" << endl;
 		return 1;
+	}
 	ContactMapUtil::readContactMapsFromFile(fin, p.structure_dir, structs);
 	double log_nconf = 160.0*log(10.0);
 	DecoyContactFolder folder(p.protein_length, log_nconf, structs);
