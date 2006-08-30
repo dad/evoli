@@ -22,10 +22,10 @@ struct TEST_CLASS( folder_basic )
 	}
 	void TEST_FUNCTION( init_decoy )
 	{
-		ifstream fin("test/data/contact_maps/maps.txt");
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
 		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
-		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/contact_maps/");
+		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
 		TEST_ASSERT( folder->good() );
 		if (!folder->good() )
 			return;
@@ -89,7 +89,7 @@ struct TEST_CLASS( folder_basic )
 			return;
 		Protein p(stable_seq);
 		FoldInfo fi = folder->fold( p );
-		//TEST_ASSERT(fi.getStructure()>-1);
+		TEST_ASSERT(fi.getStructure()==34);
 		//cout << "Williams:" << endl;
 		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
 		// Clean up
