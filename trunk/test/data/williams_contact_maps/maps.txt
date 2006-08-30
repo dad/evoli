@@ -1,4 +1,3 @@
-1qhwA_6_CB.cmap
 12asA_6_CB.cmap
 16vpA_6_CB.cmap
 1b65A_6_CB.cmap
@@ -33,11 +32,12 @@
 1p8rA_6_CB.cmap
 1pa1A_6_CB.cmap
 1pp9A_6_CB.cmap
+1qhwA_6_CB.cmap
 1qoyA_6_CB.cmap
 1rozA_6_CB.cmap
 1sdeA_6_CB.cmap
-1sidA_6_CB.cmap
-1sig _6_CB.cmap
+1sidB_6_CB.cmap
+1sig__6_CB.cmap
 1tdb _6_CB.cmap
 1tux _6_CB.cmap
 1uby _6_CB.cmap
