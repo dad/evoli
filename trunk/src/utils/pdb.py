@@ -113,9 +113,9 @@ class Residue:
 
 		dist = -1
 		for atom in self.atoms:
-			if atom.getAtomName() == self_target_atom:
+			if atom.atom_name == self_target_atom:
 				for other_atom in residue.atoms:
-					if other_atom.getAtomName() == target_atom:
+					if other_atom.atom_name == target_atom:
 						dist = atom.getDistance(other_atom)
 		return dist
 

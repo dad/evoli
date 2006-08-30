@@ -62,7 +62,7 @@ def confirm_arguments(arg_dict):
 		res = False
 	return res
 
-def getPDBContacts(residues, contact_distance, nonbonded_only=False):
+def getPDBContacts(residues, contact_distance, chain_ids, nonbonded_only=False):
 	# Get set of residues within contact_distance angstroms in a PDB
 	contacts = []
 	# Loop through all residue pairs
@@ -73,7 +73,7 @@ def getPDBContacts(residues, contact_distance, nonbonded_only=False):
 			resi = residues[i]
 			resj = residues[j]
 			# If both residues are present (gaps == None)
-			if resi and resj:
+			if resi and resj: # and (resi.chain in chain_ids) and (resj.chain in chain_ids):
 				# If residues are within contact_distance angstroms of each other, add as a contact
 				contact = resi.isContactCBeta(resj, contact_distance)
 				if contact:
@@ -114,7 +114,8 @@ def main(args):
 
 	# Generate the contacts
 	# Read in the PDB file to create a list of residues.
-	residues = pdb.File().read(file(pdb_file, 'r'))
+	raw_residues = pdb.File().read(file(pdb_file, 'r'))
+	residues = [res for res in raw_residues if res.chain in chain_identifiers]
 	#sequence = pdb.sequence(residues, chain_ids)
 	
 	# 	The contact file name for output.
@@ -128,9 +129,11 @@ def main(args):
 	# Note that for more than two parents, some of these contacts may only be broken by 
 	# specific chimera patterns.
 	contact_distance = 6.0  # Residues closer than this distance, in angstroms, are in contact.
-	pdb_contacts = getPDBContacts(residues, contact_distance, nonbonded_only=True)
-	#writeContactFile(pdb_contacts, contact_file)
-	print len(pdb_contacts)
+	pdb_contacts = getPDBContacts(residues, contact_distance, chain_identifiers, nonbonded_only=True)
+	writeContactFile(pdb_contacts, contact_file)
+	if False: # DAD: debugging
+		print residues[294].getDistanceCBeta(residues[296])
+		print len(pdb_contacts)
 	
 	if not contact_file == sys.stdout:
 		contact_file.close()

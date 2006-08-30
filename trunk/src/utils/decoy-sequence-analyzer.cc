@@ -71,9 +71,11 @@ int main( int ac, char **av)
 	while (!fin.eof()) {
 		string seq;
 		fin >> seq;
-		Protein p(seq);
-		FoldInfo fi = folder.fold(p);
-		cout << seq << " " << fi.getFreeEnergy() << " " << fi.getStructure() << endl;
+		if (seq[0] != '#') {
+			Protein p(seq);
+			FoldInfo fi = folder.fold(p);
+			cout << seq << " " << fi.getFreeEnergy() << " " << fi.getStructure() << endl;
+		}
 	}
 
 	return 0;

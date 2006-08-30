@@ -42,6 +42,13 @@ public:
 	* (1985), Table VI, values e_{ij}+e_{rr}-e_{ir}-e_{jr}.
 	*/
 	static const double MJ85TableVI[20][20];
+
+	/**
+	 * Contact energies according to Williams et al. PLoS Computational
+	 * Biology 2006.  Energies are MJ85TableVI with a CYS-CYS energy equal
+	 * to the SER-SER energy.
+	 */
+	static const double WilliamsPLoSCB2006[20][20];
 };
 
 

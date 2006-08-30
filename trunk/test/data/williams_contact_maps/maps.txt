@@ -36,7 +36,7 @@
 1qoyA_6_CB.cmap
 1rozA_6_CB.cmap
 1sdeA_6_CB.cmap
-1sidB_6_CB.cmap
+1sidA_6_CB.cmap
 1sig__6_CB.cmap
 1tdb _6_CB.cmap
 1tux _6_CB.cmap

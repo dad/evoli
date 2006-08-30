@@ -6,15 +6,16 @@
 void DecoyContactStructure::read(istream& fin) {
 	int r1, r2;
 	string r1aa, r2aa;
-	while (!fin.eof()) {
+	do {
 		fin >> r1 >> r1aa >> r2 >> r2aa;
 		//cout << r1 << r1aa << r2 << r2aa << endl;
-		if (r1 >= 0 && r2 >= 0) {
-// COW debugging: what happens if we leave out trivial contacts
-//			if ( r1-r2 > 0 || r1-r2 < -0 )
+		if (!fin.eof() && r1 >= 0 && r2 >= 0) {
+			// COW debugging: what happens if we leave out trivial contacts
+			if ( abs(r1-r2) != 1) {
 				m_contacts.push_back(Contact(r1,r2));
+			}
 		}
-	}
+	}while (!fin.eof());
 }
 
 int DecoyContactStructure::getMaxResidueNumber() {
@@ -91,14 +92,20 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 		// calculate binding energy of this fold
 		const vector<Contact> &pair_list = m_structures[sid]->getContacts();
 		vector<Contact>::const_iterator it=pair_list.begin();
+		int num_contacts = 0;
 		for ( ; it!=pair_list.end(); it++ )	{
 			int s1 = (*it).first;
 			int s2 = (*it).second;
 			if (s1 < m_length && s2 < m_length) {
 				double contact_G = contactEnergy( s[s1], s[s2] );
+				// DAD: debugging
+				/*if (sid == 24) {
+					cout << num_contacts << "\t" << s1 << "\t" << s2 << "\t" << GeneticCodeUtil::residueLetters[s[s1]+1] << "\t" << GeneticCodeUtil::residueLetters[s[s2]+1] << "\t" << contact_G << endl;
+					}*/
 				G += contact_G;
 				//cout << "(" << s1 << ", " << s2 << ") -> " << GeneticCodeUtil::residues[s[s1]] 
 				//	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
+				num_contacts++;
 			}
 		}
 		// check if binding energy is lower than any previously calculated one
@@ -108,6 +115,8 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 			minIndex = sid;
 		}
 		// add energy to partition sum
+        // DAD: debugging
+		//cout << G << " energy for str. " << sid << " (" << num_contacts << " contacts of " << pair_list.size() << ")" << endl;
 		sumG += G;
 		sumsqG += G*G;
 	}
@@ -129,6 +138,7 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 	cout << "(var_G - 2*kT*mean_G)/(2.0*kT): " << ((var_G - 2*kT*mean_G)/(2.0*kT)) << endl;
 	cout << "kT ln N: " << kT * m_log_num_conformations << endl;
 	*/
+	
 	// increment folded count
 	m_num_folded += 1;
 	return FoldInfo(dG, minIndex);
@@ -149,7 +159,7 @@ void ContactMapUtil::readContactMapsFromFile(ifstream& fin, const string& dir, v
 			structs.push_back(cstruct);
 		}
 		else {
-			//cout << "not good" << endl;
+			cout << "# bad file " << path << endl;
 		}
 	}
 }

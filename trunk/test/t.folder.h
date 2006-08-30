@@ -59,16 +59,18 @@ struct TEST_CLASS( folder_basic )
 		vector<Contact> contacts = structure.getContacts();
 		int r1, r2;
 		char r1aa, r2aa;
-		for (int i=0; i<contacts.size() && !fin.eof(); i++) {
+		for (int i=0; i<contacts.size() && !fin.eof();) {
 			fin >> r1 >> r1aa >> r2 >> r2aa;
-			TEST_ASSERT(contacts[i].first == r1);
-			TEST_ASSERT(contacts[i].second == r2);
-			TEST_ASSERT(seq[r1] == r1aa);
-			TEST_ASSERT(seq[r2] == r2aa);
+			if (abs(r1-r2)>1) {
+				TEST_ASSERT(contacts[i].first == r1);
+				TEST_ASSERT(contacts[i].second == r2);
+				TEST_ASSERT(seq[r1] == r1aa);
+				TEST_ASSERT(seq[r2] == r2aa);
+				i++;
+			}
 			//cout << contacts[i].first << " " << r1 << " " << contacts[i].second << " " << r2 << " " << seq[r1] << " " << r1aa << " " << seq[r2] << " " << r2aa << endl;
 		}
 		fin.close();
-		
 	}
 
 	void TEST_FUNCTION( williams_test ) {
@@ -76,15 +78,16 @@ struct TEST_CLASS( folder_basic )
 		// Load the real sequence
 		// Compute free energy
 		string native_1qhw_seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
+		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
 
 		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
-		ifstream fin("test/data/rand_contact_maps/maps.txt");
-		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/rand_contact_maps/");
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
 		TEST_ASSERT( folder->good() );
 		if (!folder->good() )
 			return;
-		Protein p(native_1qhw_seq);
+		Protein p(stable_seq);
 		FoldInfo fi = folder->fold( p );
 		//TEST_ASSERT(fi.getStructure()>-1);
 		//cout << "Williams:" << endl;
