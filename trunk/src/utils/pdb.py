@@ -33,7 +33,7 @@ class Atom:
 		return int(self.line[6:11])
 		
 	def getResidueSequenceNumber(self):
-		return int(self.line[22:26])
+		return self.line[22:26]
 	
 	def getInsertionCode(self):
 		return self.line[26]
@@ -63,10 +63,10 @@ class Atom:
 		return math.sqrt((self.x-atom.x)**2 + (self.y-atom.y)**2 + (self.z-atom.z)**2)
 	
 	def getResidueID(self):
-		return ('%d'%self.getResidueSequenceNumber())+self.getInsertionCode()
+		return self.getResidueSequenceNumber()+self.getInsertionCode()
 		
 	def __repr__(self):
-		return '%s %d %s (%1.3f, %1.3f, %1.3f)' % (self.residue, self.res_seq, self.atom_name, self.x, self.y, self.z)
+		return '%s %s %s (%1.3f, %1.3f, %1.3f)' % (self.residue, self.res_seq, self.atom_name, self.x, self.y, self.z)
 
 class Residue:
 	"Reads a series of lines and extracts all atoms with the same \
@@ -89,7 +89,7 @@ class Residue:
 		else:
 			atom = None
 			self.residue = '-'
-			self.res_seq = -1
+			self.res_seq = "-1"
 			self.chain = None
 			self.atoms = []
 				
@@ -133,7 +133,7 @@ class Residue:
 				if other_atom.atom_name in atoms_to_exclude:
 					continue
 				dist = atom.getDistance(other_atom)				
-				if dist <= min_dist:
+				if dist < min_dist:
 					return True
 		return False
 	

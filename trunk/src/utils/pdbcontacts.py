@@ -83,7 +83,8 @@ def getPDBContacts(residues, contact_distance, chain_ids, nonbonded_only=False):
 def writeContactFile(contacts, outfile):
 	for k in range(len(contacts)):
 		(i, j, resi, resj) = contacts[k]
-		outfile.write("%d\t%s\t%d\t%s\n" % (i, pdb.three_to_one_map[resi.residue], j, pdb.three_to_one_map[resj.residue]))
+		#outfile.write("%d\t%s\t%d\t%s\t%f\n" % (i, pdb.three_to_one_map[resi.residue], j, pdb.three_to_one_map[resj.residue], resi.getDistanceCBeta(resj)))
+		outfile.write("%d\t%s\t%d\t%s\n" % (i, pdb.three_to_one_map[resi.residue], j, pdb.three_to_one_map[resj.residue]))		
 
 def main(args):
 	arg_dict = parse_arguments(args)

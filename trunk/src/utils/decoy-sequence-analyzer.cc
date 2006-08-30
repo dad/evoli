@@ -49,7 +49,6 @@ int main( int ac, char **av)
 {
 	Parameters p = getParams( ac, av );
 
-	vector<DecoyContactStructure*> structs;
 	string path = (p.structure_dir+p.structure_file);
 	ifstream fin(path.c_str());
 	if (!fin.good()) {// if we can't read the contact maps file, bail out
