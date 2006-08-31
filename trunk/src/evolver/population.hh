@@ -203,7 +203,7 @@ public:
 	 * Retrieves the mutation rate.
 	 * @return The mutation rate.
 	 **/
-	int getMutationRate() { return m_U; }
+	double getMutationRate() { return m_U; }
 
 	/**
 	 * Advances the population one time step.
