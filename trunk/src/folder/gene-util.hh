@@ -42,12 +42,12 @@ public:
 	static void calcSNSitesSurfaceCore( double &NSurf, double &NCore, double &SSurf, double &SCore,
 					    const Gene &g, const vector<int> &surface )
 	{
-		int e = g.codonLength();
+		unsigned int e = g.codonLength();
 		assert( e == surface.size() );
 		NSurf = NCore = SSurf = SCore = 0;
 		double tmp_N, tmp_S;
 
-		for ( int i=0; i<e; i++ )
+		for ( unsigned int i=0; i<e; i++ )
 		{
 			tmp_S = GeneticCodeUtil::calcSynonymousSites( g[i] );
 			tmp_N = 3 - tmp_S;
@@ -136,7 +136,7 @@ public:
 
 		int count = 0;
 		// go through all positions in the protein
-		for ( int i=0; i<p.length(); i++ )
+		for ( unsigned int i=0; i<p.length(); i++ )
 		{
 
 			// go through all possible point mutations
@@ -235,7 +235,7 @@ public:
 		Gene result(g);
 		if ( g.encodesFullLength() ) {
 			Protein p = g.translate();
-			for ( int i=0; i<p.length(); i++ ) {
+			for ( unsigned int i=0; i<p.length(); i++ ) {
 				int num_alts = GeneticCodeUtil::residueToAllCodonsTable[p[i]][0];
 				// Now choose from alternatives at random
 				int randbin = (int)(myRand()*num_alts);

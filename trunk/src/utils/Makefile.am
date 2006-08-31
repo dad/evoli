@@ -20,3 +20,6 @@ misfold_SOURCES = misfold.cc
 misfold_LDADD = $(top_builddir)/src/evolver/libevolver.a $(top_builddir)/src/folder/libfolder.a
 
 bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer structure-printer misfold
+
+clean:
+	rm *.pyc

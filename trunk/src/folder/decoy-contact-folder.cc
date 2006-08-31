@@ -39,9 +39,10 @@ DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, vector<
 
 DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir): m_structures(0) {
 	m_length = length;
+	m_log_num_conformations = log_num_confs;
 	ContactMapUtil::readContactMapsFromFile(fin, dir, m_structures);
 	//cout << "# structures = " << m_structures.size() << endl;
-	m_log_num_conformations = log_num_confs;
+	//cout << "# lognumconfs = " << log_num_confs << endl;
 	m_num_folded = 0;
 }
 

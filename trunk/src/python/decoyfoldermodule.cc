@@ -29,6 +29,7 @@ decoyfolder_fold(PyObject *self /* Not used */, PyObject *args)
 	}
 	Protein p(protein_sequence);
 	FoldInfo folding_data = folder->fold(p);
+	//cout << folding_data.getStructure() << " " << folding_data.getFreeEnergy() << endl << p << endl;
     return Py_BuildValue("if", folding_data.getStructure(), folding_data.getFreeEnergy());
 }
 
@@ -64,7 +65,7 @@ decoyfolder_init(PyObject *self /* Not used */, PyObject *args)
 	const char *map_dir;
 	double nconf;
 	int length;
-    if (!PyArg_ParseTuple(args, "ifss", &length, &nconf, &map_file, &map_dir))
+    if (!PyArg_ParseTuple(args, "idss", &length, &nconf, &map_file, &map_dir))
         return NULL;
 	string path = map_file;
 	ifstream fin(path.c_str());

@@ -102,7 +102,7 @@ class Residue:
 					smallest_distance = dist
 		return smallest_distance
 	
-	def getDistanceCBeta(self, residue):
+	def getDistanceCBeta(self, residue, printit=False):
 		"""Get beta-carbon distance between residues (except glycine, where alpha-carbon is used)"""
 		self_target_atom = 'CB'
 		target_atom = 'CB'
@@ -116,7 +116,11 @@ class Residue:
 			if atom.atom_name == self_target_atom:
 				for other_atom in residue.atoms:
 					if other_atom.atom_name == target_atom:
+						if printit:
+							print atom
+							print other_atom
 						dist = atom.getDistance(other_atom)
+						return dist
 		return dist
 
 	def isContactCBeta(self, residue, min_dist=4.5):
@@ -138,7 +142,7 @@ class Residue:
 		return False
 	
 	def __repr__(self):
-		return '%s %d' % (self.residue, self.res_seq)
+		return '%s %s' % (self.residue, self.res_seq)
 
 class File:
 	def __init__(self):

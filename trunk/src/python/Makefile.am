@@ -8,6 +8,7 @@ install: $(top_builddir)/src/folder/libfolder.a
 
 clean:
 	rm -rf build
+	rm *.pyc
 
 maintainer-clean: clean
 	rm Makefile Makefile.in

@@ -83,8 +83,12 @@ def getPDBContacts(residues, contact_distance, chain_ids, nonbonded_only=False):
 def writeContactFile(contacts, outfile):
 	for k in range(len(contacts)):
 		(i, j, resi, resj) = contacts[k]
-		#outfile.write("%d\t%s\t%d\t%s\t%f\n" % (i, pdb.three_to_one_map[resi.residue], j, pdb.three_to_one_map[resj.residue], resi.getDistanceCBeta(resj)))
+		#outfile.write("%d\t%s\t%d\t%s\t%f\n" % (i, pdb.three_to_one_map[resi.residue], j, pdb.three_to_one_map[resj.residue], resi.getDistanceCBeta(resj, False)))
 		outfile.write("%d\t%s\t%d\t%s\n" % (i, pdb.three_to_one_map[resi.residue], j, pdb.three_to_one_map[resj.residue]))		
+
+def writeResidues(residues):
+	for i in range(len(residues)):
+		print i, residues[i]
 
 def main(args):
 	arg_dict = parse_arguments(args)
@@ -132,6 +136,7 @@ def main(args):
 	contact_distance = 6.0  # Residues closer than this distance, in angstroms, are in contact.
 	pdb_contacts = getPDBContacts(residues, contact_distance, chain_identifiers, nonbonded_only=True)
 	writeContactFile(pdb_contacts, contact_file)
+	#writeResidues(residues)
 	if False: # DAD: debugging
 		print residues[294].getDistanceCBeta(residues[296])
 		print len(pdb_contacts)
