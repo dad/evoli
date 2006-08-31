@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -183,7 +184,7 @@ inline string itoa(int value, int base) {
 	int quotient = value;
 	// Translating number to string with base:
 	do {
-		buf += "0123456789abcdef"[ std::abs( quotient % base ) ];
+		buf += "0123456789abcdef"[ abs( quotient % base ) ];
 		quotient /= base;
 	} while ( quotient );
 	// Append the negative sign for base 10
