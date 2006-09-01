@@ -175,6 +175,14 @@ inline pair<double, double> meanvar( double s1, double s2, int n )
         return p;
 }
 
+/**
+ * Converts an integer into a character string.
+ * Numbers must be no longer than 35 characters, and base must be between 2 (binary) and 16 (hexadecimal).
+ * 
+ * @param value Integer to convert into a string.
+ * @param base Numerical base for integer conversion (e.g. 10=decimal, 2=binary).
+ * @return A string representation of this integer.
+ **/
 inline string itoa(int value, int base) {
 	enum { kMaxDigits = 35 };
 	string buf;

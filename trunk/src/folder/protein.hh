@@ -74,12 +74,11 @@ inline ostream & operator<<( ostream &s, const Protein &p ) {
 	return s;
 }
 
-inline istream & operator>>( istream &s, Gene & g )
-{
-        string str;
-		s >> str;
-		g = Gene(str);
-		return s;
+inline istream & operator>>( istream &s, Gene & g ) {
+	string str;
+	s >> str;
+	g = Gene(str);
+	return s;
 }
 
 
