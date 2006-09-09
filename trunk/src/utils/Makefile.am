@@ -21,5 +21,5 @@ misfold_LDADD = $(top_builddir)/src/evolver/libevolver.a $(top_builddir)/src/fol
 
 bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer structure-printer misfold
 
-clean:
-	rm *.pyc
+CLEANFILES = pdbcontacts.pyc pdb.pyc
+
