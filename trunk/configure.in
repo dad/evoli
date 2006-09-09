@@ -42,18 +42,19 @@ AC_CHECK_FUNCS([pow sqrt])
 
 # debuging and profiling options
 AC_ARG_ENABLE(debug,
-[  --enable-debug: Compile with debugging symbols],
-  CPPFLAGS="-g -DDEBUG",
-  CPPFLAGS="-O2")
-
-AC_ARG_ENABLE(optimization,
-[  --enable-optimization: Compile with optimization],
-  CPPFLAGS="${CPPFLAGS} -O3 -ffast-math -fomit-frame-pointer",
+[  --disable-debug: Don't compile with debugging symbols],
+  CXXFLAGS="-O2",
+  CXXFLAGS="-g -DDEBUG"
 )
 
 AC_ARG_ENABLE(profile,
 [  --enable-profile: Compile with profiling symbols],
-  CPPFLAGS="${CPPFLAGS} -pg -a")
+  CXXFLAGS="${CXXFLAGS} -pg -a")
+
+AC_ARG_ENABLE(final,
+[  --enable-final: Compile with aggressive optimization, don't include any debugging symbols],
+  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -DNDEBUG",
+)
 
 # documentation
 AC_ARG_ENABLE(apidoc,

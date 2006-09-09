@@ -4,7 +4,7 @@ include $(top_srcdir)/config/Make-rules
 
 lib_LIBRARIES = libtools.a
 
-libtools_a_SOURCES = random.cc cokus.c
+libtools_a_SOURCES = random.cc
 
 noinst_PROGRAMS = test.random
 
