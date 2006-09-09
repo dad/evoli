@@ -67,7 +67,7 @@ AM_CONDITIONAL(BUILD_APIDOC, test x$bapidoc = xyes)
 # **********************************************
 #                 Makefile generation
 # **********************************************
-AC_CONFIG_FILES([Makefile src/Makefile src/driver/Makefile src/folder/Makefile
+AC_CONFIG_FILES([Makefile src/Makefile src/tools/Makefile src/driver/Makefile src/folder/Makefile
 				src/evolver/Makefile src/python/Makefile src/utils/Makefile
 				doc/Makefile test/Makefile])
 AC_OUTPUT

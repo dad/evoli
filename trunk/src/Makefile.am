@@ -2,4 +2,5 @@
 
 include $(top_srcdir)/config/Make-rules
 
-SUBDIRS = folder evolver driver python utils
+SUBDIRS = tools folder evolver driver python utils
+

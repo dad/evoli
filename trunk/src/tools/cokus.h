@@ -1,3 +1,9 @@
+#ifndef COKUS_H
+#define COKUS_H
+
+// Minor modifications to this file were made by Claus O. Wilke, Sep. 2006
+
+/**
 // This is the ``Mersenne Twister'' random number generator MT19937, which
 // generates pseudorandom integers uniformly distributed in 0..(2^32 - 1)
 // starting from any odd seed in 0..(2^32 - 1).  This version is a recode
@@ -42,6 +48,7 @@
 //
 // It would be nice to CC: <Cokus@math.washington.edu> when you write.
 //
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -161,7 +168,7 @@ inline uint32 randomMT(void)
     return(y ^ (y >> 18));
  }
 
-#if 0
+/*
 int main(void)
  {
     int j;
@@ -177,4 +184,6 @@ int main(void)
 
     return(EXIT_SUCCESS);
  }
+*/
+
 #endif
