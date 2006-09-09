@@ -39,6 +39,9 @@ public:
 	ProteinStructureFitness( Folder *protein_folder, int protein_structure_ID, double max_free_energy );
 	virtual ~ProteinStructureFitness();
 
+	void setFreeEnergyCutoff(double cutoff) { m_max_free_energy = cutoff; }
+	double getFreeEnergyCutoff() const { return m_max_free_energy; }
+
 	double getFitness( const Gene &g );
 	double getFitness( Protein &p );
 };
