@@ -147,6 +147,10 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 
 void ContactMapUtil::readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs) {
 	string filename;
+	if ( !fin.good() ){
+		cout << "# Warning: cannot read from stream in ContactMapUtil::readContactMapsFromFile" << endl;
+		return;
+	}
 	do {
 		fin >> filename;
 		if (!fin.eof()) {
@@ -160,7 +164,7 @@ void ContactMapUtil::readContactMapsFromFile(ifstream& fin, const string& dir, v
 				structs.push_back(cstruct);
 			}
 			else {
-				cout << "# bad file " << path << endl;
+				cout << "# Warning: bad file in ContactMapUtil::readContactMapsFromFile: " << path << endl;
 			}
 		}
 	} while (!fin.eof());
