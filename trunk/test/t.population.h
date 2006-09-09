@@ -28,6 +28,50 @@ struct TEST_CLASS( population )
 		TEST_ASSERT( abs(pop.getAveFitness()-0.691722) < 1e-4 );
 	}
 
+	void TEST_FUNCTION( lattice_folder )
+	{
+		int N = 50;
+		int size = 4;
+		int length = size*size;
+		double U = 0.01;
+		srand48( 37 ); // initialize random number generator
+		CompactLatticeFolder b(size);
+		ProteinFreeEnergyFitness fe( &b );
+		Population p( N );
+		Gene g = Gene::createRandom( length*3 );
+		bool randomOK = true;
+		TEST_ASSERT( randomOK = ( g == Gene( "CGAUCACGGACGAGAUACAACCCUCAUGUGUGUCUGGAGAAAUUUGUC" ) ) );
+		if ( !randomOK )
+			cout << "Test failures in function lattice_folder likely due to differences in random number generator" << endl;
+		p.init( g, &fe, U );
+		int equil_time = 100;
+		int window_size = 30;
+		for ( int i=0; ; i++ )
+		{
+			for ( int j=0; j<100; j++ )
+			{
+				p.evolve();
+			}
+			p.prepareCoalescenceCalcs();
+			if ( p.calcCoalescenceTime() > equil_time + window_size )
+				break;
+		}
+//		p.printGenebank( cout );
+		double ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop;
+		vector<bool> is_optimal;
+		for( int i=0; i<64; i++ )
+			is_optimal.push_back( false );
+
+		p.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
+
+		TEST_ASSERT( fabs( ave_dn - 7) < 1e-4 );
+		TEST_ASSERT( fabs( ave_ds - 3) < 1e-4 );
+		TEST_ASSERT( fabs( ave_N - 36.3444) < 1e-4 );
+		TEST_ASSERT( fabs( ave_S - 11.6556) < 1e-4 );
+		TEST_ASSERT( fabs( ave_f - 0.984074) < 1e-4 );
+		TEST_ASSERT( fabs( ave_fop - 0) < 1e-10 );
+	}
+
 	void TEST_FUNCTION( decoy_folder )
 	{
 		int protein_length = 300;
