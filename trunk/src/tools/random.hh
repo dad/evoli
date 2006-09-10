@@ -39,18 +39,40 @@ drand48().
 class Random
 {
 public:
+
 	/**
-	* @return A random 32 bit unsigned integer.
+	* Function that quickly and accurately calculates binomial probabilities. It uses the
+	* Loader algorithm, as described here: http://www.herine.net/stat/papers/dbinom.pdf
+	* The implementation is restricted to a maximum n of 2^31-1=2147483647.
+	* @param k Number of successes
+	* @param n Number of trials
+	* @param p Probability of success
+	*/
+	static double dbinom( int k, int n, double p );
+
+	/**
+	* Function that quickly and accurately calculates Poisson probabilities. It uses the
+	* Loader algorithm, as described here: http://www.herine.net/stat/papers/dbinom.pdf
+	* The implementation is restricted to a maximum k of 2^31-1=2147483647.
+	* @param k Value of Poisson random variable.
+	* @param mean Mean of Poisson random variable.
+	*/
+	static double dpois( int k, double mean );
+
+	/**
+	* @return A random 32 bit unsigned integer on the interval [0, 2^32-1].
 	*/
 	static uint rint();
 
 	/**
+	* This function calculates uniformly distributed random variates.
 	* @return A random double chosen from uniform distribution on the interval [0, 1).
 	*/
 	static double runif();
 
 	/**
-	* This function returns random normal variates. It is based on the method by
+	* This function calculates normally distributed random variates. It is based on 
+	* the method by
 	* J. H. Ahrens and U. Dieter, Extensions of Forsythe's method for random sampling
 	* from the normal distribution. Math. Comput. 27,124 (OCT. 1973), 927 - 937.
 	*
@@ -59,6 +81,25 @@ public:
 	* @return A random double chosen from the normal distribution with given mean and standard deviation.
 	*/
 	static double rnorm( double mean = 0, double sd = 1 );
+
+
+	/**
+	* This function calculates poisson-distributed random variates.
+	* @param mean Mean of the possion distribution.
+	* @return A random double chosen from the Poisson distribution with given mean.
+	*/
+	static uint rpois( double mean );
+
+	/**
+ 	* This function generates a random integer choosen from a discrete
+	* probability distribution. It uses a binary search algorithm that is very fast
+	* even for large arrays.
+	* @param distr Array of floating-point numbers that are monotonically increasing
+	* from 0 to 1 and define the probability distribution.
+	* @param n Number of entries in the array distr.
+	* @return A randomly chosen integer between 0 and n-1.
+ 	**/
+	static uint randintFromDistr( double *distr, int n );
 
 	/**
 	* Seeds the random number generator. Any 32-bit unsigned integer

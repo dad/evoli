@@ -4,11 +4,14 @@
 #include "protein.hh"
 #include "gene-util.hh"
 #include "compact-lattice-folder.hh"
+#include <iostream>
+using namespace std;
 
 struct TEST_CLASS( protein_gene_basic )
 {
 	const static int side_length = 5;
 	const static int gene_length = side_length*side_length*3;
+
 	void TEST_FUNCTION( length_test )
 	{
 		Gene g = Gene::createRandom(gene_length);

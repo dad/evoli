@@ -5,6 +5,8 @@
     $Id: cutee.h,v 1.21 2004/02/27 18:10:51 tat Exp $
  ***************************************************************************/
 
+// minor modifications done by Claus O. Wilke, Sep. 2006
+
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -222,14 +224,20 @@ struct StatsMonitor: public TestRunMonitor
 	// void leaveSuite(const CuteeTest& t, int b) {}
 	void enterClass(const CuteeTest& t) 
 	{
+		std::cout << "Running tests for " << t.className() << std::flush;
 		mClassCount++;
 	}
 	void leaveClass(const CuteeTest& t, int b) 
 	{
-		if(b) 
+		if(b)
+		{
 			mClassPassed++;
-		else 
+			std::cout << "     [Ok]" << std::endl;
+		}
+		else
+		{
 			mClassFailed++;
+		}
 	}
 	void enterFunction(const CuteeTest&)
 	{

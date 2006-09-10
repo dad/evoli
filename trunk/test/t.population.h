@@ -5,7 +5,6 @@
 #include "decoy-contact-folder.hh"
 #include "fitness-evaluator.hh"
 #include "population.hh"
-#include <iostream>
 
 struct TEST_CLASS( population )
 {

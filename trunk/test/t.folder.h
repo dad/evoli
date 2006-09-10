@@ -6,10 +6,12 @@
 #include "protein.hh"
 #include <fstream>
 
+
 struct TEST_CLASS( folder_basic )
 {
 	const static int side_length = 5;
 	const static int gene_length = side_length*side_length*3;
+
 	void TEST_FUNCTION( init_lattice )
 	{
 		Folder* folder = new CompactLatticeFolder(side_length);
