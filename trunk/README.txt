@@ -1,7 +1,7 @@
 E.voli 0.1
 ==========
 
-To build this project:
+To build this project from svn:
    ./bootstrap
    ./configure
    make
