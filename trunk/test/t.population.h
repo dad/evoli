@@ -1,6 +1,8 @@
 #ifndef _T_POPULATION_H__
 #define _T_POPULATION_H__
 #include "cutee.h"
+
+#include "random.hh"
 #include "compact-lattice-folder.hh"
 #include "decoy-contact-folder.hh"
 #include "fitness-evaluator.hh"
@@ -33,13 +35,14 @@ struct TEST_CLASS( population )
 		int size = 4;
 		int length = size*size;
 		double U = 0.01;
-		srand48( 37 ); // initialize random number generator
+		Random::seed( 37 ); // initialize random number generator
 		CompactLatticeFolder b(size);
 		ProteinFreeEnergyFitness fe( &b );
 		Population p( N );
 		Gene g = Gene::createRandom( length*3 );
 		bool randomOK = true;
-		TEST_ASSERT( randomOK = ( g == Gene( "CGAUCACGGACGAGAUACAACCCUCAUGUGUGUCUGGAGAAAUUUGUC" ) ) );
+		TEST_ASSERT( randomOK = ( g == Gene( "GGGAAGUGCGUCCAGCAGAGUUGGGUAUGGGAGGGAUCUAAGUUAAAG" ) ) );
+		//std::cout << g << std::endl;
 		if ( !randomOK )
 			cout << "Test failures in function lattice_folder likely due to differences in random number generator" << endl;
 		p.init( g, &fe, U );
@@ -63,11 +66,13 @@ struct TEST_CLASS( population )
 
 		p.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 
+		//std::cout << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
+
 		TEST_ASSERT( fabs( ave_dn - 7) < 1e-4 );
-		TEST_ASSERT( fabs( ave_ds - 3) < 1e-4 );
-		TEST_ASSERT( fabs( ave_N - 36.3444) < 1e-4 );
-		TEST_ASSERT( fabs( ave_S - 11.6556) < 1e-4 );
-		TEST_ASSERT( fabs( ave_f - 0.984074) < 1e-4 );
+		TEST_ASSERT( fabs( ave_ds - 1) < 1e-4 );
+		TEST_ASSERT( fabs( ave_N - 37.7667) < 1e-4 );
+		TEST_ASSERT( fabs( ave_S - 10.2333) < 1e-4 );
+		TEST_ASSERT( fabs( ave_f - 0.998525) < 1e-4 );
 		TEST_ASSERT( fabs( ave_fop - 0) < 1e-10 );
 	}
 

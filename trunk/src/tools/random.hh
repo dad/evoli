@@ -65,6 +65,14 @@ public:
 	static uint rint();
 
 	/**
+	* This function generates positive random integers between 0 and a specified
+	* maximum value.
+	* @param max Upper bound to the random integers.
+	* @return A random 32 bit unsigned integer on the interval [0, max-1].
+	*/
+	static uint rint( uint max );
+
+	/**
 	* This function calculates uniformly distributed random variates.
 	* @return A random double chosen from uniform distribution on the interval [0, 1).
 	*/

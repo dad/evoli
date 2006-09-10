@@ -1,4 +1,6 @@
 #include "population.hh"
+
+#include "random.hh"
 #include "gene-util.hh"
 #include "fitness-evaluator.hh"
 
@@ -203,7 +205,7 @@ void Population::setPopulationSize( int N )
         // resample the population
         for ( int i=0; i<N; i++ )
         {
-                index = (int) (m_N*myRand());
+                index = Random::rint( m_N );
                 m_pop[outBuffer][i] = m_pop[m_buffer][index];
                 m_genebank.addGenotype( m_pop[m_buffer][index] );
         }
@@ -248,7 +250,7 @@ void Population::evolve()
         // now do the selection/mutation step
         for ( int i=0; i<m_N; i++ )
         {
-                index = chooseAtRandom( m_selectionBins, m_N );
+                index = Random::randintFromDistr( m_selectionBins, m_N );
                 m_pop[outBuffer][i] =  createOffspring( m_pop[m_buffer][index] );
         }
 

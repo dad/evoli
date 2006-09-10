@@ -1,7 +1,7 @@
 #ifndef CODON_HH
 #define CODON_HH
 
-#include "tools.hh"
+#include "random.hh"
 
 #include <iostream>
 #include <cassert>
@@ -164,9 +164,9 @@ public:
                 {
                         result = result << 2;
                         int x = (codon >> (2*(2-i))) & 3; // separate base
-                        if ( myRand() < U )
+                        if ( Random::runif() < U )
                         { // do we have to mutate this base?
-                                x = (x + (int)(3*myRand())+1 ) & 3; // mutate to a random other base
+                                x = ( x + Random::rint( 3 ) + 1 ) & 3; // mutate to a random other base
                         }
                         result += x; // add to the result
                 }

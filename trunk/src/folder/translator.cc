@@ -1,6 +1,6 @@
 #include "translator.hh"
 
-
+#include "random.hh"
 #include "tools.hh"
 #include "genetic-code.hh"
 #include "protein.hh"
@@ -36,8 +36,8 @@ bool Translator::translate( const Gene &g, Protein& residue_sequence ) const {
 	for ( Gene::const_iterator it = g.begin(); it != g.end() && no_stop; it++ )	{
 		int residue = GeneticCodeUtil::geneticCode[*it];
 		no_stop = (residue >= 0 );
-		if ( myRand() < m_mutation_prob )
-			residue = ( residue + (int) (20*myRand() )) % 20;
+		if ( Random::runif() < m_mutation_prob )
+			residue = ( residue + Random::rint( 20 ) ) % 20;
 		residue_sequence[i++] = residue;
 	}
 	return no_stop;
@@ -62,10 +62,10 @@ int Translator::translateWeighted( const Gene &g, Protein& residue_sequence, con
 		}
 		else {
 			double threshold = m_mutation_prob*(1.0 + prefCodons[g[i]]*(nonPrefCodonPenalty-1))/(mut_weight_total/g.codonLength());
-			double rand = myRand();
+			double rand = Random::runif();
 			if ( rand < threshold ) {
 				// Weight the outcomes of a missense substitution.
-				rand = myRand();
+				rand = Random::runif();
 				double targ = 0.0;
 				// The first member of the pair is a cumulative probability; the second is
 				// the residue resulting from the error.
@@ -102,10 +102,10 @@ int Translator::translateRelativeWeighted( const Gene &g, Protein& residue_seque
 		// With probability threshold_prob, make a translation error (possibly synonymous).
 		double site_weight = (1.0 + prefCodons[g[i]]*(nonPrefCodonPenalty-1));
 		double threshold_prob = m_mutation_prob * site_weight * relative_site_weight;
-		double rand = myRand();
+		double rand = Random::runif();
 		if ( rand < threshold_prob ) {
 			// We've made an error.  Now determine what it is.
-			rand = myRand();
+			rand = Random::runif();
 			double targ = 0.0;
 			// The first member of the pair is a cumulative probability; the second is
 			// the residue resulting from the error.

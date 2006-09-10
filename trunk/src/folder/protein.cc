@@ -119,7 +119,7 @@ Gene Gene::createRandom(const int length ) {
 	Gene::iterator it = g.begin();
 
 	for ( ; it != g.end(); it++) {
-		*it = static_cast<int>( 64*drand48() );
+		*it = Random::rint( 64 );
 	}
 	return g;
 }
@@ -131,7 +131,7 @@ Gene Gene::createRandomNoStops(const int length ) {
 
 	for ( ; it != g.end(); it++) {
 		do {
-			*it = static_cast<int>( 64*myRand() );
+			*it = Random::rint( 64 );
 		} while (GeneticCodeUtil::geneticCode[*it] < 0);
 	}
 	return g;

@@ -1,9 +1,9 @@
 #ifndef GENE_UTIL_HH
 #define GENE_UTIL_HH
 
+#include "random.hh"
 #include "codon.hh"
 #include "genetic-code.hh"
-#include "tools.hh"
 #include "translator.hh"
 #include "folder.hh"
 #include "protein.hh"
@@ -238,7 +238,7 @@ public:
 			for ( unsigned int i=0; i<p.length(); i++ ) {
 				int num_alts = GeneticCodeUtil::residueToAllCodonsTable[p[i]][0];
 				// Now choose from alternatives at random
-				int randbin = (int)(myRand()*num_alts);
+				int randbin = Random::rint( num_alts );
 				result[i] = GeneticCodeUtil::residueToAllCodonsTable[p[i]][randbin+1];
 			}
 		}

@@ -7,9 +7,6 @@
 
 struct TEST_CLASS( random )
 {
-
-	~random(){ std::cout << "why?" << std::endl; }
-
 	void TEST_FUNCTION( rint )
 	{
 		// the first 21 random integers for seed 4357
@@ -25,6 +22,14 @@ struct TEST_CLASS( random )
 		for( int i=0; i<21; i++ )
 			rint_test_passed = rint_test_passed && ( Random::rint() == randints[i] );
 		TEST_ASSERT( rint_test_passed );
+
+		bool rint_lim_test_passed = true;
+		for( int i=0; i<1000; i++ )
+		{
+			int k = Random::rint(100);
+			rint_lim_test_passed = rint_lim_test_passed && ( k >=0 && k < 100 );
+		}
+		TEST_ASSERT( rint_lim_test_passed );
 		return;
 	}
 

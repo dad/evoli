@@ -303,13 +303,13 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 	// Neutrally evolve for tot_equil steps, then for tot_rand steps, recording mutation weights
 	int nrand=0, nequil=0;
 	while ( nrand < num_rand ) {
-		double rand = myRand();
+		double rand = Random::runif();
 		int randpos = (int)(rand * m_protein_length+1)-1;
 		// go through all possible point mutations
 		int from_codon = g[randpos];
 		int to_codon = from_codon;
 		do {
-			rand = myRand();
+			rand = Random::runif();
 			to_codon = (int)(64*rand+1)-1;
 		} while (to_codon == from_codon);
 
@@ -729,7 +729,7 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 				double p_threshold = 0.01/family_degeneracies[aa];  // Bonferroni correction for multiple tests
 				double p = 0.0; // probability that at least acc.first accurate translations would occur by chance given family accuracy
 				for (int succ=acc.first; succ<=max_reps; succ++) {
-					p += dbinom(succ, max_reps, facc);
+					p += Random::dbinom(succ, max_reps, facc);
 				}
 				if (p < p_threshold) {
 					// Store the second best

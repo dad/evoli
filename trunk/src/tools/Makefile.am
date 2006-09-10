@@ -6,6 +6,6 @@ lib_LIBRARIES = libtools.a
 
 libtools_a_SOURCES = random.cc
 
-noinst_PROGRAMS = test.random
+##noinst_PROGRAMS = test.random
 
-test_random_SOURCES = random.t.cc random.cc
+##test_random_SOURCES = random.t.cc random.cc

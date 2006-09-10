@@ -271,6 +271,11 @@ uint Random::rint()
 	return randomMT();
 }
 
+uint Random::rint( uint max )
+{
+	return static_cast<uint>( max*randomMTunit() );
+}
+
 double Random::runif()
 {
 	return randomMTunit();

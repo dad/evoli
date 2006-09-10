@@ -2,6 +2,7 @@
 #define _T_TOOLS_H__
 #include "cutee.h"
 #include "tools.hh"
+#include "random.hh"
 #include <fstream>
 #include <cstdlib>
 
@@ -12,8 +13,8 @@ struct TEST_CLASS( tools_basic )
 	void TEST_FUNCTION( itoa_decimal ) {
 		srand48(0);
 		for (int i=0; i<1000; i++) {
-			int target = (int)((MAXINT/2.0)*drand48());
-			if (drand48() < 0.5)
+			int target = Random::rint( MAXINT/2 );
+			if ( Random::runif() < 0.5)
 				target = -target;
 			string s = itoa(target, 10);
 			int res = atoi(s.c_str());
