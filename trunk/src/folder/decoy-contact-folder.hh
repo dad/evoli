@@ -12,6 +12,29 @@
 using namespace std;
 
 /**
+ * Stores folding information.
+ **/
+class DecoyFoldInfo : public FoldInfo {
+protected:
+	double m_var_G; 
+	double m_mean_G;
+	double m_min_G;
+	
+public:
+	DecoyFoldInfo(double fe, StructureID sid, double mean_G, double var_G, double min_G) : FoldInfo(fe, sid) {
+		m_var_G = var_G;
+		m_mean_G = mean_G;
+		m_min_G = min_G;
+	}
+	virtual ~DecoyFoldInfo() {}
+
+	double getUnfoldedFreeEnergyMean() const { return m_mean_G; }
+	double getUnfoldedFreeEnergyVariance() const { return m_var_G; }
+	double getMinEnergy() const { return m_min_G; }
+};
+
+
+/**
  * Stores a contact structure: a list of contacts.
  **/
 class DecoyContactStructure : public ContactStructure {
@@ -108,9 +131,16 @@ public:
 	 * Folds a protein.
 	 *
 	 * @param s The sequence to be folded.
-	 * @return The folding information (structure, free energy).
+	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
 	virtual FoldInfo fold(const Sequence& s);
+	/**
+	 * Folds a protein.
+	 *
+	 * @param s The sequence to be folded.
+	 * @return The folding information (of type DecoyFoldInfo).
+	 **/
+	DecoyFoldInfo foldStats(const Sequence& s);
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.

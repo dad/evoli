@@ -18,6 +18,7 @@ For unit tests:
 	test/runtest
 
 To use Python bindings:
-	cd python
+	cd src/python
 	make
-	python ../test/folder-test.py
+	cd ../..
+	python test/folder-test.py

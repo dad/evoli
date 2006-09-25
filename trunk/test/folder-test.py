@@ -41,7 +41,7 @@ if False:
 				print "%d\t%1.3f" % (j, G)
 		'''		
 
-if False:
+if True:
 	prot_length = 300
 	log_nconf = 160*math.log(10)
 	map_file = os.path.abspath("test/data/rand_contact_maps/maps.txt")
@@ -60,7 +60,7 @@ if False:
 			# Print them out
 			print "%d\t%1.3f" % (j, G)
 		
-if True:
+if False:
 	prot_length = 300
 	log_nconf = 160*math.log(10)
 	map_file = os.path.abspath("test/data/rand_contact_maps/maps.txt")

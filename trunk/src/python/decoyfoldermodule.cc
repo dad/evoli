@@ -4,6 +4,7 @@
 #include "protein.hh"
 #include "folder.hh"
 #include "decoy-contact-folder.hh"
+#include "gene-util.hh"
 
 #include "Python.h"
 
@@ -11,11 +12,12 @@ static PyObject *FolderErrorObject;
 
 /* ----------------------------------------------------- */
 
+static DecoyContactFolder* folder = NULL;
+
 static char decoyfolder_fold__doc__[] =
 ""
 ;
 
-static Folder* folder = NULL;
 static PyObject *
 decoyfolder_fold(PyObject *self /* Not used */, PyObject *args)
 {
@@ -28,9 +30,30 @@ decoyfolder_fold(PyObject *self /* Not used */, PyObject *args)
         return NULL;
 	}
 	Protein p(protein_sequence);
-	FoldInfo folding_data = folder->fold(p);
+	FoldInfo fd = folder->fold(p);
 	//cout << folding_data.getStructure() << " " << folding_data.getFreeEnergy() << endl << p << endl;
-    return Py_BuildValue("if", folding_data.getStructure(), folding_data.getFreeEnergy());
+    return Py_BuildValue("if", fd.getStructure(), fd.getFreeEnergy());
+}
+
+static char decoyfolder_foldStats__doc__[] =
+""
+;
+
+static PyObject *
+decoyfolder_foldStats(PyObject *self /* Not used */, PyObject *args)
+{
+    const char *protein_sequence;
+	if (!folder) {
+		PyErr_SetString(FolderErrorObject, "uninitialized decoyfolder: call 'decoyfolder.init()'");
+		return NULL;
+	}
+    if (!PyArg_ParseTuple(args, "s", &protein_sequence)) {
+        return NULL;
+	}
+	Protein p(protein_sequence);
+	DecoyFoldInfo folding_data = folder->foldStats(p);
+	//cout << folding_data.getStructure() << " " << folding_data.getFreeEnergy() << endl << p << endl;
+    return Py_BuildValue("iffff", folding_data.getStructure(), folding_data.getFreeEnergy(), folding_data.getUnfoldedFreeEnergyMean(), folding_data.getUnfoldedFreeEnergyVariance(), folding_data.getMinEnergy());
 }
 
 static char decoyfolder_getEnergy__doc__[] =
@@ -53,6 +76,33 @@ decoyfolder_getEnergy(PyObject *self /* Not used */, PyObject *args)
 	double energy = folder->getEnergy(p, sid);
     return Py_BuildValue("f", energy);
 }
+
+static char decoyfolder_getSequenceForStructure__doc__[] =
+""
+;
+
+// finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
+static PyObject *
+decoyfolder_getSequenceForStructure( PyObject *self, PyObject *args)
+{
+	int protein_length;
+	double free_energy_cutoff;
+	int struct_id;
+
+	if (!folder) {
+		PyErr_SetString(FolderErrorObject, "uninitialized decoyfolder: call 'decoyfolder.init()'");
+		return NULL;
+	}
+    if (!PyArg_ParseTuple(args, "idi", &protein_length, &free_energy_cutoff, &struct_id )) {
+        return NULL;
+	}
+	Gene g = GeneUtil::getSequenceForStructure(*folder, 3*protein_length, free_energy_cutoff, struct_id);
+	//cout << 3*protein_length << " " << free_energy_cutoff << " " << struct_id << " " << g << endl;
+	Protein p = g.translate();
+	
+    return Py_BuildValue("s", p.toString().c_str());
+}
+
 
 static char decoyfolder_init__doc__[] =
 ""
@@ -89,8 +139,10 @@ decoyfolder_init(PyObject *self /* Not used */, PyObject *args)
 
 static struct PyMethodDef decoyfolder_methods[] = {
 	{"fold",	(PyCFunction)decoyfolder_fold,	METH_VARARGS,	decoyfolder_fold__doc__},
+	{"foldStats",	(PyCFunction)decoyfolder_foldStats,	METH_VARARGS,	decoyfolder_foldStats__doc__},
 	{"init",	(PyCFunction)decoyfolder_init,	METH_VARARGS,	decoyfolder_init__doc__},
 	{"getEnergy",	(PyCFunction)decoyfolder_getEnergy,	METH_VARARGS,	decoyfolder_getEnergy__doc__},
+	{"getSequenceForStructure",	(PyCFunction)decoyfolder_getSequenceForStructure,	METH_VARARGS,	decoyfolder_getSequenceForStructure__doc__},
 	{NULL,	 (PyCFunction)NULL, 0, NULL}		/* sentinel */
 };
 

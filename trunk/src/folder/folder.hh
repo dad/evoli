@@ -23,7 +23,7 @@ public:
 };
 
 class FoldInfo {
-private:
+protected:
 	double m_free_energy;
 	StructureID m_structure_id;
 public:
