@@ -289,7 +289,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 	// Use for this is: we will specify an error rate for translation to match biological observations.  However, that error rate
 	// cannot always hold when accuracy can change.  Therefore we would like to set up the system so that
 	// a random folded sequence (e.g. w/ codons and aa usage constrained by folding only, no translational selection)
-	// has the desired error rate.  Thus we will enumerate a large set of genes enconding folded sequences and determine what the
+	// has the desired error rate.  Thus we will enumerate a large set of genes encoding folded sequences and determine what the
 	// average sequence weight (m_error_weight) and sequence weight controlling for accuracy (m_accuracy_weight) of those genes are.
 	Accumulator random_accuracy_weight; // running average
 	Accumulator random_error_weight; // running average

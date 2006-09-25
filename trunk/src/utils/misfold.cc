@@ -3,6 +3,7 @@
 #include "population.hh"
 #include "translator.hh"
 #include "tools.hh"
+#include "random.hh"
 #include "gene-util.hh"
 
 #include <cmath>
@@ -130,7 +131,7 @@ void misfoldDistExperiment(Parameters& p)
 {
 	// Seed random number generator
 	long seconds = (long)time(NULL);
-	srand48(seconds);
+	Random::seed(p.random_seed);
 
 	int side_length = (int)(sqrt(p.protein_length));
 	// initialize the protein folder

@@ -23,7 +23,10 @@ structure_printer_LDADD = $(libraries)
 misfold_SOURCES = misfold.cc
 misfold_LDADD = $(libraries)
 
-bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer structure-printer misfold
+get_weights_SOURCES = get-weights.cc
+get_weights_LDADD = $(libraries)
+
+bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer structure-printer misfold get-weights
 
 CLEANFILES = pdbcontacts.pyc pdb.pyc
 
