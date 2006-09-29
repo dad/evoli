@@ -1000,6 +1000,39 @@ NeutralFitness::~NeutralFitness()
 {}
 
 
+CutoffErrorproneTranslation::CutoffErrorproneTranslation(double cost_constant, int toxicity_cutoff) {
+	m_cost_constant = cost_constant;
+	m_toxicity_cutoff = toxicity_cutoff;
+}
+
+/**
+ * Assays protein encoded by the gene g for folding.  Calls sequenceFolds(), which may
+ * be overridden in interesting ways.
+ */
+double CutoffErrorproneTranslation::getFitness( const Gene &g ) {
+	//cout << &g << tab << "begin getFitness" << endl;
+	double fitness = 1.0;
+	if ( m_tr_cost > 0 ) {
+		double ffold, frob, facc, ftrunc;
+		calcOutcomes(g, facc, frob, ftrunc, ffold);
+		// If the misfolding cutoff is exceeded, calculate fitness as before.
+		if ((int)((1-ffold)*m_tr_cost/m_cost_constant) > m_toxicity_cutoff ) {
+			fitness = exp( -m_tr_cost * (1-ffold) / ffold );
+		}
+		else if (ffold > 0) {
+			fitness = 1.0;
+		}
+		else { // ffold = 0.
+			fitness = 0.0;
+		}
+	}
+	//cout << &g << tab << "end getFitness" << endl;
+	return fitness;
+}
+
+CutoffErrorproneTranslation::~CutoffErrorproneTranslation() {
+}
+
 double fixation_probability(int N, double s) {
 	double res = 0.0;
 	double eps = 1e-10;

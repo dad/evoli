@@ -276,6 +276,35 @@ public:
 	virtual double countOutcomes(const Gene &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
 };
 
+/**
+ * CutoffErrorproneTranslation implements a case where a minimum number of misfolded
+ * proteins are required for any fitness effect to be felt.
+ */
+
+class CutoffErrorproneTranslation : public ErrorproneTranslation {
+protected:
+	/**
+	 * The multiplier to convert translational robustness cost into number of misfolded proteins.
+	 **/
+	double m_cost_constant;
+	/**
+	 * The minimum number of misfolded proteins to get a toxic effect.
+	 **/
+	int m_toxicity_cutoff;
+public:
+	
+	CutoffErrorproneTranslation(double cost_constant, int toxicity_cutoff);
+	
+	virtual ~CutoffErrorproneTranslation();
+	double getFitness( const Gene &g );
+};
+
+/**
+ * Computes the probability of fixation of a mutant with fitness advantage s in a population of size N.
+ *
+ * @param s The fitness advantage relative to the wild type.
+ * @param N The population size.
+ **/
 double fixation_probability(int N, double s);
 
 #endif
