@@ -53,7 +53,14 @@ AC_ARG_ENABLE(profile,
 
 AC_ARG_ENABLE(final,
 [  --enable-final: Compile with aggressive optimization, don't include any debugging symbols],
-  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -DNDEBUG",
+  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -DNDEBUG"
+# Architecture-specific optimization flags
+# Uncomment for Intel Core Duo
+#  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -march=pentium-m -mtune=prescott -DNDEBUG"
+# Uncomment for Intel Pentium 4 family
+#  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -march=pentium4 -DNDEBUG"
+# Uncomment for Intel Pentium 3 family
+#  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -march=pentium3 -DNDEBUG"
 )
 
 # documentation
