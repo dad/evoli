@@ -13,7 +13,7 @@ int main( int ac, char **av)
 	srand48(p.random_seed);
 
 	// initialize the protein folder
-	int side_length = (int)(sqrt(p.protein_length));
+	int side_length = (int)(sqrt(float(p.protein_length)));
 	CompactLatticeFolder* folder = new CompactLatticeFolder(side_length);
 
 	cout << p;

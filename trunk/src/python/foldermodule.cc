@@ -84,7 +84,7 @@ static char folder_module_documentation[] =
 ;
 
 PyMODINIT_FUNC
-initfolder()
+initfolder(void)
 {
 	PyObject *m, *d;
 
