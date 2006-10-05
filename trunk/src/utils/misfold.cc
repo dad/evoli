@@ -133,7 +133,7 @@ void misfoldDistExperiment(Parameters& p)
 	long seconds = (long)time(NULL);
 	Random::seed(p.random_seed);
 
-	int side_length = (int)(sqrt(p.protein_length));
+	int side_length = (int)(sqrt(float(p.protein_length)));
 	// initialize the protein folder
 	CompactLatticeFolder folder(side_length);
 

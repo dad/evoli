@@ -85,7 +85,7 @@ struct TEST_CLASS( population )
 		string fname = "test/data/rand_contact_maps/maps.txt";
 		ifstream fin(fname.c_str());
 		string dir = "test/data/rand_contact_maps/";
-		double log_nconf = 160 * log(10);
+		double log_nconf = 160 * log(double(10));
 		DecoyContactFolder folder( protein_length, log_nconf, fin, dir);
 		TEST_ASSERT( folder.good() );
 		if (!folder.good() ) {

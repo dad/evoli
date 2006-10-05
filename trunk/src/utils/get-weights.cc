@@ -123,7 +123,7 @@ void getWeightsExperiment(Parameters& p)
 	}
 	fin.close();
 
-	int side_length = (int)(sqrt(seed_gene.codonLength()));
+	int side_length = (int)(sqrt(float(seed_gene.codonLength())));
 	// initialize the protein folder
 	CompactLatticeFolder folder(side_length);
 

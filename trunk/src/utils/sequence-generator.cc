@@ -77,7 +77,7 @@ int main( int ac, char **av)
 	// set random seed
 	srand48( p.random_seed );
 
-	int side_length = (int)(sqrt(p.protein_length));
+	int side_length = (int)(sqrt(float(p.protein_length)));
 	// initialize the protein folder
 	CompactLatticeFolder b(side_length);
 
