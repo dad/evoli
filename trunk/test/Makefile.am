@@ -4,6 +4,12 @@ include $(top_srcdir)/config/Make-rules
 INCLUDES = -I$(top_srcdir)/src/tools/ -I$(top_srcdir)/src/folder/ -I$(top_srcdir)/src/evolver/
 CLEANFILES =  runtest.cc
 
+bin_PROGRAMS = perf-test
+perf_test_LDADD = $(top_builddir)/src/tools/libtools.a \
+		$(top_builddir)/src/evolver/libevolver.a \
+		$(top_builddir)/src/folder/libfolder.a
+perf_test_SOURCES = perf-test.cc
+
 ## Cutee unit testing directives
 # your test files here
 test_files = t.random.h t.protein.h t.folder.h t.population.h t.tools.h 
