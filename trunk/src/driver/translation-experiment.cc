@@ -45,7 +45,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 	}
 
 	// set random seed
-	srand48( p.random_seed );
+	Random::seed( p.random_seed );
 
 	Population pop( p.N );
 	Folder& folder = *(fe.getFolder());
@@ -133,7 +133,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostre
 void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe)
 {
 	// set random seed
-	srand48( p.random_seed );
+	Random::seed( p.random_seed );
 
 	vector<bool> is_optimal = fe.getOptimalCodons(true);
 

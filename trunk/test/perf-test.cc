@@ -23,19 +23,29 @@ void evolutionExperiment( ErrorproneTranslation& fe);
 
 int main( int ac, char **av)
 {
+	cout << "# Starting performance test" << endl;
+	time_t overall_time = time(NULL);
 	Random::seed(11);
+	cout << "# Initializing folder" << endl;
+	time_t start_time = time(NULL);
 	// initialize the protein folder
 	int side_length = 5;
 	CompactLatticeFolder* folder = new CompactLatticeFolder(5);
-
+	time_t duration = time(NULL) - start_time;
+	cout << "# Folder initialization: " << duration << " seconds" << endl;
+	cout << "# Initializing fitness evaluator" << endl;
+	start_time = time(NULL);
 	// Choose the FitnessEvaluator based on input parameters (p.eval_type).
 	ErrorproneTranslation* ept = new ErrorproneTranslation();
 	ept->init( folder, 25, 599, -5, 100, 6, 0.0114, 59.0, 104.5 );
-
-	time_t start_time = time(NULL);
+	cout << "# FE initialization: " << (time(NULL)-start_time) << " seconds" << endl;
+	
+	cout << "# Running evolution" << endl;
+	start_time = time(NULL);
 	evolutionExperiment( *ept );
-	time_t duration = time(NULL) - start_time;
-	cout << "# Performance test took " << duration << " seconds" << endl;
+	cout << "# Evolution: " << (time(NULL)-start_time) << " seconds" << endl;
+	
+	cout << "# Performance test took " << (time(NULL)-overall_time) << " seconds" << endl;
 	cout << "# Folded " << folder->getNumFolded() << " proteins" << endl;
 	delete ept;
 	delete folder;

@@ -10,7 +10,7 @@ int main( int ac, char **av)
 	}
 
 	// seed the random number generator
-	srand48(p.random_seed);
+	Random::seed(p.random_seed);
 
 	// initialize the protein folder
 	int side_length = (int)(sqrt(float(p.protein_length)));
