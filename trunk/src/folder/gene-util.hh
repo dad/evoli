@@ -127,7 +127,7 @@ public:
 	 * Calculates the neutrality of the given protein. Cutoff is the free energy cutoff
 	 * below which the protein folds.
 	 **/
-	static double calcNeutrality( Folder &b, Protein &p, double cutoff )
+	static double calcNeutrality( Folder &b, Protein p, double cutoff )
 	{
 		FoldInfo fold_data = b.fold(p);
 		if ( fold_data.getFreeEnergy() > cutoff )
