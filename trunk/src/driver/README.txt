@@ -3,8 +3,8 @@ Quick start
 ===========
 How to run the tr-driver script:
 
-     0      1  2  3     4    5 6      7    8    9   10 11   12      13     14    15 16
-   ./tr-driver tr 25 1000  0.00 6 0.0112 33.4 57.7 599 -5 -100 0.00001 100000 50000 50 111
+             0  1  2    3     4 5      6    7    8   9 10   11      12     13    14 15  16
+   ./tr-driver tr 25 1000  0.00 3 0.0112 33.4 57.7 599 -5 -100 0.00001 100000 50000 50 111
 
 The parameters are, in order:
 0)  The name of the program
@@ -36,8 +36,8 @@ particular ffraction of the time (say, 85% of the time).  These
 parameters can be obtained by running the get-weights program
 (src/utils/get-weights) as follows:
 
-     0           1 2  3   4                   5     6  7    8
-   ./get-weights 6 -5 111 stable-sequence.txt 10000 10 0.85 5
+               0 1  2   3                   4     5  6    7 8
+   ./get-weights 3 -5 111 stable-sequence.txt 10000 10 0.85 5
 
 0)  The name of the program
 1)  Codon adaptation cost -- average accuracy ratio between optimal and non-optimal codons
