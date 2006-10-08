@@ -12,6 +12,51 @@ using namespace std;
 
 static const char* tab = "\t";
 
+/** \brief A class to keep track of a running sum or average.
+*/
+class Accumulator {
+private:
+	double m_running_sum;
+	int m_count;
+public:
+	Accumulator() { m_running_sum=0.0; m_count=0; }
+	Accumulator(double sum, int count) { m_running_sum = sum; m_count = count; }
+
+	/**
+	@return The running average over all values added
+	*/
+	double value() const { return m_running_sum/m_count; }
+
+	/**
+	Adds an individual value to the running sum.
+	@param val The value to be added.
+	*/
+	void add(double val) { m_running_sum += val; m_count++; }
+
+	/**
+	Sets the running sum and the number of values added to zero.
+	*/
+	void reset() { m_running_sum = 0.0; m_count = 0; }
+
+	/**
+	@return The number of values added so far.
+	*/
+	int count() const { return m_count; }
+
+	/**
+	@return The running sum.
+	*/
+	double sum() const { return m_running_sum; }
+
+	/**
+	Operator version of the function \ref value().
+	*/
+	operator double() { return value(); }
+
+	void operator+=(double x) { add(x); }
+};
+
+
 
 /**
  * This function calculates mean and variance from the sums s1=sum_i^n x_i and s2=sum_i^n x_i^2.

@@ -3,6 +3,7 @@
 #include "genetic-code.hh"
 #include "translator.hh"
 #include "gene-util.hh"
+#include "tools.hh"
 
 #include <cmath>
 #include <iomanip>
@@ -30,7 +31,7 @@ double ProteinFreeEnergyFitness::getFitness( const Gene &g ) {
 		return 0;
 }
 
-double ProteinFreeEnergyFitness::getFitness( Protein &p ) {
+double ProteinFreeEnergyFitness::getFitness( const Protein &p ) {
 	double kT = 0.6;
 	double dG = m_protein_folder->fold(p).getFreeEnergy();
 	double x = exp(-dG/kT);
@@ -58,7 +59,7 @@ double ProteinStructureFitness::getFitness( const Gene &g ) {
 		return 0;
 }
 
-double ProteinStructureFitness::getFitness( Protein &p ) {
+double ProteinStructureFitness::getFitness( const Protein &p ) {
 	FoldInfo pf = m_protein_folder->fold(p);
 	if ( pf.getFreeEnergy() > m_max_free_energy )
 		return 0;
@@ -83,10 +84,6 @@ ErrorproneTranslation::ErrorproneTranslation() {
 	m_ca_cost = 0.0;
 	m_error_rate = 0.0;
 	m_protein_structure_ID = -1;
-	m_last_struct_id = 0;
-	m_last_free_energy = 0;
-	m_last_sensitivity = 0;
-	m_last_sensitivity_no_stop = 0;
 	m_accuracy_weight = 1;
 	m_error_weight = 1;
 }
@@ -253,7 +250,7 @@ bool ErrorproneTranslation::getFolded( const Gene &g ) {
 	return res;
 }
 
-double ErrorproneTranslation::getFitness( Protein& p ) {
+double ErrorproneTranslation::getFitness( const Protein&p ) {
 	return getFitness( GeneUtil::reverseTranslate(p) );
 }
 
@@ -869,9 +866,6 @@ AccuracyOnlyTranslation::~AccuracyOnlyTranslation() {
 
 void AccuracyOnlyTranslation::init( Folder *protein_folder, const int length, const int structure_id, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight ) {
 	m_target_sequence = Protein(length);
-	//t.translateErrorFree( target_gene_sequence, m_target_sequence );
-	//m_last_free_energy = protein_folder->foldProtein( m_target_sequence );
-	//m_last_struct_id = protein_folder->getLastFoldedProteinStructureID();
 
 	// Superclass init for the rest.
 	ErrorproneTranslation::init( protein_folder, length, structure_id, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight );
