@@ -1,33 +1,35 @@
+/*
+This file is part of the evoli project.
+Copyright (C) 2006 Claus Wilke <cwilke@mail.utexas.edu>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
+
+This file contains wrapper code around the implemtation by 
+Shawn Cokus of the Mersenne Twister RNG by Makoto Matsumoto 
+and Takuji Nishimura. See http://www.math.keio.ac.jp/~matumoto/emt.html
+for more on the algorithm.
+
+Part of this code was taken from the Octave modules for the Mersenne
+Twister (MT199337) Random Number Generator, Copyright (C) 1998,
+1999 Dirk Eddelbuettel <edd@debian.org>
+*/
+
 #include "random.hh"
 #include <climits>
 #include <cmath>
 #include <cassert>
-
-// Wrapper code around the implemtation by Shawn Cokus of the Mersenne
-// Twister RNG by Makoto Matsumoto and Takuji Nishimura. See
-//    http://www.math.keio.ac.jp/~matumoto/emt.html
-// for more on the algorithm.
-//
-// Copyright (C) 2006 Claus O. Wilke, <cwilke@mail.utexas.edu>
-//
-// Part of this code was taken from the Octave modules for the Mersenne
-// Twister (MT199337) Random Number Generator, Copyright (C) 1998,
-// 1999 Dirk Eddelbuettel <edd@debian.org>
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
 
 
 // define DRAND48 to use drand48() instead of the Mersenne twister
