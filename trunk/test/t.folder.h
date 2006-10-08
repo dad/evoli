@@ -5,7 +5,7 @@
 #include "compact-lattice-folder.hh"
 #include "protein.hh"
 #include <fstream>
-
+#include <cmath>
 
 struct TEST_CLASS( folder_basic )
 {

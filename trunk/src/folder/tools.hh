@@ -12,9 +12,6 @@ using namespace std;
 
 static const char* tab = "\t";
 
-typedef unsigned int uint16;
-
-
 
 /**
  * This function calculates mean and variance from the sums s1=sum_i^n x_i and s2=sum_i^n x_i^2.
@@ -46,7 +43,7 @@ template <typename T> pair<double,double> meanvar(const vector<T>& v);
 
 template <class T> inline double mean(const vector<T>& v) {
 	double sum = 0.0;
-	uint16 count = 0;
+	uint count = 0;
 	for (typename vector<T>::const_iterator it = v.begin(); it != v.end(); it++) {
 		sum += (double)(*it);
 		count++;
@@ -57,7 +54,7 @@ template <class T> inline double mean(const vector<T>& v) {
 template <class T> inline double variance(const vector<T>& v) {
 	double sum = 0.0;
 	double sumsq = 0.0;
-	uint16 count = 0;
+	uint count = 0;
 	for (typename vector<T>::const_iterator it = v.begin(); it != v.end(); it++) {
 		double val = *it;
 		sum += val;
@@ -74,7 +71,7 @@ template <class T> inline double variance(const vector<T>& v) {
 template <class T> inline pair<double,double> meanvar(const vector<T>& v) {
 	double sum = 0.0;
 	double sumsq = 0.0;
-	uint16 count = 0;
+	uint count = 0;
 	for (typename vector<T>::const_iterator it = v.begin(); it != v.end(); it++) {
 		double val = *it;
 		sum += val;

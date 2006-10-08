@@ -249,7 +249,7 @@ public:
 		Gene g(p.length()*3);
 		Protein::const_iterator it = p.begin();
 		
-		for (uint16 i=0; it != p.end(); it++, i++) {
+		for (uint i=0; it != p.end(); it++, i++) {
 			int aa = *it;
 			int codon = GeneticCodeUtil::residueToCodonTable[aa+1];
 			g[i] = codon;

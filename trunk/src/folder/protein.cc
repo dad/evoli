@@ -6,11 +6,9 @@
 
 
 Protein::Protein(const int length) : Sequence(length) {
-	m_modified = true;
 }
 
 Protein::Protein(const Protein& p) : Sequence(p.m_sequence) {
-	m_modified = p.m_modified;
 }
 
 Protein::Protein(const string& seq_string) : Sequence(0) {
@@ -25,11 +23,15 @@ Protein::Protein(const string& seq_string) : Sequence(0) {
 }
 
 int Protein::distance(const Protein& p) const {
+	// we don't handle sequences of different lengths properly, 
+	// so they better be of the same length	
+	assert( length() == p.length() );
+	
 	int diffs = 0;
-	Protein::const_iterator qit = this->begin();
+	Protein::const_iterator qit = begin();
 	Protein::const_iterator pit = p.begin();
 
-	for (; qit != this->end() && pit != p.end(); qit++, pit++) {
+	for (; qit != end() && pit != p.end(); qit++, pit++) {
 		if (*pit != *qit) {
 			diffs++;
 		}
@@ -49,15 +51,12 @@ string Protein::toString() const {
 
 
 Gene::Gene() : Sequence(0) {
-	m_modified = true;
 }
 
 Gene::Gene(const int length) : Sequence(length/3) {
-	m_modified = true;
 }
 
 Gene::Gene(const Gene& g) : Sequence(g.m_sequence) {
-	m_modified = true;
 }
 
 Gene::Gene(const string& seq_string) : Sequence(0) {
@@ -79,7 +78,7 @@ Gene::Gene(const string& seq_string) : Sequence(0) {
 	}
 }
 
-char Gene::getBase(const uint16 index) const {
+char Gene::getBase(const uint index) const {
 	char res = 'X';
 	int triplet_pos = index % 3;
 	int codon = (*this)[(index-triplet_pos)/3];
@@ -107,7 +106,7 @@ char Gene::getBase(const uint16 index) const {
 
 string Gene::toString() const {
 	string res;
-	for (uint16 i=0; i<m_sequence.size()*3; i++) {
+	for (uint i=0; i<m_sequence.size()*3; i++) {
 		res += getBase(i);
 	}
 	return res;
@@ -115,7 +114,6 @@ string Gene::toString() const {
 
 Gene Gene::createRandom(const int length ) {
 	Gene g( length );
-	//vector<int>::iterator it = g.begin();
 	Gene::iterator it = g.begin();
 
 	for ( ; it != g.end(); it++) {
@@ -126,7 +124,6 @@ Gene Gene::createRandom(const int length ) {
 
 Gene Gene::createRandomNoStops(const int length ) {
 	Gene g( length );
-	//vector<int>::iterator it = g.begin();
 	Gene::iterator it = g.begin();
 
 	for ( ; it != g.end(); it++) {
@@ -155,7 +152,6 @@ bool Gene::mutate(const double prob) {
 		(*it) = CodonUtil::mutateCodon( prob, codon );
 		if ( !changed && (*it) != codon ) {
 			changed = true;
-			m_modified = true;
 		}
 	}
 	return changed;
