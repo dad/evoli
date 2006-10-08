@@ -39,7 +39,8 @@ public:
 class Translator;
 
 /** \brief A class holding a protein-coding DNA sequence.
-Attention: The current implementation is based on codons, not individual
+
+\warning The current implementation is based on codons, not individual
 nucleotides. As a consequence, the iterators inherited from \ref Sequence iterate over codons, not nucleotides. In the future, we should add a nucleotide_iterator or something similar to iterate over individual nucleotides.
 */
 class Gene : public Sequence {

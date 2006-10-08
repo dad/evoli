@@ -52,7 +52,7 @@ public:
 	 * @param s The sequence whose energy is sought.
 	 * @return Folding information (e.g. free energy, structure identifier).
 	 **/
-	virtual FoldInfo fold(const Sequence& s) = 0;
+	virtual FoldInfo fold(const Sequence& s) const = 0;
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.

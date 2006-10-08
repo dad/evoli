@@ -90,7 +90,7 @@ protected:
 	double m_log_num_conformations; ///< Fudge factor for the folding process.
 	vector<DecoyContactStructure*> m_structures; ///< Vector of the contact maps used as decoys.
 //	static const double DecoyContactFolder::contactEnergies [20][20]; ///< Table of contact energies.
-	int m_num_folded; ///< Number of proteins folded since creation of the folder object.
+	mutable int m_num_folded; ///< Number of proteins folded since creation of the folder object.
 
 	/**
 	* Wrapper function to encapsulate the lookup of the
@@ -133,14 +133,14 @@ public:
 	 * @param s The sequence to be folded.
 	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
-	virtual FoldInfo fold(const Sequence& s);
+	virtual FoldInfo fold(const Sequence& s) const;
 	/**
 	 * Folds a protein.
 	 *
 	 * @param s The sequence to be folded.
 	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
-	DecoyFoldInfo foldStats(const Sequence& s);
+	DecoyFoldInfo foldStats(const Sequence& s) const;
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.

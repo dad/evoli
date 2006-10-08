@@ -6,15 +6,15 @@
 
 class FitnessEvaluator {
 private:
-	FitnessEvaluator( const FitnessEvaluator & );
-	FitnessEvaluator& operator=( const FitnessEvaluator & );
+	FitnessEvaluator( const FitnessEvaluator& );
+	FitnessEvaluator& operator=( const FitnessEvaluator& );
 
 public:
 	FitnessEvaluator();
 	virtual ~FitnessEvaluator();
 
-	virtual double getFitness( const Gene & ) = 0;
-	virtual double getFitness( const Protein & ) = 0;
+	virtual double getFitness( const Gene& ) = 0;
+	virtual double getFitness( const Protein& ) = 0;
 };
 
 
@@ -27,8 +27,8 @@ public:
 	ProteinFreeEnergyFitness( Folder *protein_folder );
 	virtual ~ProteinFreeEnergyFitness();
 
-	double getFitness( const Gene &g );
-	double getFitness( const Protein &p );
+	double getFitness( const Gene& g );
+	double getFitness( const Protein& p );
 };
 
 
@@ -47,8 +47,8 @@ public:
 	void setFreeEnergyCutoff(double cutoff) { m_max_free_energy = cutoff; }
 	double getFreeEnergyCutoff() const { return m_max_free_energy; }
 
-	double getFitness( const Gene &g );
-	double getFitness( const Protein &p );
+	double getFitness( const Gene& g );
+	double getFitness( const Protein& p );
 };
 
 
@@ -57,10 +57,10 @@ public:
 	NeutralFitness();
 	virtual ~NeutralFitness();
 
-	double getFitness( const Gene & ) {
+	double getFitness( const Gene& ) {
 		return 1;
 	}
-	double getFitness( const Protein & ) {
+	double getFitness( const Protein& ) {
 		return 1;
 	}
 };
@@ -114,7 +114,7 @@ public:
 		m_protein_structure_ID = structureID;
 	}
 
-	double getFitness( const Gene &g );
+	double getFitness( const Gene& g );
 	double getFitness( const Protein& p );
 
 	/**
@@ -124,7 +124,7 @@ public:
 	@param g The \ref Gene to test.
 	@return True if the protein folds correctly, False otherwise.
 	*/
-	virtual bool getFolded( const Gene &g );
+	virtual bool getFolded( const Gene& g );
 
 	/**
 	Set fitness costs for codons. The implemented cost scheme weights
@@ -161,7 +161,7 @@ public:
 	chosen sequence (e.g. w/ codons and aa usage constrained by
 	folding only, no translational selection) has the desired error rate.
 	Thus, we will enumerate a large set of genes encoding folded
-	sequences and determine what the average sequence weight (member variable \ref m_error_weight) and sequence weight controlling for accuracy (member variable \ref m_accuracy_weight) of those genes are.
+	sequences and determine what the average sequence weight (returned in variable \ref error_weight) and sequence weight controlling for accuracy (returned in variable \ref accuracy_weight) of those genes are.
 	 */
 	void getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_accuracy, double& error_rate, 
 									 double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand);
@@ -183,7 +183,7 @@ public:
 	spectrum of this FitnessEvaluator.
 	@return The estimated fitness.
 	*/
-	virtual double calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double& frac_truncated, double &frac_folded );
+	virtual double calcOutcomes( const Gene& g, double& frac_accurate, double& frac_robust, double& frac_truncated, double& frac_folded );
 
 	/**
 	Record the actual fractions accurately translated, folded despite
@@ -192,12 +192,12 @@ public:
 	@param num_to_fold The number of proteins that should be translated to determine the error spectrum.
 	@return The fitness that would result from the generated set of proteins.
 	 */
-	virtual double countOutcomes(const Gene &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
+	virtual double countOutcomes(const Gene& g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
 
 	/**
 	 * Record stabilities of mistranslated proteins.
 	 */
-	virtual void stabilityOutcomes( const Gene &g, const int num_to_fold, vector<double>& ddgs );
+	virtual void stabilityOutcomes( const Gene& g, const int num_to_fold, vector<double>& ddgs );
 
 	/**
 	 * Returns the translational error probability per codon.
@@ -241,10 +241,10 @@ public:
 	AccuracyOnlyTranslation();
 	virtual ~AccuracyOnlyTranslation();
 
-	void init( Folder *protein_folder, const int length, const int target_structure_id, const double max_free_energy,
+	void init( Folder* protein_folder, const int length, const int target_structure_id, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
-	double getFitness( const Gene &g );
-	bool getFolded( const Gene &g );
+	double getFitness( const Gene& g );
+	bool getFolded( const Gene& g );
 };
 
 /** \brief A \ref FitnessEvaluator, derived from \ref ErrorproneTranslation, in which all fitness differences are due to differing protein robustness to translation errors.
@@ -260,9 +260,9 @@ public:
 	RobustnessOnlyTranslation();
 	virtual ~RobustnessOnlyTranslation();
 
-	void init( Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy,
+	void init( Folder* protein_folder, const int length, const int protein_structure_ID, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate );
-	double getFitness( const Gene &g );
+	double getFitness( const Gene& g );
 
 	/**
 	Compute the estimated fractions accurately translated, folded
@@ -270,7 +270,7 @@ public:
 	spectrum of this FitnessEvaluator.
 	@return The estimated fitness.
 	 */
-	virtual double calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded );
+	virtual double calcOutcomes( const Gene& g, double& frac_accurate, double& frac_robust, double& frac_truncated, double& frac_folded );
 
 	/**
 	\warning This function is currently not implemented and sets all values to zero!
@@ -281,7 +281,7 @@ public:
 	@param num_to_fold The number of proteins that should be translated to determine the error spectrum.
 	@return The fitness that would result from the generated set of proteins.
 	 */
-	virtual double countOutcomes(const Gene &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
+	virtual double countOutcomes(const Gene& g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
 };
 
 /** \brief A \ref FitnessEvaluator, derived from \ref ErrorproneTranslation, in which a minimum number of misfolded proteins are required before any fitness cost is incurred.
@@ -305,7 +305,7 @@ public:
 	CutoffErrorproneTranslation(double cost_constant, int toxicity_cutoff);
 	
 	virtual ~CutoffErrorproneTranslation();
-	double getFitness( const Gene &g );
+	double getFitness( const Gene& g );
 };
 
 /**

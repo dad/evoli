@@ -80,7 +80,7 @@ double DecoyContactFolder::getEnergy(const Sequence& s, StructureID sid) const {
 /**
  * Fold the protein and return folding information (structure, free energy).
  **/
-FoldInfo DecoyContactFolder::fold(const Sequence& s) {
+FoldInfo DecoyContactFolder::fold(const Sequence& s) const {
 	double kT = 0.6;
 	double minG = 1e50;
 	int minIndex = -1;
@@ -148,7 +148,7 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) {
 /**
  * Fold the protein and return folding information with stats.
  **/
-DecoyFoldInfo DecoyContactFolder::foldStats(const Sequence& s) {
+DecoyFoldInfo DecoyContactFolder::foldStats(const Sequence& s) const {
 	double kT = 0.6;
 	double minG = 1e50;
 	int minIndex = -1;

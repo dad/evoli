@@ -544,7 +544,6 @@ CompactLatticeFolder::CompactLatticeFolder( int size )
 		cout << "Maximally suported size: 15 (because char is being used to enumerate sites)" << endl;
 		exit(-1);
 	}
-	m_last_folded_structure = -1;
 
 	m_ffw_struct = new char[3*m_size*m_size];
 	m_ss_struct = new char[3*m_size*m_size];
@@ -750,7 +749,7 @@ void CompactLatticeFolder::enumerateStructures()
 /**
  * Fold the sequence and return information about the result (structure, free energy).
  */
-FoldInfo CompactLatticeFolder::fold( const Sequence& s )
+FoldInfo CompactLatticeFolder::fold( const Sequence& s ) const
 {
 	assert( m_num_structures > 0 );
 
@@ -791,8 +790,6 @@ FoldInfo CompactLatticeFolder::fold( const Sequence& s )
 	//cout << "Folding energy: " << minE << endl;
 	//cout << "Folding free energy: " << G << endl;
 
-	// record the structure into which this protein folds
-	m_last_folded_structure = minIndex;
 	// increment folded count
 	m_num_folded += 1;
 

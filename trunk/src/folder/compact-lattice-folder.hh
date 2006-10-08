@@ -158,7 +158,6 @@ private:
 	int m_num_structures; // total number of structures
 	vector<LatticeStructure *> m_structures; // list of all potential structures
 	StructureMap m_structure_map; // lookup table for structures
-	mutable int m_last_folded_structure; // the id of the structure into which the last protein folded
 
 	char * m_ffw_struct;  // variable used by findFillingWalk();
 	char * m_ss_struct; // variable used by storeStructure();
@@ -190,7 +189,7 @@ public:
 	virtual ~CompactLatticeFolder();
 
 	virtual bool good() const { return m_structures.size() > 0; }
-	virtual FoldInfo fold( const Sequence& s );
+	virtual FoldInfo fold( const Sequence& s ) const;
 	bool isFoldedBelowThreshold( const Sequence&s, const int structID, double cutoff) const;
 	void getMinMaxPartitionContributions(const Sequence& s, const int ci, double& cmin, double& cmax) const;
 	/**
@@ -210,7 +209,7 @@ public:
 	LatticeStructure* getStructure(const int id) const {
 		return m_structures[id];
 	}
-	unsigned int getNumFolded() {
+	unsigned int getNumFolded() const {
 		return m_num_folded;
 	}
 };
