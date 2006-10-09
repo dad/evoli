@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "protein.hh"
 #include <fstream>
 #include <cmath>
+#include <memory>
 
 struct TEST_CLASS( folder_basic )
 {
@@ -35,12 +36,11 @@ struct TEST_CLASS( folder_basic )
 
 	void TEST_FUNCTION( init_lattice )
 	{
-		Folder* folder = new CompactLatticeFolder(side_length);
+		CompactLatticeFolder folder(side_length);
 		Protein p("CSVMQGGKTVFQMPIIERVMQAYNI"); //Gene::createRandomNoStops(gene_length);
-		FoldInfo fi = folder->fold(p);
-		TEST_ASSERT(abs(fi.getFreeEnergy()-0.564) < 1e-2);
-		TEST_ASSERT(fi.getStructure() == (StructureID)225);
-		delete folder;
+		auto_ptr<FoldInfo> fi( folder.fold(p) );
+		TEST_ASSERT( fabs(fi->getFreeEnergy()-0.564) < 1e-2 );
+		TEST_ASSERT( fi->getStructure() == (StructureID)225 );
 		return;
 	}
 	void TEST_FUNCTION( init_decoy )
@@ -48,20 +48,19 @@ struct TEST_CLASS( folder_basic )
 		ifstream fin("test/data/williams_contact_maps/maps.txt");
 		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
-		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
-		TEST_ASSERT( folder->good() );
-		if (!folder->good() )
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		TEST_ASSERT( folder.good() );
+		if (!folder.good() )
 			return;
 		int num_to_fold = 1;
 		for (int j=0; j<num_to_fold; j++) {
 			Gene g = Gene::createRandomNoStops(protein_length*3);
 			Protein p = g.translate();
-			FoldInfo fi = folder->fold(p);
-			TEST_ASSERT(fi.getStructure()>-1);
+			auto_ptr<FoldInfo> fi( folder.fold(p) );
+			TEST_ASSERT(fi->getStructure()>-1);
 			//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
 		}
 		// Clean up
-		delete folder;
 		return;
 	}
 
@@ -69,16 +68,16 @@ struct TEST_CLASS( folder_basic )
 		ifstream fin("test/data/rand_contact_maps/maps.txt");
 		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
-		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/rand_contact_maps/");
-		TEST_ASSERT( folder->good() );
-		if (!folder->good() )
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/rand_contact_maps/");
+		TEST_ASSERT( folder.good() );
+		if (!folder.good() )
 			return;
 		Protein p("PRPEEEKKKREREEKRRKEDKLERIRDLPRKILKMIVEPKRRKKGETEDDDEKESKRREEMEKFKREFFTICIKLLECEEEMARRREKRREEEDIDSLRELMKDCRRFIDDPRRVEQQSQRLDFRSRRKLEDEKDDEDKRKPDFLFEFEMCEEDMRRRPLDRVKDICRVCCEMDEEEEIREEEEFFRPEEEDMKLKSFRESFKDVRRCILRKFEKSRREKSAEFLRHEIPMFSSEDEEDRKKKDRRRQRPMMRHFMKRIKEKEEERKKREFKEQEEPKPKSFKWKTEEEMEELGEQEKRV");
-		FoldInfo fi = folder->fold(p);
+		auto_ptr<FoldInfo> fi( folder.fold(p) );
 		//cout << fi.getFreeEnergy() << " " << fi.getStructure() << endl;
 		//cout << p << endl;
-		TEST_ASSERT(abs(fi.getFreeEnergy()-0.00732496)<1e-4);
-		TEST_ASSERT(fi.getStructure() == (StructureID)0);
+		TEST_ASSERT( fabs(fi->getFreeEnergy()-0.00732496)<1e-4 );
+		TEST_ASSERT( fi->getStructure() == (StructureID)0 );
 	}
 
 
@@ -101,7 +100,7 @@ struct TEST_CLASS( folder_basic )
 		char r1aa, r2aa;
 		for (int i=0; i<contacts.size() && !fin.eof();) {
 			fin >> r1 >> r1aa >> r2 >> r2aa;
-			if (abs(r1-r2)>1) {
+			if ( abs(r1-r2)>1 ) {
 				TEST_ASSERT(contacts[i].first == r1);
 				TEST_ASSERT(contacts[i].second == r2);
 				TEST_ASSERT(seq[r1] == r1aa);
@@ -123,17 +122,16 @@ struct TEST_CLASS( folder_basic )
 		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
 		ifstream fin("test/data/williams_contact_maps/maps.txt");
-		Folder* folder = new DecoyContactFolder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
-		TEST_ASSERT( folder->good() );
-		if (!folder->good() )
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		TEST_ASSERT( folder.good() );
+		if (!folder.good() )
 			return;
 		Protein p(stable_seq);
-		FoldInfo fi = folder->fold( p );
-		TEST_ASSERT(fi.getStructure()==34);
+		auto_ptr<FoldInfo> fi( folder.fold( p ) );
+		TEST_ASSERT(fi->getStructure()==34);
 		//cout << "Williams:" << endl;
 		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
 		// Clean up
-		delete folder;
 	}
 
 };

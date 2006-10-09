@@ -769,7 +769,7 @@ void CompactLatticeFolder::enumerateStructures()
 /**
  * Fold the sequence and return information about the result (structure, free energy).
  */
-FoldInfo CompactLatticeFolder::fold( const Sequence& s ) const
+FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 {
 	assert( m_num_structures > 0 );
 
@@ -813,10 +813,10 @@ FoldInfo CompactLatticeFolder::fold( const Sequence& s ) const
 	// increment folded count
 	m_num_folded += 1;
 
-	return FoldInfo(G, minIndex);
+	return new FoldInfo(G, minIndex);
 }
 
-inline double CompactLatticeFolder::getEnergy(const Sequence& p, StructureID sid) const {
+double CompactLatticeFolder::getEnergy(const Sequence& p, StructureID sid) const {
 	const vector<Contact> &pair_list = m_structures[sid]->getInteractingPairs();
 	vector<Contact>::const_iterator it=pair_list.begin();
 	double E = 0.0;

@@ -46,8 +46,8 @@ struct TEST_CLASS( population )
 		pop.init( g, &fe, U );
 		// without evolution, mean fitness should equal the fitness
 		// of the incoming gene, which should be 0.691722
-		TEST_ASSERT( abs(fe.getFitness( g )-0.691722) < 1e-4 );
-		TEST_ASSERT( abs(pop.getAveFitness()-0.691722) < 1e-4 );
+		TEST_ASSERT( fabs(fe.getFitness( g )-0.691722) < 1e-4 );
+		TEST_ASSERT( fabs(pop.getAveFitness()-0.691722) < 1e-4 );
 	}
 
 	void TEST_FUNCTION( lattice_folder )
@@ -115,13 +115,13 @@ struct TEST_CLASS( population )
 		}
 		ProteinFreeEnergyFitness fe( &folder );
 		Gene g;
-		FoldInfo fi;
+		auto_ptr<FoldInfo> fi;
 		StructureID target_struct = (StructureID)0;
 		do {
 			g = Gene::createRandomNoStops(protein_length*3);
 			Protein p = g.translate();
-			fi = folder.fold(p);
-		} while (fi.getStructure() != target_struct);
+			fi = auto_ptr<FoldInfo>( folder.fold(p) );
+		} while (fi->getStructure() != target_struct);
 
 		double fitness = fe.getFitness(g);
 		

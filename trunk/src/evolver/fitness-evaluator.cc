@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 #include <cmath>
 #include <iomanip>
+#include <memory>
 
 FitnessEvaluator::FitnessEvaluator()
 {}
@@ -54,7 +55,8 @@ double ProteinFreeEnergyFitness::getFitness( const Gene &g ) {
 
 double ProteinFreeEnergyFitness::getFitness( const Protein &p ) {
 	double kT = 0.6;
-	double dG = m_protein_folder->fold(p).getFreeEnergy();
+	auto_ptr<FoldInfo> fi( m_protein_folder->fold(p) );
+	double dG = fi->getFreeEnergy();
 	double x = exp(-dG/kT);
 	return x/(1.0+x);
 }
@@ -81,11 +83,11 @@ double ProteinStructureFitness::getFitness( const Gene &g ) {
 }
 
 double ProteinStructureFitness::getFitness( const Protein &p ) {
-	FoldInfo pf = m_protein_folder->fold(p);
-	if ( pf.getFreeEnergy() > m_max_free_energy )
+	auto_ptr<FoldInfo> pf( m_protein_folder->fold(p) );
+	if ( pf->getFreeEnergy() > m_max_free_energy )
 		return 0;
 
-	if ( pf.getStructure() != m_protein_structure_ID )
+	if ( pf->getStructure() != m_protein_structure_ID )
 		return 0;
 	return 1;
 }
@@ -203,12 +205,12 @@ ErrorproneTranslation::~ErrorproneTranslation()
 bool ErrorproneTranslation::sequenceFolds(Protein& p)
 {
 	// test if residue sequence folds into correct structure and has correct free energy
-	FoldInfo fold_data = m_protein_folder->fold(p);
+	auto_ptr<FoldInfo> fold_data( m_protein_folder->fold(p) );
 	
-	if ( fold_data.getFreeEnergy() > m_max_free_energy )
+	if ( fold_data->getFreeEnergy() > m_max_free_energy )
 		return false;  // free energy above cutoff
 
-	if ( fold_data.getStructure() != m_protein_structure_ID )
+	if ( fold_data->getStructure() != m_protein_structure_ID )
 		return false; // sequence folds into the wrong structure
 
 	return true;
@@ -524,9 +526,9 @@ void ErrorproneTranslation::stabilityOutcomes( const Gene &g, const int num_to_f
 		int numErrors = t.translateRelativeWeighted(g, p, m_error_weight, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
 		// Only record mistranslations that are folded into the correct structure
 		if (numErrors>0 && !truncated) {
-			FoldInfo fold_data = m_protein_folder->fold(p);
-			if (fold_data.getStructure() == m_protein_structure_ID) {
-				ddgs.push_back(fold_data.getFreeEnergy());
+			auto_ptr<FoldInfo> fold_data( m_protein_folder->fold(p) );
+			if (fold_data->getStructure() == m_protein_structure_ID) {
+				ddgs.push_back(fold_data->getFreeEnergy());
 				i++;
 			}
 		}

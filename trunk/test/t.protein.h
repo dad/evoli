@@ -102,15 +102,14 @@ struct TEST_CLASS( protein_gene_basic )
 	}
 	void TEST_FUNCTION( sequence_for_structure )
 	{
-		CompactLatticeFolder* folder = new CompactLatticeFolder(side_length);
+		CompactLatticeFolder folder(side_length);
 		double max_dg = -5;
 		int sid = 574;
-		Gene g = GeneUtil::getSequenceForStructure(*folder, gene_length, max_dg, sid);
+		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		Protein p = g.translate();
-		FoldInfo fi = folder->fold(p);
-		TEST_ASSERT( fi.getFreeEnergy() <= max_dg );
-		TEST_ASSERT( fi.getStructure() == (StructureID)sid );
-		delete folder;
+		auto_ptr<FoldInfo> fi( folder.fold(p) );
+		TEST_ASSERT( fi->getFreeEnergy() <= max_dg );
+		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
 		return;
 	}
 };

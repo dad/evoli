@@ -122,9 +122,9 @@ ostream & operator<<( ostream &s, const Parameters &p )
 StructureID getStructureID( Folder *b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
-		FoldInfo fi = b->fold(p);
-		cout << fi.getStructure() << " " << fi.getFreeEnergy() << flush << endl;
-		return fi.getStructure();
+		auto_ptr<FoldInfo> fi( b->fold(p) );
+		cout << fi->getStructure() << " " << fi->getFreeEnergy() << flush << endl;
+		return fi->getStructure();
 	}
 	else
 		return (StructureID)-1;
@@ -156,7 +156,8 @@ void getWeightsExperiment(Parameters& p)
 		seed_gene = GeneUtil::getSequenceForStructure(*folder, 75, p.free_energy_cutoff, struct_id);
 		cout << "# Seed gene " << seed_gene << endl;
 		cout << "# Translates to " << seed_gene.translate() << endl;
-		structure_ID = folder->fold(seed_gene.translate()).getStructure();
+		auto_ptr<FoldInfo> fi( folder->fold(seed_gene.translate()) );
+		structure_ID = fi->getStructure();
 	}
 	fin.close();
 

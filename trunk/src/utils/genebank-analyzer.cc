@@ -1,3 +1,24 @@
+/*
+This file is part of the evoli project.
+Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
+Allan Drummond <dadrummond@gmail.com>,  Matt Cowperthwaite <mattccowp@mac.com>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
+*/
+
+
 #include "protein.hh"
 #include "compact-lattice-folder.hh"
 #include "folder.hh"
@@ -224,9 +245,9 @@ void printGenebank( CompactLatticeFolder &b, const Params p, const vector<Geneba
         while( cit != ce )
         {
                 GenebankData d = *cit;
-                FoldInfo fi = b.fold( d.g.translate() );
-                d.free_energy = fi.getFreeEnergy();
-                d.struct_id = fi.getStructure();
+                auto_ptr<FoldInfo> fi( b.fold( d.g.translate() ) );
+                d.free_energy = fi->getFreeEnergy();
+                d.struct_id = fi->getStructure();
 				
                 ErrorproneTranslation *ept = new ErrorproneTranslation();
 				ept->init( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost,
@@ -262,10 +283,10 @@ void analyzeSurfaceCore( CompactLatticeFolder &b, Params p, const vector<Geneban
 {
         // first, get structure
         //	pair<double, int> fp = GeneUtil::translateAndFold( b, v[0].g);
-		FoldInfo fi = b.fold( v[0].g.translate() );
+	auto_ptr<FoldInfo> fi( b.fold( v[0].g.translate() ) );
 
         //b.printStructure( fp.second );
-        vector<int> surface = b.getSurface( fi.getStructure() );
+        vector<int> surface = b.getSurface( fi->getStructure() );
 
         // now, do analysis
         int start = p.coalescent_time - p.window_size + 1;

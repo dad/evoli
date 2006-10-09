@@ -1,8 +1,3 @@
-#include "decoy-contact-folder.hh"
-#include "translator.hh"
-#include "gene-util.hh"
-#include "tools.hh"
-
 /*
 This file is part of the evoli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
@@ -23,6 +18,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 */
 
+#include "decoy-contact-folder.hh"
+#include "translator.hh"
+#include "gene-util.hh"
+#include "tools.hh"
 
 #include <fstream>
 
@@ -93,8 +92,8 @@ int main( int ac, char **av)
 		fin >> seq;
 		if (seq[0] != '#') {
 			Protein p(seq);
-			FoldInfo fi = folder.fold(p);
-			cout << seq << " " << fi.getFreeEnergy() << " " << fi.getStructure() << endl;
+			auto_ptr<FoldInfo> fi( folder.fold(p) );
+			cout << seq << " " << fi->getFreeEnergy() << " " << fi->getStructure() << endl;
 		}
 	}
 

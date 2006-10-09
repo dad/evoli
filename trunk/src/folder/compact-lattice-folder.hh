@@ -210,7 +210,7 @@ public:
 	virtual ~CompactLatticeFolder();
 
 	virtual bool good() const { return m_structures.size() > 0; }
-	virtual FoldInfo fold( const Sequence& s ) const;
+	virtual FoldInfo* fold( const Sequence& s ) const;
 	bool isFoldedBelowThreshold( const Sequence&s, const int structID, double cutoff) const;
 	void getMinMaxPartitionContributions(const Sequence& s, const int ci, double& cmin, double& cmax) const;
 	/**

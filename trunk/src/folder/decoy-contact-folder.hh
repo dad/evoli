@@ -90,10 +90,12 @@ ifstream fin("test/data/williams_contact_maps/maps.txt"); // file which contains
 // initialize the folder with protein length 300, fudge factor log(10^160),
 // in directory "test/data/williams_contact_maps/":
 DecoyContactFolder folder( 300, 160.0*log(10.0), fin, "test/data/williams_contact_maps/");
-if ( folder->good() )
+if ( folder.good() )
 {
-	FoldInfo fi = folder->fold( p );
-	cout << fi.getStructure() << " " << fi.getFreeEnergy() << endl;
+	// we store the result from the fold() function in an auto_ptr,
+	// so that we don't have to worry about memory management
+	auto_ptr<FoldInfo> fi( folder.fold( p ) );
+	cout << fi->getStructure() << " " << fi->getFreeEnergy() << endl;
 }
 \endcode
 
@@ -154,14 +156,14 @@ public:
 	 * @param s The sequence to be folded.
 	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
-	virtual FoldInfo fold(const Sequence& s) const;
+	virtual DecoyFoldInfo* fold(const Sequence& s) const;
 	/**
 	 * Folds a protein.
 	 *
 	 * @param s The sequence to be folded.
 	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
-	DecoyFoldInfo foldStats(const Sequence& s) const;
+	DecoyFoldInfo* foldStats(const Sequence& s) const;
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.

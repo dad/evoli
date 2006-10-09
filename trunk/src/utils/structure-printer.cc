@@ -63,10 +63,10 @@ int main( int ac, char **av )
 			Gene g(s);
 			// first, get structure
 			Protein p = g.translate();
-			FoldInfo fp = b.fold(p);
+			auto_ptr<FoldInfo> fp( b.fold(p) );
 			// then, print
-			cout << "Sequence encodes: " << p << endl << "Structure " << fp.getStructure() << ": " << endl;
-			b.printStructure( fp.getStructure(), cout, "" );
+			cout << "Sequence encodes: " << p << endl << "Structure " << fp->getStructure() << ": " << endl;
+			b.printStructure( fp->getStructure(), cout, "" );
 		}
 	} while (!in.eof());
 }

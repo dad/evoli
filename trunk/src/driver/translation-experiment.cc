@@ -51,7 +51,8 @@ ostream & operator<<( ostream &s, const Parameters &p )
 StructureID getStructureID( Folder &b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
-		return b.fold(p).getStructure();
+		auto_ptr<FoldInfo> fi( b.fold(p) );
+		return fi->getStructure();
 	}
 	else
 		return (StructureID)-1;
@@ -95,8 +96,8 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 			double dG = 0;
 			if (folded) {
 				Protein p = g.translate();
-				FoldInfo fold_data = folder.fold(p);
-				dG = fold_data.getFreeEnergy();
+				auto_ptr<FoldInfo> fold_data( folder.fold(p) );
+				dG = fold_data->getFreeEnergy();
 			}
 			double facc, frob, ftrunc, ffold;
 			fe.calcOutcomes( g, facc, frob, ftrunc, ffold);

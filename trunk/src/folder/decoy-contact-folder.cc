@@ -101,7 +101,7 @@ double DecoyContactFolder::getEnergy(const Sequence& s, StructureID sid) const {
 /**
  * Fold the protein and return folding information (structure, free energy).
  **/
-FoldInfo DecoyContactFolder::fold(const Sequence& s) const {
+DecoyFoldInfo* DecoyContactFolder::fold(const Sequence& s) const {
 	double kT = 0.6;
 	double minG = 1e50;
 	int minIndex = -1;
@@ -163,13 +163,13 @@ FoldInfo DecoyContactFolder::fold(const Sequence& s) const {
 	
 	// increment folded count
 	m_num_folded += 1;
-	return DecoyFoldInfo(dG, minIndex, mean_G, var_G, minG);
+	return new DecoyFoldInfo(dG, minIndex, mean_G, var_G, minG);
 }
 
 /**
  * Fold the protein and return folding information with stats.
  **/
-DecoyFoldInfo DecoyContactFolder::foldStats(const Sequence& s) const {
+DecoyFoldInfo* DecoyContactFolder::foldStats(const Sequence& s) const {
 	double kT = 0.6;
 	double minG = 1e50;
 	int minIndex = -1;
@@ -231,7 +231,7 @@ DecoyFoldInfo DecoyContactFolder::foldStats(const Sequence& s) const {
 	
 	// increment folded count
 	m_num_folded += 1;
-	return DecoyFoldInfo(dG, minIndex, mean_G, var_G, minG);
+	return new DecoyFoldInfo(dG, minIndex, mean_G, var_G, minG);
 }
 
 void ContactMapUtil::readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs) {

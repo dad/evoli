@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 #include <algorithm>
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -148,12 +149,12 @@ public:
 	 * Calculates the neutrality of the given protein. Cutoff is the free energy cutoff
 	 * below which the protein folds.
 	 **/
-	static double calcNeutrality( Folder &b, Protein p, double cutoff )
+	static double calcNeutrality( const Folder &b, Protein p, double cutoff )
 	{
-		FoldInfo fold_data = b.fold(p);
-		if ( fold_data.getFreeEnergy() > cutoff )
+		auto_ptr<FoldInfo> fold_data( b.fold(p) );
+		if ( fold_data->getFreeEnergy() > cutoff )
 			return 0;
-		int structure_id = fold_data.getStructure();
+		int structure_id = fold_data->getStructure();
 
 		int count = 0;
 		// go through all positions in the protein
@@ -168,8 +169,8 @@ public:
 			{
 				p[i] = tempres;
 				// sequence folds into correct structure with low free energy?
-				fold_data = b.fold(p);
-				if (fold_data.getStructure() == structure_id && fold_data.getFreeEnergy() < cutoff) {
+				fold_data = auto_ptr<FoldInfo>( b.fold(p) );
+				if (fold_data->getStructure() == structure_id && fold_data->getFreeEnergy() < cutoff) {
 					count += 1;
 				}
 				tempres++;
@@ -180,8 +181,8 @@ public:
 			{
 				p[i] = tempres;
 				// sequence folds into correct structure with low free energy?
-				fold_data = b.fold(p);
-				if (fold_data.getStructure() == structure_id && fold_data.getFreeEnergy() < cutoff) {
+				fold_data = auto_ptr<FoldInfo>( b.fold(p) );
+				if (fold_data->getStructure() == structure_id && fold_data->getFreeEnergy() < cutoff) {
 					count += 1;
 				}
 				tempres++;
@@ -282,12 +283,12 @@ public:
 	/**
 	 * Finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 	 */
-	static Gene getSequenceForStructure( Folder &b, unsigned int length, double free_energy_cutoff, const int struct_id )
+	static Gene getSequenceForStructure( const Folder &b, unsigned int length, double free_energy_cutoff, const int struct_id )
 	{
 		// find a random sequence with folding energy smaller than cutoff
 		double G;
 		Gene g(length);
-		FoldInfo fdata;
+		auto_ptr<FoldInfo> fdata;
 		double mutation_rate = 1.0/length;
 		bool found = false;
 		double min_free_energy_for_starting = max(300.0, free_energy_cutoff);
@@ -298,14 +299,14 @@ public:
 			//cout << g << endl;
 			Protein p = g.translate();
 			//cout << p << endl;
-			fdata = b.fold(p);
-			found = (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= min_free_energy_for_starting);
+			fdata = auto_ptr<FoldInfo>( b.fold(p) );
+			found = (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= min_free_energy_for_starting);
 			//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
 		} while ( !found );
 
 		int fail_count = 0;
 		int total_fail_count = 0;
-		G = fdata.getFreeEnergy();
+		G = fdata->getFreeEnergy();
 
 		// optimize the sequence for stability
 		do {
@@ -321,12 +322,12 @@ public:
 			}
 			else {
 				Protein p = g2.translate();
-				fdata = b.fold(p);
+				fdata = auto_ptr<FoldInfo>( b.fold(p) );
 				//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
-				if (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= G-0.001) {
+				if (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= G-0.001) {
 					// we found an improved sequence. grab it, and reset failure count
 					g = g2;
-					G = fdata.getFreeEnergy();
+					G = fdata->getFreeEnergy();
 					fail_count = 0;
 					//cout << G << endl;
 				}
@@ -338,10 +339,10 @@ public:
 				do {
 					g = Gene::createRandomNoStops( length );
 					Protein p = g.translate();
-					fdata = b.fold(p);
-					found = (fdata.getStructure() == struct_id && fdata.getFreeEnergy() <= min_free_energy_for_starting);
+					fdata = auto_ptr<FoldInfo>( b.fold(p) );
+					found = (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= min_free_energy_for_starting);
 				} while ( !found );
-				G = fdata.getFreeEnergy();
+				G = fdata->getFreeEnergy();
 				fail_count = 0;
 				total_fail_count = 0;
 			}
@@ -353,12 +354,12 @@ public:
 	/**
 	 * Finds a random sequence with folding energy smaller than cutoff
 	 */
-	static Gene getSequence( Folder &b, unsigned int length, double free_energy_cutoff)
+	static Gene getSequence( const Folder &b, unsigned int length, double free_energy_cutoff)
 	{
 		// find a random sequence with folding energy smaller than cutoff
 		double G;
 		Gene g(length);
-		FoldInfo fdata;
+		auto_ptr<FoldInfo> fdata;
 		double mutation_rate = 1.0/length;
 		bool found = false;
 		double min_free_energy_for_starting = max(300.0, free_energy_cutoff);
@@ -369,14 +370,14 @@ public:
 			//cout << g << endl;
 			Protein p = g.translate();
 			//cout << p << endl;
-			fdata = b.fold(p);
-			found = (fdata.getFreeEnergy() <= min_free_energy_for_starting);
+			fdata = auto_ptr<FoldInfo>( b.fold(p) );
+			found = (fdata->getFreeEnergy() <= min_free_energy_for_starting);
 			//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
 		} while ( !found );
 
 		int fail_count = 0;
 		int total_fail_count = 0;
-		G = fdata.getFreeEnergy();
+		G = fdata->getFreeEnergy();
 
 		// optimize the sequence for stability
 		do {
@@ -392,12 +393,12 @@ public:
 			}
 			else {
 				Protein p = g2.translate();
-				fdata = b.fold(p);
+				fdata = auto_ptr<FoldInfo>( b.fold(p) );
 				//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
-				if (fdata.getFreeEnergy() <= G-0.001) {
+				if (fdata->getFreeEnergy() <= G-0.001) {
 					// we found an improved sequence. grab it, and reset failure count
 					g = g2;
-					G = fdata.getFreeEnergy();
+					G = fdata->getFreeEnergy();
 					fail_count = 0;
 					//cout << G << endl;
 				}
@@ -409,10 +410,10 @@ public:
 				do {
 					g = Gene::createRandomNoStops( length );
 					Protein p = g.translate();
-					fdata = b.fold(p);
-					found = (fdata.getFreeEnergy() <= min_free_energy_for_starting);
+					fdata = auto_ptr<FoldInfo>( b.fold(p) );
+					found = (fdata->getFreeEnergy() <= min_free_energy_for_starting);
 				} while ( !found );
-				G = fdata.getFreeEnergy();
+				G = fdata->getFreeEnergy();
 				fail_count = 0;
 				total_fail_count = 0;
 			}
