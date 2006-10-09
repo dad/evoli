@@ -151,32 +151,28 @@ public:
 	~DecoyContactFolder();
 
 	/**
-	 * Folds a protein.
+	 * Folds a protein. See Folder::fold() for details.
 	 *
 	 * @param s The sequence to be folded.
 	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
 	virtual DecoyFoldInfo* fold(const Sequence& s) const;
-	/**
-	 * Folds a protein.
-	 *
-	 * @param s The sequence to be folded.
-	 * @return The folding information (of type DecoyFoldInfo).
-	 **/
-	DecoyFoldInfo* foldStats(const Sequence& s) const;
+
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
 	 **/ 
 	double getEnergy(const Sequence& s, StructureID sid) const;
+
 	/**
 	 * @return The number of proteins that have been folded since initialization.
 	 **/
 	int getNumFolded() { return m_num_folded; }
 
 	/**
-	 * @return A bool indicating whether the folder is in a usable state.
+	This function assesses whether the folder has been properly initialized.
+	@return True if the folder is in good working order, False otherwise.
 	 **/
 	virtual bool good() const;
 	

@@ -209,7 +209,18 @@ public:
 	CompactLatticeFolder( int size );
 	virtual ~CompactLatticeFolder();
 
+	/**
+	This function assesses whether the folder has been properly initialized.
+	@return True if the folder is in good working order, False otherwise.
+	 **/
 	virtual bool good() const { return m_structures.size() > 0; }
+	
+	/**
+	 * Folds a protein. See Folder::fold() for details.
+	 *
+	 * @param s The sequence to be folded.
+	 * @return The folding information (of type DecoyFoldInfo).
+	 **/
 	virtual FoldInfo* fold( const Sequence& s ) const;
 	bool isFoldedBelowThreshold( const Sequence&s, const int structID, double cutoff) const;
 	void getMinMaxPartitionContributions(const Sequence& s, const int ci, double& cmin, double& cmax) const;

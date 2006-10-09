@@ -69,10 +69,23 @@ protected:
 public:
 	virtual ~Folder() {}
 	/**
-	 * Fold sequence and return folding information.
-	 * @param s The sequence whose energy is sought.
-	 * @return Folding information (e.g. free energy, structure identifier).
-	 **/
+	Fold sequence and return folding information in a \ref FoldInfo
+	object. Note that the function fold() returns a pointer to a \ref FoldInfo
+	object, not an instance of this object. The ownership of this object is
+	transferred to the function issuing the call. It is strongly recommended
+	to store this pointer in an auto-pointer, as in this example:
+	\code
+// assume the variable f holds a Folder object:
+auto_ptr<FoldInfo> fi( f.fold( s ) ); // fold sequence s
+StructureID sid = fi->getStructure(); // assign structure ID to variable sid
+	\endcode
+	\warning Do not write code of the form f.fold()->getStructure(),
+	as this statement would result in a memory leak (\ref FoldInfo object
+	is not deleted).
+	@param s The protein sequence to fold.
+	@return A pointer to a \ref FoldInfo object containing all
+	the folding information.
+	*/
 	virtual FoldInfo* fold(const Sequence& s) const = 0;
 	/**
 	 * @param s The sequence whose energy is sought.
@@ -81,7 +94,8 @@ public:
 	 **/ 
 	virtual double getEnergy(const Sequence& s, StructureID sid) const = 0;
 	/**
-	 * Has the folder been properly initialized?
+	This function assesses whether the folder has been properly initialized.
+	@return True if the folder is in good working order, False otherwise.
 	 **/
 	virtual bool good() const = 0;
 };
