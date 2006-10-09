@@ -1,8 +1,11 @@
-#include "protein-folder.hh"
+#include "protein.hh"
+#include "compact-lattice-folder.hh"
+#include "folder.hh"
 #include "translator.hh"
+#include "population.hh"
 #include "fitness-evaluator.hh"
 #include "tools.hh"
-#include "genotype-util.hh"
+#include "gene-util.hh"
 
 #include <algorithm>
 #include <fstream>
@@ -23,21 +26,33 @@ struct GenebankData
         double sensitivity_ns;
         double nu;
         double fop;
-        Genotype g;
+        Gene g;
 };
 
+
+/* need to add more fields here to increase the number of parameters 
+	in the new genebank output files
+*/
 struct Params
 {
-        double cutoff;
+		
+		string eval_type;
+		int structure_ID;
+		int free_energy_cutoff;
+		int free_energy_min;
+		int protein_length;
+		double u;
         double tr_cost;
         double ca_cost;
         double transl_error_rate;
-        double u;
+        int transl_acc_wt;
+        double transl_error_wt;
+		int N;
         int window_size;
         int equilibration_time;
         int coalescent_time;
-        int N;
 };
+
 
 void readLine( istream &in )
 {
@@ -45,7 +60,7 @@ void readLine( istream &in )
 
         do
         {
-                in.get( c );
+			in.get( c );
         }
         while( in && c != '\n' );
 }
@@ -63,12 +78,26 @@ void readGenebank( istream &in, Params &p, vector<GenebankData> &v )
                 if ( c == '#' )
                 {
                         in >> s;
+						/* get the evaluation type */
+						if ( s == "evaluation" ) {
+							in >> s;
+							in >> p.eval_type;
+						}
+						/* get the structure ID*/
+						else if ( s == "structure" ) {
+							in >> s;
+							in >> p.structure_ID;
+						}
                         // get free energy cutoff
-                        if ( s == "free"  )
+                        else if ( s == "free"  )
                         {
                                 in >> s;
                                 in >> s;
-                                in >> p.cutoff;
+								if ( s == "maximum:" ) {
+									in >> p.free_energy_cutoff;
+								}
+								else
+									in >> p.free_energy_min;
                         }
                         // get mutation rate
                         else if ( s == "per-site" )
@@ -88,11 +117,26 @@ void readGenebank( istream &in, Params &p, vector<GenebankData> &v )
                                         in >> s;
                                         in >> p.tr_cost;
                                 }
-                                else
+                                else if ( s == "error" )
                                 {
                                         in >> s;
-                                        in >> p.transl_error_rate;
+										if ( s == "rate" )
+										{
+											in >> s;
+											in >> s;
+											in >> p.transl_error_rate;
+										}
+										else
+										{
+											in >> p.transl_error_wt;
+										}
                                 }
+								else if ( s == "accuracy" )
+								{
+										in >> s;
+										in >> p.transl_acc_wt;
+								}
+								
                         }
                         // get ca cost factor
                         else if ( s == "codon" )
@@ -139,9 +183,11 @@ void readGenebank( istream &in, Params &p, vector<GenebankData> &v )
         {
                 in >> d.parent_id >> d.count >> d.birth_time >> d.coalescent >> d.w_saved >> d.g;
 
-                if ( d.id == 0 )
-                        continue;
-
+                if ( d.id == 0 )  {
+					p.protein_length = (int)d.g.codonLength();
+					continue;
+				}
+				
                 v.push_back( d );
 
                 if ( d.count > 1 )
@@ -162,9 +208,9 @@ void readGenebank( istream &in, Params &p, vector<GenebankData> &v )
                 p.coalescent_time = p.window_size + p.equilibration_time;
 }
 
-void printGenebank( ProteinFolder &b, const Params p, const vector<GenebankData> &v )
+void printGenebank( CompactLatticeFolder &b, const Params p, const vector<GenebankData> &v )
 {
-        cout << "# free energy cutoff: " << p.cutoff << endl;
+        cout << "# free energy cutoff: " << p.free_energy_cutoff << endl;
         cout << "# per-site mutation rate: " << p.u << endl;
         cout << "# transl. robustness cost factor: " << p.tr_cost << endl;
         cout << "# codon adaptation cost factor: " << p.ca_cost << endl;
@@ -178,19 +224,23 @@ void printGenebank( ProteinFolder &b, const Params p, const vector<GenebankData>
         while( cit != ce )
         {
                 GenebankData d = *cit;
-                pair<double, int> fp = GenotypeUtil::translateAndFold( b, d.g );
-                d.free_energy = fp.first;
-                d.struct_id = fp.second;
-                ErrorproneTranslation fe( &b, d.struct_id, p.cutoff, p.tr_cost, p.ca_cost, p.transl_error_rate );
-                d.w_new = fe.getFitness( d.g );
-                d.sensitivity = fe.getLastSensitivity();
-                d.sensitivity_ns = fe.getLastSensitivityNoStop();
-                d.nu = GenotypeUtil::calcNeutrality( b, d.g, p.cutoff );
-                d.fop = GenotypeUtil::calcFop( d.g, ErrorproneTranslation::m_codon_cost );
+                FoldInfo fi = b.fold( d.g.translate() );
+                d.free_energy = fi.getFreeEnergy();
+                d.struct_id = fi.getStructure();
+				
+                ErrorproneTranslation *ept = new ErrorproneTranslation();
+				ept->init( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost,
+									p.transl_error_rate, p.transl_acc_wt, p.transl_error_wt );
+									
+                d.w_new = ept->getFitness( d.g );
+                
+				d.nu = GeneUtil::calcNeutrality( b, d.g.translate(), p.free_energy_cutoff );
+                d.fop = GeneUtil::calcFop( d.g, ept->getOptimalCodons(false) );
 
                 cout << d.birth_time << " " << d.w_saved << " " << d.w_new << " ";
                 cout << d.free_energy << " " << d.struct_id << " " << d.nu << " ";
-                cout << d.sensitivity << " " << d.sensitivity_ns << " " << d.fop << endl;
+                cout << d.fop << endl;
+				
                 cit++;
                 if ( cit == ce )
                         break;
@@ -208,13 +258,14 @@ void printGenebank( ProteinFolder &b, const Params p, const vector<GenebankData>
 
 }
 
-void analyzeSurfaceCore( ProteinFolder &b, Params p, const vector<GenebankData> &v )
+void analyzeSurfaceCore( CompactLatticeFolder &b, Params p, const vector<GenebankData> &v )
 {
         // first, get structure
-        pair<double, int> fp = GenotypeUtil::translateAndFold( b, v[0].g );
+        //	pair<double, int> fp = GeneUtil::translateAndFold( b, v[0].g);
+		FoldInfo fi = b.fold( v[0].g.translate() );
 
         //b.printStructure( fp.second );
-        vector<int> surface = b.getSurface( fp.second );
+        vector<int> surface = b.getSurface( fi.getStructure() );
 
         // now, do analysis
         int start = p.coalescent_time - p.window_size + 1;
@@ -236,7 +287,7 @@ void analyzeSurfaceCore( ProteinFolder &b, Params p, const vector<GenebankData> 
                         break;
         }
 
-        cout << "# free energy cutoff: " << p.cutoff << endl;
+        cout << "# free energy cutoff: " << p.free_energy_cutoff << endl;
         cout << "# per-site mutation rate: " << p.u << endl;
         cout << "# transl. robustness cost factor: " << p.tr_cost << endl;
         cout << "# codon adaptation cost factor: " << p.ca_cost << endl;
@@ -255,11 +306,11 @@ void analyzeSurfaceCore( ProteinFolder &b, Params p, const vector<GenebankData> 
         {
                 double n, s, nSurf, nCore, sSurf, sCore;
                 double N, S, NSurf, NCore, SSurf, SCore;
-                GenotypeUtil::calcDnDs( n, s, d.g, (*cit).g );
-                GenotypeUtil::calcDnDsSurfaceCore( nSurf, nCore, sSurf, sCore, d.g, (*cit).g, surface );
-                S = GenotypeUtil::calcSynonymousSites( d.g );
-                N = GenotypeUtil::calcTotalSites( d.g ) - S;
-                GenotypeUtil::calcSNSitesSurfaceCore( NSurf, NCore, SSurf, SCore, d.g, surface );
+                GeneUtil::calcDnDs( n, s, d.g, (*cit).g );
+                GeneUtil::calcDnDsSurfaceCore( nSurf, nCore, sSurf, sCore, d.g, (*cit).g, surface );
+                S = GeneUtil::calcSynonymousSites( d.g );
+                N = GeneUtil::calcTotalSites( d.g ) - S;
+                GeneUtil::calcSNSitesSurfaceCore( NSurf, NCore, SSurf, SCore, d.g, surface );
                 nn += n;
                 ns += s;
                 nnSurf += nSurf;
@@ -279,8 +330,11 @@ void analyzeSurfaceCore( ProteinFolder &b, Params p, const vector<GenebankData> 
                 // calculate the fraction of optimal codons from the last sequence
                 if ( cit == ce )
                 {
-                        Fop = GenotypeUtil::calcFop( d.g, ErrorproneTranslation::m_codon_cost );
-                        GenotypeUtil::calcFopSurfaceCore( FopSurf, FopCore, d.g, ErrorproneTranslation::m_codon_cost, surface );
+						ErrorproneTranslation* ept = new ErrorproneTranslation();
+						ept->init( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost,
+									p.transl_error_rate, p.transl_acc_wt, p.transl_error_wt );
+                        Fop = GeneUtil::calcFop( d.g, ept->getOptimalCodons(false) );
+                        GeneUtil::calcFopSurfaceCore( FopSurf, FopCore, d.g, ErrorproneTranslation::m_codon_cost, surface );
                         break; // we're done
                 }
         }
@@ -289,6 +343,7 @@ void analyzeSurfaceCore( ProteinFolder &b, Params p, const vector<GenebankData> 
         cout << nn << " " << ns << " " << nnSurf << " " << nnCore << " " << nsSurf << " " << nsCore <<  " " << dn << " " << ds << " " << dnSurf << " " << dnCore << " " << dsSurf << " " << dsCore << " " << Fop << " " << FopSurf << " " << FopCore << endl;
 }
 
+/*
 void analyzeMutations(Params p, const vector<GenebankData> &v )
 {
         int start = p.coalescent_time - p.window_size + 1;
@@ -337,10 +392,36 @@ void analyzeMutations(Params p, const vector<GenebankData> &v )
         }
 
 }
+*/
 
+/* 
+ * debugging function to print the parameters read from the Genebank file.
+ * this should be useful if the format of the genebank files every change
+*/
+void printParams( Params p )
+{
+	
+  cout << "evaluation type: " << p.eval_type << endl;
+  cout << "structure id: " << p.structure_ID << endl;
+  cout << "free energy maximum:" << p.free_energy_cutoff << endl;
+  cout << "free energy minimum: " << 	p.free_energy_min << endl;
+  cout << "protein length " << p.protein_length << endl;
+  cout << "per-site mutation rate u: " << p.u << endl;
+  cout << "transl. robust. cost factor: " << p.tr_cost << endl;
+  cout << "codon adaptation cost factor: " << p.ca_cost << endl;
+  cout << "transl. error rate per codon: " << p.transl_error_rate << endl;
+  cout << "transl. accuracy weight: " << p.transl_acc_wt << endl;
+  cout << "transl. error weight: " << p.transl_error_wt << endl;
+  cout << "population size N: " << p.N << endl;
+  cout << "window size tau: " << p.window_size << endl;
+  cout << "equilibration time: " << p.equilibration_time << endl;
+  cout << "coalescent time: " << p.coalescent_time << endl;
+  
+}
 
 int main( int ac, char **av)
 {
+
         if ( ac != 2 )
         {
                 cout << "Start program like this:" << endl;
@@ -360,15 +441,17 @@ int main( int ac, char **av)
         const int size = 5;
 
         // initialize the protein folder
-        ProteinFolder b(size);
+        CompactLatticeFolder b(size);
 
         Params p;
         vector<GenebankData> v;
 
         readGenebank( in, p, v );
-  //      printGenebank( b, p, v );
-   //   analyzeMutations( p, v );
-        analyzeSurfaceCore( b, p, v );
+	// printParams( p );		
+	printGenebank( b, p, v );
+	// analyzeMutations( p, v );
+	analyzeSurfaceCore( b, p, v );
+
 }
 
 

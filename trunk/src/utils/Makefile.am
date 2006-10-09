@@ -8,6 +8,9 @@ libraries = $(top_builddir)/src/evolver/libevolver.a \
 		$(top_builddir)/src/folder/libfolder.a \
 		$(top_builddir)/src/tools/libtools.a
 
+gb_analyzer_SOURCES = genebank-analyzer.cc
+gb_analyzer_LDADD   = $(libraries)
+
 sequence_generator_SOURCES = sequence-generator.cc
 sequence_generator_LDADD = $(libraries)
 
@@ -26,7 +29,7 @@ misfold_LDADD = $(libraries)
 get_weights_SOURCES = get-weights.cc
 get_weights_LDADD = $(libraries)
 
-bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer structure-printer misfold get-weights
+bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer structure-printer misfold get-weights gb_analyzer
 
 CLEANFILES = pdbcontacts.pyc pdb.pyc
 
