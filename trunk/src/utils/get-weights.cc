@@ -110,7 +110,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	s << "#   free energy maximum: " << p.free_energy_cutoff << endl;
 	s << "#   codon adaptation cost factor: " << p.ca_cost << endl;
 	s << "#   random seed: " << p.random_seed << endl;
-	s << "#   genotype file: " << p.genotype_file_name << endl;
+	s << "#   genotype file | structure ID: " << p.genotype_file_name << endl;
 	s << "#   num. gens to equilibrate: " << p.num_equil << endl;
 	s << "#   num. gens to measure: " << p.num_to_fold << endl;
 	s << "#   target accuracy: " << p.target_accuracy << endl;
@@ -119,10 +119,12 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	return s;
 }
 
-StructureID getStructureID( Folder &b, const Gene &g ) {
+StructureID getStructureID( Folder *b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
-		return b.fold(p).getStructure();
+		FoldInfo fi = b->fold(p);
+		cout << fi.getStructure() << " " << fi.getFreeEnergy() << flush << endl;
+		return fi.getStructure();
 	}
 	else
 		return (StructureID)-1;
@@ -135,30 +137,44 @@ void getWeightsExperiment(Parameters& p)
 	Random::seed(p.random_seed);
 
 	// Get protein and extract structure ID
+	Folder* folder;
 	Gene seed_gene;
+	StructureID structure_ID;
 	ifstream fin(p.genotype_file_name.c_str());
 	if (fin.good()) {
-	  fin >> seed_gene;
+		fin >> seed_gene;
+		int side_length = (int)(sqrt(float(seed_gene.codonLength())));
+		// initialize the protein folder
+		folder = new CompactLatticeFolder(side_length);
+		structure_ID = getStructureID(folder, seed_gene);
+	}
+	else {
+		// If can't find the file, interpret filename as structure ID
+		cout << "# Invalid filename; interpreting " << p.genotype_file_name << " as structure ID and assuming length 25." << endl;
+		StructureID struct_id = (StructureID)(atoi(p.genotype_file_name.c_str()));
+		folder = new CompactLatticeFolder(5);
+		seed_gene = GeneUtil::getSequenceForStructure(*folder, 75, p.free_energy_cutoff, struct_id);
+		cout << "# Seed gene " << seed_gene << endl;
+		cout << "# Translates to " << seed_gene.translate() << endl;
+		structure_ID = folder->fold(seed_gene.translate()).getStructure();
 	}
 	fin.close();
-
-	int side_length = (int)(sqrt(float(seed_gene.codonLength())));
-	// initialize the protein folder
-	CompactLatticeFolder folder(side_length);
-
-	int structure_ID = getStructureID(folder, seed_gene);
-
 
 	if ( structure_ID < 0 )	{
 		cerr << "# Input sequence does not translate!" << endl;
 		exit(1);
 	}
+	else {
+		cout << "# Structure ID " << structure_ID << endl;
+	}
+
 	ErrorproneTranslation* ept = new ErrorproneTranslation();
-	ept->init( &folder, seed_gene.codonLength(), structure_ID, p.free_energy_cutoff, 1, p.ca_cost, 0.1, 0.1, 0.1 );
+	ept->init( folder, seed_gene.codonLength(), structure_ID, p.free_energy_cutoff, 1, p.ca_cost, 0.1, 0.1, 0.1 );
 	double m_error_rate;
 	double m_accuracy_weight;
 	double m_error_weight;
 	Stats er, aw, ew;
+	cout << "error rate\taccuracy weight\terror weight" << endl;
 	for (int ni=0; ni<p.reps; ni++) {
 	  ept->getWeightsForTargetAccuracy(seed_gene, p.target_accuracy, m_error_rate, m_accuracy_weight, m_error_weight, p.num_equil, p.num_to_fold);	
 	  er += m_error_rate;
@@ -168,6 +184,9 @@ void getWeightsExperiment(Parameters& p)
 	}
 	cout << "# Averages:" << endl;
 	cout << er.getMean() << tab << aw.getMean() << tab << ew.getMean() << endl;
+
+	// Clean up.
+	delete folder;
 }
 
 int main( int ac, char **av)
@@ -179,6 +198,6 @@ int main( int ac, char **av)
 	}
 	else {
 		cout << "Start program like this:" << endl;
-		cout << "\t" << av[0] << " <ca cost> <free energy cutoff> <random seed> <gene file name> <num. to equil> <num. to measure> <target accuracy> <reps>" << endl;
+		cout << "\t" << av[0] << " <ca cost> <free energy cutoff> <random seed> <gene file name | structure ID> <num. to equil> <num. to measure> <target accuracy> <reps>" << endl;
 	}
 }

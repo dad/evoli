@@ -76,7 +76,7 @@ int main( int ac, char **av)
 		cerr << "ERROR: can't read contact maps from " << path << endl;
 		return 1;
 	}
-	double log_nconf = 160.0*log(10.0);
+	double log_nconf = 10.0*log(10.0);
 	DecoyContactFolder folder(p.protein_length, log_nconf, fin, p.structure_dir);
 	if (!folder.good()) {// if we can't read the contact maps file, bail out
 		cerr << "ERROR: couldn't initialize folder." << endl;
