@@ -131,9 +131,6 @@ template <class T> inline double variance(const vector<T>& v) {
 	return (sumsq - (sum*sum)/count)/(count-1);
 }
 
-/**
- * Compute mean and variance.
- **/
 template <class T> inline pair<double,double> meanvar(const vector<T>& v) {
 	double sum = 0.0;
 	double sumsq = 0.0;

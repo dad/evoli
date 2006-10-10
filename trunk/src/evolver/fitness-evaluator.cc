@@ -121,12 +121,23 @@ ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int l
 	m_ca_cost = ca_cost;
 	m_protein_structure_ID = protein_structure_ID;
 
+	// Build the weight matrices for translation.
+	buildWeightMatrix();
+	
 	// Get a seed genotype.
-	Gene seed_gene = GeneUtil::getSequenceForStructure(*protein_folder, 3*length, max_free_energy, protein_structure_ID);
+	Gene seed_gene = GeneUtil::getSequenceForStructure(*protein_folder, length, max_free_energy, protein_structure_ID);
+	//cout << seed_gene << endl;
+	//cout << seed_gene.translate() << flush << endl;
+	//auto_ptr<FoldInfo> fi( m_protein_folder->fold(seed_gene.translate()) );
+	//cout << fi->getFreeEnergy() << " " << fi->getStructure() << endl;
+	
 	// Set weights.
-	getWeightsForTargetAccuracy(seed_gene, target_fraction_accurate, m_error_rate, m_accuracy_weight, m_error_weight, 5000, 5000);	
+	double error_rate, error_weight, accuracy_weight;
+	getWeightsForTargetAccuracy(seed_gene, target_fraction_accurate, error_rate, accuracy_weight, error_weight, 1000, 1000);
+	m_error_rate = error_rate;
+	m_error_weight = error_weight;
+	m_accuracy_weight = accuracy_weight;
 
-	buildWeightMatrix(m_weight_matrix, m_cum_weight_matrix);
 }
 ErrorproneTranslation::ErrorproneTranslation( Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight )
 {
@@ -141,22 +152,22 @@ ErrorproneTranslation::ErrorproneTranslation( Folder *protein_folder, const int 
 	m_error_weight = error_weight;
 	m_protein_structure_ID = protein_structure_ID;
 	
-	buildWeightMatrix(m_weight_matrix, m_cum_weight_matrix);
+	buildWeightMatrix();
 }
 
-void ErrorproneTranslation::buildWeightMatrix(vector< vector<double> >& weight_matrix, vector<vector<pair<double,int> > >& cum_weight_matrix) {
+void ErrorproneTranslation::buildWeightMatrix() {
 	// This weight matrix contains the probability that a given codon will be mistranslated as a given amino acid,
 	// including a stop (at pos 20).
-	weight_matrix.resize( 64 );
+	m_weight_matrix.resize( 64 );
 
 	//This weight matrix contains the sorted cumulative probability that
 	//a given codon will be mistranslated as a given amino acid, including a stop.
-	cum_weight_matrix.resize(64);
+	m_cum_weight_matrix.resize(64);
 
 	for (int c=0; c<64; c++)
 	{
-		weight_matrix[c].resize( 21 ); // 20 aa's plus stop
-		cum_weight_matrix[c].resize(21, pair<double,int>(0.0,-2));
+		m_weight_matrix[c].resize( 21 ); // 20 aa's plus stop
+		m_cum_weight_matrix[c].resize(21, pair<double,int>(0.0,-2));
 	}
 	vector<vector<double> > codon_to_codon_probabilities(64);
 	for ( int c = 0; c<64; c++ )
@@ -192,16 +203,16 @@ void ErrorproneTranslation::buildWeightMatrix(vector< vector<double> >& weight_m
 				aa = 20;
 			}
 
-			weight_matrix[c][aa] += codon_to_codon_probabilities[c][tc];
-			cum_weight_matrix[c][aa].first += codon_to_codon_probabilities[c][tc];
+			m_weight_matrix[c][aa] += codon_to_codon_probabilities[c][tc];
+			m_cum_weight_matrix[c][aa].first += codon_to_codon_probabilities[c][tc];
 		}
 		// Sort the weights in preparation for computing ordered cumulative probabilities
-		vector<pair<double,int> >& v = cum_weight_matrix[c];
+		vector<pair<double,int> >& v = m_cum_weight_matrix[c];
 		sort(v.begin(), v.end(), greater_pair_first());
 		// Calculate the cumulative probabilities.
 		double tot = 0.0;
-		for (unsigned int i=0; i<cum_weight_matrix[c].size(); i++) {
-			pair<double, int>&p = cum_weight_matrix[c][i];
+		for (unsigned int i=0; i<m_cum_weight_matrix[c].size(); i++) {
+			pair<double, int>&p = m_cum_weight_matrix[c][i];
 			p.first += tot;
 			tot = p.first;
 		}
@@ -394,7 +405,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 	// equilibrate, then for tot_rand steps, recording weights.
 	int nrand=0, nequil=0;
 	while ( nrand < num_rand ) {
-		int randpos = Random::rint(m_protein_length);
+		int randpos = Random::rint(g.codonLength());
 		// go through all possible point mutations
 		int from_codon = g[randpos];
 		int to_codon = from_codon;
@@ -443,6 +454,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 	// Return the weights.
 	accuracy_weight = random_accuracy_weight.value();
 	error_weight = random_error_weight.value();
+
 	// Calculate and return the error rate.
 	error_rate = estimateErrorRateFromAccuracy(target_fraction_accurate, accuracy_weight, error_weight);
 }
@@ -953,11 +965,6 @@ double ErrorproneTranslation::m_codon_cost[64] = {
 		1.  // UUU -> PHE 63
 };
 
-
-
-
-//AccuracyOnlyTranslation::AccuracyOnlyTranslation() : m_target_sequence(0) {
-//}
 
 AccuracyOnlyTranslation::~AccuracyOnlyTranslation() {
 }

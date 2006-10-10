@@ -37,9 +37,18 @@ struct TEST_CLASS( fitness_evaluator_basic )
 	void TEST_FUNCTION( create_EPT )
 	{
 		CompactLatticeFolder folder(side_length);
-		ErrorproneTranslation* ept = new ErrorproneTranslation(&folder, gene_length, 599, -5, 1, 6, 0.1, 0.1, 0.1 );
-		delete ept;
+		ErrorproneTranslation ept(&folder, gene_length, 599, -5, 1, 6, 0.1, 0.1, 0.1 );
 		TEST_ASSERT(true);
+	}
+
+	void TEST_FUNCTION( create_EPT_without_weights )
+	{
+		CompactLatticeFolder folder(side_length);
+		ErrorproneTranslation ept(&folder, gene_length, 599, -2.0, 1.0, 6.0, 0.85);
+		Gene test_gene = Gene::createRandomNoStops(gene_length);
+
+		double fitness = ept.getFitness(test_gene);
+		TEST_ASSERT(fitness >= 0 && fitness <= 1);
 	}
 };
 

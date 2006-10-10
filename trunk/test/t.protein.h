@@ -103,7 +103,7 @@ struct TEST_CLASS( protein_gene_basic )
 	void TEST_FUNCTION( sequence_for_structure )
 	{
 		CompactLatticeFolder folder(side_length);
-		double max_dg = -5;
+		double max_dg = -1;
 		int sid = 574;
 		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		Protein p = g.translate();

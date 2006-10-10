@@ -30,19 +30,19 @@ aas = 'ACDEFGHIKLMNPQRSTVWY'
 # side_length refers to the protein.  E.g., in the 5x5
 # model, side_length=5.
 
-if False:
+if True:
 	side_length = 5
 	prot_length = side_length*side_length
 	folder.init(side_length)
 
-	for i in range(100000):
+	for i in range(10000):
 		# Create a random polypeptide
 		prot = ''.join([random.choice(aas) for xi in range(prot_length)])
 		# Fold it and retrieve its lowest-free-energy conformation, sid, and its
 		# free energy of folding, dg.
 		(sid, dg) = folder.fold(prot)
 		# Print them out
-		if dg < 0:
+		if dg < -3:
 			print "%d\t%d\t%1.3f\t%s" % (i, sid, dg, prot)
 		'''
 		print "sid g"
@@ -61,7 +61,7 @@ if False:
 
 if True:
 	prot_length = 300
-	log_nconf = 160*math.log(10)
+	log_nconf = 10*math.log(10)
 	map_file = os.path.abspath("test/data/rand_contact_maps/maps.txt")
 	map_dir = os.path.abspath("test/data/rand_contact_maps/")+"/"
 
@@ -78,9 +78,9 @@ if True:
 			# Print them out
 			print "%d\t%1.3f" % (j, G)
 		
-if False:
+if True:
 	prot_length = 300
-	log_nconf = 160*math.log(10)
+	log_nconf = 10*math.log(10)
 	map_file = os.path.abspath("test/data/rand_contact_maps/maps.txt")
 	map_dir = os.path.abspath("test/data/rand_contact_maps/")+"/"
 
