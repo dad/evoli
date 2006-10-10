@@ -334,10 +334,10 @@ public:
 	 *
 	 * @param g The gene to assay.
 	 * @param num_to_fold The number of proteins that should be translated to determine the error spectrum.
-	 * @param num_accurate The observed fraction of accurately translated (proper amino acid sequence) proteins from this gene.
-	 * @param num_robust The observed fraction of proteins that fold properly from this gene.
-	 * @param num_truncated The observed fraction of truncated proteins from this gene.
-	 * @param num_folded The observed fraction of folded proteins from this gene.
+	 * @param num_accurate The observed number of accurately translated (proper amino acid sequence) proteins from this gene.
+	 * @param num_robust The observed number of proteins that fold properly from this gene.
+	 * @param num_truncated The observed number of truncated proteins from this gene.
+	 * @param num_folded The observed number of folded proteins from this gene.
 	 * @return The fitness that would result from the generated set of proteins.
 	 **/
 	virtual double countOutcomes(const Gene& g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
