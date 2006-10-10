@@ -49,7 +49,7 @@ public:
 	*/
 	Sequence & operator=( const Sequence &s ) {
 		m_sequence = s.m_sequence;
-		return m_sequence;
+		return *this;
 	}
 
 	/**
