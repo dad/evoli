@@ -188,8 +188,7 @@ void misfoldDistExperiment(Parameters& p)
 		exit(1);
 	}
 	ErrorproneTranslation* fe = NULL;
-	ErrorproneTranslation* ept = new ErrorproneTranslation();
-	ept->init( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+	ErrorproneTranslation* ept = new ErrorproneTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 	fe = ept;
 	vector<bool> isOptimal = fe->getOptimalCodons(printCodonReport);
 
@@ -205,18 +204,15 @@ void misfoldDistExperiment(Parameters& p)
 		if (rec.cost != last_cost) {
 			delete fe;
 			if (p.eval_type == "tr") {
-				ErrorproneTranslation* ept = new ErrorproneTranslation();
-				ept->init( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+				ErrorproneTranslation* ept = new ErrorproneTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 				fe = ept;
 			}
 			else if (p.eval_type == "acc") {
-				AccuracyOnlyTranslation* afe = new AccuracyOnlyTranslation();
-				afe->init( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+				AccuracyOnlyTranslation* afe = new AccuracyOnlyTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 				fe = afe;
 			}
 			else if (p.eval_type == "rob") {
-				RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation();
-				rob->init( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate );
+				RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, rec.cost, p.ca_cost, p.error_rate );
 				fe = rob;
 			}
 			if (!fe) {

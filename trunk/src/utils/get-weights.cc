@@ -169,8 +169,7 @@ void getWeightsExperiment(Parameters& p)
 		cout << "# Structure ID " << structure_ID << endl;
 	}
 
-	ErrorproneTranslation* ept = new ErrorproneTranslation();
-	ept->init( folder, seed_gene.codonLength(), structure_ID, p.free_energy_cutoff, 1, p.ca_cost, 0.1, 0.1, 0.1 );
+	ErrorproneTranslation* ept = new ErrorproneTranslation( folder, seed_gene.codonLength(), structure_ID, p.free_energy_cutoff, 1, p.ca_cost, 0.1, 0.1, 0.1 );
 	double m_error_rate;
 	double m_accuracy_weight;
 	double m_error_weight;

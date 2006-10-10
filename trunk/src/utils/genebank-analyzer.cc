@@ -249,8 +249,7 @@ void printGenebank( CompactLatticeFolder &b, const Params p, const vector<Geneba
                 d.free_energy = fi->getFreeEnergy();
                 d.struct_id = fi->getStructure();
 				
-                ErrorproneTranslation *ept = new ErrorproneTranslation();
-				ept->init( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost,
+                ErrorproneTranslation *ept = new ErrorproneTranslation( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost,
 									p.transl_error_rate, p.transl_acc_wt, p.transl_error_wt );
 									
                 d.w_new = ept->getFitness( d.g );
@@ -351,8 +350,7 @@ void analyzeSurfaceCore( CompactLatticeFolder &b, Params p, const vector<Geneban
                 // calculate the fraction of optimal codons from the last sequence
                 if ( cit == ce )
                 {
-						ErrorproneTranslation* ept = new ErrorproneTranslation();
-						ept->init( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost,
+						ErrorproneTranslation* ept = new ErrorproneTranslation( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost,
 									p.transl_error_rate, p.transl_acc_wt, p.transl_error_wt );
                         Fop = GeneUtil::calcFop( d.g, ept->getOptimalCodons(false) );
                         GeneUtil::calcFopSurfaceCore( FopSurf, FopCore, d.g, ErrorproneTranslation::m_codon_cost, surface );

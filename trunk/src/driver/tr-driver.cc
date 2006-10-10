@@ -42,18 +42,15 @@ int main( int ac, char **av)
 	// Choose the FitnessEvaluator based on input parameters (p.eval_type).
 	ErrorproneTranslation* fe = NULL;
 	if (p.eval_type == "tr") {
-		ErrorproneTranslation* ept = new ErrorproneTranslation();
-		ept->init( folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+		ErrorproneTranslation* ept = new ErrorproneTranslation( folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 		fe = ept;
 	}
 	else if (p.eval_type == "acc") {
-		AccuracyOnlyTranslation* afe = new AccuracyOnlyTranslation();
-		afe->init( folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+		AccuracyOnlyTranslation* afe = new AccuracyOnlyTranslation( folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 		fe = afe;
 	}
 	else if (p.eval_type == "rob") {
-		RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation();
-		rob->init( folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate );
+		RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation( folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate );
 		fe = rob;
 	}
 	if (!fe) {

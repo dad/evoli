@@ -88,9 +88,14 @@ public:
 
 
 /** \brief A \ref FitnessEvaluator in which the fitness of a gene sequence is determined from the amount of misfolded protein generated under error-prone mistranslation.
-*/
+
+**/
+
 class ErrorproneTranslation : public FitnessEvaluator
 {
+private:
+	ErrorproneTranslation();
+
 protected:
 	Folder *m_protein_folder;
 	double m_max_free_energy;
@@ -126,10 +131,40 @@ protected:
 	void setRandomWeights(const Gene& seed_genotype, const int num_equil=5000, const int num_rand=1000);
 
 public:
-	ErrorproneTranslation();
+
+	/**
+	 * \brief Create new ErrorproneTranslation object with pre-determined sequence weights.
+	 *
+	 * @param protein_folder An initialized \ref Folder object.
+	 * @param length Protein sequence length in amino acids.
+	 * @param protein_structure_ID Structure identifier for the native structure all folded proteins must attain.
+	 * @param max_free_energy Maximum free energy of folding for a folded protein.
+	 * @param tr_cost Cost factor for
+	 * @param ca_cost Codon adapation cost.  This cost represents the average fold-decrease in codon accuracy for non-optimal codons relative to optimal synonymous codons.
+	 * @param error_rate The per-codon base translational error rate.  Non-optimal codons will have a higher error rate, determined by \ref ca_cost.
+	 * @param accuracy_weight The reference average sequence weight for a large ensemble of folded proteins, excluding the possibility of synonymous errors.  @see getWeightsForTargetAccuracy.
+	 * @param error_weight The reference average sequence weight for a large ensemble of folded proteins, accounting for both synonymous and nonsynonymous errors.  @see getWeightsForTargetAccuracy.
+	 **/
+	ErrorproneTranslation(Folder *protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
+
+	/**
+	 * \brief Create new ErrorproneTranslation object which will self-determine sequence weights to achieve a target fraction accurate for randomly chosen genes.
+	 *
+	 * @param protein_folder An initialized \ref Folder object.
+	 * @param length Protein sequence length in amino acids.
+	 * @param protein_structure_ID Structure identifier for the native structure all folded proteins must attain.
+	 * @param max_free_energy Maximum free energy of folding for a folded protein.
+	 * @param tr_cost Cost factor for
+	 * @param ca_cost Codon adapation cost.  This cost represents the average fold-decrease in codon accuracy for non-optimal codons relative to optimal synonymous codons.
+	 * @param target_fraction_accurate Desired probability that an average folded protein will be translated with out errors.
+	 **/
+	ErrorproneTranslation(Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate );
+
 	virtual ~ErrorproneTranslation();
 
-	void init(Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
+	void ErrorproneTranslation::buildWeightMatrix(vector< vector<double> >& weight_matrix, vector<vector<pair<double,int> > >& cum_weight_matrix);
+
+	//void init(Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 
 	void changeStructure( const int structureID ) {
 		m_protein_structure_ID = structureID;
@@ -175,44 +210,126 @@ public:
 	/**
 	Compute the per-site error rate estimated to achieve the desired fraction accurate over a large set of random (unselected) genotypes encoding folded proteins.
 
-	The use for this function is the following: We will specify an error
-	rate for translation to match biological observations. However, that
-	error rate cannot always hold when translation accuracy can change.
-	Therefore, we would like to set up the system so that a randomly
-	chosen sequence (e.g. w/ codons and aa usage constrained by
-	folding only, no translational selection) has the desired error rate.
-	Thus, we will enumerate a large set of genes encoding folded
-	sequences and determine what the average sequence weight (returned in variable \ref error_weight) and sequence weight controlling for accuracy (returned in variable \ref accuracy_weight) of those genes are.
+	Our goal is to specify an error rate for translation to match
+	biological estimates, such as that 81% of proteins have at
+	least one error on average (estimate from Drummond et al., PNAS
+	102:14338-14343 (2005)).
+	
+	When codons have different accuracies, it is difficult to set
+	an error rate for translation per site that achieves this
+	overall target accuracy.  Some genes will be more or less
+	likely to be mistranslated than others based on their codon
+	composition, and particular sites within each gene will be
+	similarly more or less likely to be mistranslated.
+	
+	In addition, some errors may be synonymous -- that is, a codon
+	may be translated as if it were another codon, but the result
+	may be that the same amino acid is used.  Such synonymous
+	errors will generally not be reflected in biologically observed
+	error rates.
+	
+	Our strategy is to characterize the propensity of a large set
+	of random genes that encode folded proteins to be mistranslated
+	based on their codon composition.  (Folded proteins are
+	required because amino acid composition will influence codon
+	composition.)  Each gene will be assigned a weight derived from
+	its codon composition.  The average weight over this large,
+	random gene set will then be used as a reference weight for
+	subsequent translation of arbitrary (non-random) genes.
+	
+	The basic weight unit is the fold decrease in accuracy at a site
+	relative to a site bearing a preferred codon,
+	[1 + unpreferred<1|0>*(unpreferred_penalty-1)].  For example, if a
+	site has a preferred codon, the site weight is 1; if a site has an
+	unpreferred codon and the accuracy difference between preferred
+	and unpreferred codons is 6, then the site weight is 6.
+	
+	The "error weight" for a gene is the sum of its site
+	weights. Genes with higher error weights are more likely to be
+	mistranslated, though in some cases the translation errors may be
+	synonymous.
+	
+	The average error weight for a large set of random genes
+	encoding folded proteins sets a reference point for translation
+	of arbitrary genes, and is stored in error_weight.
+	
+	Correspondingly, the "accuracy weight" for a gene is the sum of
+	each site weight multiplied by the probability of a
+	nonsynonymous change given an error at that site.  The average
+	accuracy weight again sets a reference point for translation of
+	arbitrary genes, and is stored in accuracy_weight.
+	
+	Finally, given an accuracy weight and an error weight, we can
+	set an error rate for translation that will, on average over a
+	large random sample, yield the desired fraction of genes which
+	are accurately translated, whether through avoidance of error
+	or synonymous errors.  This error rate is returned in error_rate.
+
+	@param num_equil Number of steps to evolve, preserving stable folding only, before recording weights.
+	@param num_rand Number of steps (genes) over which average weights will be accumulated.
+	@param target_fraction_accurate Desired fraction of random genes encoding folded proteins that will be translated without amino-acid errors.
+	@param seed_genotype Starting gene sequence, which must encode a folded protein consistent with initialization values of this ErrorproneTranslation object.
+	@param error_rate Stores computed error rate (see above).
+	@param error_weight Stores computed error weight (see above).
+	@param accuracy_weight Stores computed accuracy weight (see above).
 	 */
-	void getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_accuracy, double& error_rate, 
+	void getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_fraction_accurate, double& error_rate, 
 									 double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand);
-	void setTargetAccuracyOfRandomGenes(const Gene& seed_genotype, const double facc, const int num_equil, const int num_rand);
+
+	/**
+	 * Given a [[DAD: is this used?]]
+	 **/
+	void setTargetAccuracyOfRandomGenes(const Gene& seed_genotype, const double target_fraction_accurate, const int num_equil, const int num_rand);
+
+	/**
+	 * Sets the translational error rate per codon directly.
+	 **/
 	void setErrorRate(const double error_rate) { m_error_rate = error_rate; }
+
+	/**
+	 * Sets the translational error rate, accuracy weight and error weight directly.
+	 * @see getWeightsForTargetAccuracy for detailed description of each quantity.
+	 **/
 	void setErrorWeights(const double error_rate, const double accuracy_weight, const double error_weight) {
 		m_error_rate = error_rate;
 		m_accuracy_weight = accuracy_weight;
 		m_error_weight = error_weight;
 	}
-	/**
-	Compute the per-site error rate estimated to achieve the desired fraction accurate. It is recommended to call the function \ref setRandomWeights(...) first.
-	 */
-	double estimateErrorRateFromAccuracy(const double base_fraction_accurate, const double accuracy_weight, const double error_weight) const;
 
 	/**
-	Compute the estimated fractions accurately translated, folded
-	despite mistranslation, truncated and folded, using the error
-	spectrum of this FitnessEvaluator.
-	@return The estimated fitness.
-	*/
+	 * Compute the per-site error rate estimated to achieve the
+	 * desired fraction accurate, given the weights provided.
+	 */
+	double estimateErrorRateFromAccuracy(const double target_fraction_accurate, const double accuracy_weight, const double error_weight) const;
+
+	/**
+	 * Compute the estimated fractions accurately translated, folded
+	 * despite mistranslation, truncated and folded, using the error
+	 * spectrum of this FitnessEvaluator.  If the natively encoded
+	 * sequence does not fold, these values are invalid.  @return The
+	 * estimated fitness.
+	 *
+	 * @param g The gene to assay.
+	 * @param frac_accurate The estimated fraction of accurately translated (proper amino acid sequence) proteins from this gene.
+	 * @param frac_robust The estimated fraction of proteins that fold properly from this gene.
+	 * @param frac_truncated The estimated fraction of truncated proteins from this gene.
+	 * @param frac_folded The estimated fraction of folded proteins from this gene.
+	 * @return The fitness that would result from these estimated translation outcomes.
+	 **/
 	virtual double calcOutcomes( const Gene& g, double& frac_accurate, double& frac_robust, double& frac_truncated, double& frac_folded );
 
 	/**
-	Record the actual fractions accurately translated, folded despite
-	mistranslation, truncated and folded, using the error spectrum of this
-	FitnessEvaluator, by translating a specified number of proteins.
-	@param num_to_fold The number of proteins that should be translated to determine the error spectrum.
-	@return The fitness that would result from the generated set of proteins.
-	 */
+	 *	Record the actual fractions accurately translated, folded despite
+	 *	mistranslation, truncated and folded, using the error spectrum of this
+	 *	FitnessEvaluator, by translating a specified number of proteins.
+	 *
+	 * @param num_to_fold The number of proteins that should be translated to determine the error spectrum.
+	 * @param frac_accurate The observed fraction of accurately translated (proper amino acid sequence) proteins from this gene.
+	 * @param frac_robust The observed fraction of proteins that fold properly from this gene.
+	 * @param frac_truncated The observed fraction of truncated proteins from this gene.
+	 * @param frac_folded The observed fraction of folded proteins from this gene.
+	 * @return The fitness that would result from the generated set of proteins.
+	 **/
 	virtual double countOutcomes(const Gene& g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
 
 	/**
@@ -254,16 +371,18 @@ This class implements a case of \ref ErrorproneTranslation  where translation is
  */
 
 class AccuracyOnlyTranslation : public ErrorproneTranslation {
+private:
+	AccuracyOnlyTranslation();
+
 protected:
 	Protein m_target_sequence;
 	bool sequenceFolds(Protein& p);
 
 public:
-	AccuracyOnlyTranslation();
+	AccuracyOnlyTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy,
+		const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 	virtual ~AccuracyOnlyTranslation();
 
-	void init( Folder* protein_folder, const int length, const int target_structure_id, const double max_free_energy,
-		const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 	double getFitness( const Gene& g );
 	bool getFolded( const Gene& g );
 };
@@ -274,15 +393,17 @@ This class implements a case of \ref ErrorproneTranslation where translation alw
 */
 
 class RobustnessOnlyTranslation : public ErrorproneTranslation {
+private:
+	RobustnessOnlyTranslation();
 protected:
 	double m_fraction_accurate;
 
 public:
-	RobustnessOnlyTranslation();
+
+	RobustnessOnlyTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy,
+		const double tr_cost, const double ca_cost, const double error_rate );
 	virtual ~RobustnessOnlyTranslation();
 
-	void init( Folder* protein_folder, const int length, const int protein_structure_ID, const double max_free_energy,
-		const double tr_cost, const double ca_cost, const double error_rate );
 	double getFitness( const Gene& g );
 
 	/**
@@ -323,7 +444,7 @@ public:
 	@param cost_constant The multiplier to convert translational robustness cost into number of misfolded proteins.
 	@param toxicity_cutoff The minimum number of misfolded proteins required to get a toxic effect.
 	*/
-	CutoffErrorproneTranslation(double cost_constant, int toxicity_cutoff);
+	CutoffErrorproneTranslation::CutoffErrorproneTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight, double cost_constant, int toxicity_cutoff);
 	
 	virtual ~CutoffErrorproneTranslation();
 	double getFitness( const Gene& g );

@@ -107,22 +107,32 @@ int Translator::translateWeighted( const Gene &g, Protein& residue_sequence, con
 	return numErrors;
 }
 
-int Translator::translateRelativeWeighted( const Gene &g, Protein& residue_sequence, const double relative_gene_weight,
+int Translator::translateRelativeWeighted( const Gene &g, Protein& residue_sequence, const double error_weight,
 										   const vector<vector<pair<double, int> > >& weights, const double* prefCodons, 
 										   const double nonPrefCodonPenalty, bool& truncated)
 {
 	truncated = false;
 	int numErrors = 0;
-	// Hopefully, relative_gene_weight is tabulated in a reasonable way.  If there are no accuracy
-	// differences between codons, relative_gene_weight should be equal to the number of codons g.size().
-	double relative_site_weight = g.codonLength()/relative_gene_weight;
+	// 
+	// For an average gene encoding a folded protein, the sum of the site_weights over all codons should be equal
+	// to error_weight, and thus the per-site probability of a translation error (possibly synonymous) will be 
+	// given by m_mutation_prob.  Genes with higher site_weight sums are more likely to be mistranslated.
+	//
+	// When codons are translated with equal accuracy (no codon preference), error_weight should simply be the
+	// length of the gene, each codon's site_weight should be 1.0, and the probability of error is exactly given
+	// by m_mutation_prob.
+	double avg_error_per_site_weight = error_weight/g.codonLength();
 	for ( int i=0; i<g.codonLength() && !truncated; i++) {
 		int residue = GeneticCodeUtil::geneticCode[g[i]];
 		residue_sequence[i] = residue;
 
-		// With probability threshold_prob, make a translation error (possibly synonymous).
+		// Compute the site weight, accounting for codon preference.
+		// Each site weight is proportional to the probability that an
+		// error occurs at this codon relative to other codons in the gene.
 		double site_weight = (1.0 + prefCodons[g[i]]*(nonPrefCodonPenalty-1));
-		double threshold_prob = m_mutation_prob * site_weight * relative_site_weight;
+
+		// With probability threshold_prob, make a translation error (possibly synonymous).
+		double threshold_prob = m_mutation_prob * site_weight / avg_error_per_site_weight;
 		double rand = Random::runif();
 		if ( rand < threshold_prob ) {
 			// We've made an error.  Now determine what it is.
@@ -137,9 +147,12 @@ int Translator::translateRelativeWeighted( const Gene &g, Protein& residue_seque
 				targ = p.first;
 			}
 			// Tabulate the results
+			// Check for truncation.
 			if (residue_sequence[i] < 0) { // truncation error
 				truncated = true;
 			}
+			// Only count an error if the polymerized amino acid differs from
+			// the natively encoded residue.
 			if (residue_sequence[i] != residue) {
 				numErrors++;
 			}

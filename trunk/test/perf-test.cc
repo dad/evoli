@@ -57,8 +57,7 @@ int main( int ac, char **av)
 	cout << "# Initializing fitness evaluator" << endl;
 	start_time = time(NULL);
 	// Choose the FitnessEvaluator based on input parameters (p.eval_type).
-	ErrorproneTranslation* ept = new ErrorproneTranslation();
-	ept->init( folder, 25, 599, -5, 100, 6, 0.0114, 59.0, 104.5 );
+	ErrorproneTranslation* ept = new ErrorproneTranslation( folder, 25, 599, -5, 100, 6, 0.0114, 59.0, 104.5 );
 	cout << "# FE initialization: " << (time(NULL)-start_time) << " seconds" << endl;
 	
 	cout << "# Running evolution" << endl;
