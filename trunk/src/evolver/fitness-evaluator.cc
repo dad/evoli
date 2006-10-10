@@ -332,6 +332,38 @@ void ErrorproneTranslation::setTargetAccuracyOfRandomGenes(const Gene& seed_geno
 }
 
 double ErrorproneTranslation::estimateErrorRateFromAccuracy(const double target_fraction_accurate, const double accuracy_weight, const double error_weight) const {
+	// Our goal is to estimate an error rate per codon that will
+	// yield, on average over a large set of random genes encoding
+	// folded proteins, the target fraction accurate specified.
+	// 
+	// Justification for this estimate is as follows.  The exact probability of an error at codon i
+	// is given by Pr(err, i) = error_rate*site_weight(i)/(error_weight/protein_length)
+	// where site_weight(i) = [1 + unpreferred_i<1|0>*(unpreferred_penalty-1)]. @see getWeightsForTargetAccuracy
+	//
+	// Errors may also be synonymous.  The probability than an error
+	// is synonymous at site i, Pr(syn|err,i), depends on the genetic
+	// code.  However, we have an estimate of it, because the ratio of
+	// accuracy_weight to error_weight is approximately
+	// (1-Pr(syn|err)) over a large set of random genes.
+	// 
+	// The probability that the amino acid sequence is properly
+	// translated (through a combination of accurate translation and
+	// synonymous errors) is then approx.:
+	// Pr(accurate) =  prod_i^protein_length (1 - (Pr(err,i) + Pr(syn|err,i)))
+	//              ~~ prod_i^protein_length [1 - error_rate*site_weight(i)/(error_weight/protein_length) * accuracy_weight/error_weight]
+	// For an average gene, site_weight(i) is on average
+	// error_weight/protein_length.  Thus we are left with the estimate:
+	// Pr(accurate) ~~ prod_i^protein_length [1 - error_rate*accuracy_weight/error_weight]
+	//              =  [1 - error_rate*accuracy_weight/error_weight]^protein_length
+	//
+	// Pr(accurate) is target_fraction_accurate, and thus our estimate for error_rate can be
+	// obtained by solving for error_rate = (1 - target_fraction_accurate^(1/protein_length))*(error_weight/accuracy_weight);
+	// 
+	// Note that this estimate is only even approximately valid for a
+	// set of random genes encoding folded proteins.  The estimated
+	// error rate is likely to be too low when applied to sets of
+	// proteins that have evolved increased translational accuracy.
+
 	double error_rate_estimate = (1.0 - pow(target_fraction_accurate, 1.0/m_protein_length))*(error_weight/accuracy_weight);
 	return error_rate_estimate;
 }

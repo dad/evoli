@@ -306,7 +306,7 @@ public:
 	}
 
 	/**
-	 * Compute the per-site error rate estimated to achieve the
+	 * Compute the per-codon error rate estimated to achieve the
 	 * desired fraction accurate, given the weights provided.
 	 */
 	double estimateErrorRateFromAccuracy(const double target_fraction_accurate, const double accuracy_weight, const double error_weight) const;
