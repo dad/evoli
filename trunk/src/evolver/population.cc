@@ -61,7 +61,7 @@ void Genebank::removeGenotype( GenebankEntry *g )
 
         if ( g->decrementCount() )
         {
-                // this genotyp has lost all its references. We have to remove it.
+                // this genotype has lost all its references. We have to remove it.
                 m_genotypeMap.erase( g->getId() );
 
                 // recursively remove all reference counts from parents
