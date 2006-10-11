@@ -262,6 +262,7 @@ void misfoldDistExperiment(Parameters& p)
 				ri++;
 			}
 			else {
+				ri++;
 				//cout << " ";
 				//GenotypeUtil::printProtein(cout, rg);
 			}

@@ -234,6 +234,8 @@ void printGenebank( CompactLatticeFolder &b, const Params p, const vector<Geneba
 	cout << "# transl. robustness cost factor: " << p.tr_cost << endl;
 	cout << "# codon adaptation cost factor: " << p.ca_cost << endl;
 	cout << "# transl. error rate: " << p.transl_error_rate << endl;
+	cout << "# transl. error weight: " << p.transl_error_wt << endl;
+	cout << "# transl. accuracy weight: " << p.transl_acc_wt << endl;
 	cout << "#\n#<time> <fitness (saved)> <fitness (recalc.)> <free energy> <structure id> <neutrality> <sensitivity> <sensitivity (no stop)> <fop>" << endl;
 
 	vector<GenebankData>::const_iterator cit, ce;
