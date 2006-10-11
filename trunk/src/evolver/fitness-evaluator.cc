@@ -592,7 +592,6 @@ double ErrorproneTranslation::calcOutcomes( const Gene &g, double &frac_accurate
 /**
  * Compute the actual fraction functional by translating num_to_fold proteins using
  * the error spectrum of this translator.
- * This function assumes the native protein folds.
  */
 double ErrorproneTranslation::countOutcomes( const Gene &g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded) {
 	if (num_to_fold <= 0) {
@@ -605,12 +604,13 @@ double ErrorproneTranslation::countOutcomes( const Gene &g, const int num_to_fol
 	bool native_seq_folds = getFolded(g);
 
 	Translator t(m_error_rate);
-	Protein p = g.translate();
+	Protein p(g.codonLength());
+	bool truncated = t.translateErrorFree(g, p);
 	int numFolded = 0;
 	int numTrunc = 0;
 	int numMistranslated = 0;
 	for (int i=0; i<num_to_fold; i++) {
-		bool truncated = false;
+		//bool truncated = false;
 		int numErrors = t.translateRelativeWeighted(g, p, m_error_weight, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
 		if (truncated) {
 			numTrunc++;
