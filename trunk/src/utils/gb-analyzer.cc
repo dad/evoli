@@ -249,7 +249,7 @@ void printGenebank( CompactLatticeFolder &b, const Params p, const vector<Geneba
 		d.free_energy = fi->getFreeEnergy();
 		d.struct_id = fi->getStructure();
 				
-		ErrorproneTranslation *ept = new ErrorproneTranslation( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost,
+		ErrorproneTranslation *ept = new ErrorproneTranslation( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost,
 					p.transl_error_rate, p.transl_acc_wt, p.transl_error_wt );
 
 		d.w_new = ept->getFitness( d.g );
