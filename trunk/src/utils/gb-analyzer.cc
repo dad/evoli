@@ -1,5 +1,5 @@
 /*
-This file is part of the evoli project.
+This file is part of the E.voli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
 Allan Drummond <dadrummond@gmail.com>,  Matt Cowperthwaite <mattccowp@mac.com>
 

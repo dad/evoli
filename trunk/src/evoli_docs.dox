@@ -3,7 +3,7 @@
 
 \section sec_intro Introduction
 
-E.voli is a software package to simulate the evolution of proteins and protein-coding gene sequences.
+E.voli is a software platform to simulate the evolution of proteins and protein-coding gene sequences.
 
 \section sec_installation Installation
 
@@ -29,14 +29,34 @@ The E.voli project comes with a number of useful executables:
 - \ref sequence-generator -- generate random protein sequences
 - \ref get-weights -- calculate weights needed for \ref tr-driver
 
-\section sec_coding_style Coding style
+\section sec_coding_guidelines Coding guidelines
 
-Put some guidelines on coding style here.
+Most of the code in the E.voli project is written in C++. C++ is a powerful programming language, but it is easy to write C++ code that is buggy, slow, or hard to maintain in the long run. Adhere to the following guidelines to keep the E.voli code clean, bug-free, and easy to maintain.
 
+Note: Almost all of these guidelines are violated somewhere in the E.voli code base. These cases are no justification to continue violating the guidelines, but should instead be considered candidates for cleanup and refactoring.
 
+\subsection sec_names 1. Naming of classes, variables, and functions
 
+<b>Class names</b> start with an upper-case letter, and continue in camel case (see http://en.wikipedia.org/wiki/CamelCase ). Thus, the following are valid class names:
+\code
+	class Population;
+	class FitnessEvaluator;
+	class DecoyContactFolder;
+\endcode
 
+<b>Function names</b> start with a lower-case letter, and continue in camel case just as class names do. The following are valid function names:
+\code
+	void setPopulationSize( int N );
+	uint getNumFolded();
+	FoldInfo* fold( const Sequence& s );
+\endcode
 
+<b>Variable names</b> are all lower case, with underscores ('_') separating words. Member variables have a prefix 'm_'. The following are valid variable names:
+\code
+	int i;
+	double error_weight;
+	uint m_num_folded;
+\endcode
 
 */
 
