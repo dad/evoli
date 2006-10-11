@@ -86,6 +86,7 @@ public:
 
 	/**
 	Translates the DNA sequence into a protein sequence using the given \ref Translator object. Useful for non-standard genetic codes, error-prone translation, etc.
+	\warning The function doesn't test whether the protein is actually translatable, and will return an invalid protein if translation fails. Always check with \ref encodesFullLength() first whether translation is safe.
 	@param t \ref Translator object specifying the details of translation.
 	@return The protein sequence.
 	*/
@@ -93,6 +94,7 @@ public:
 
 	/**
 	Translates the DNA sequence into a protein sequence using the standard genetic code.
+	\warning The function doesn't test whether the protein is actually translatable, and will return an invalid protein if translation fails. Always check with \ref encodesFullLength() first whether translation is safe.
 	@return The protein sequence.
 	*/
 	Protein translate(void) const;
