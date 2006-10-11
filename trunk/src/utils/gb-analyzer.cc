@@ -236,7 +236,7 @@ void printGenebank( CompactLatticeFolder &b, const Params p, const vector<Geneba
 	cout << "# transl. error rate: " << p.transl_error_rate << endl;
 	cout << "# transl. error weight: " << p.transl_error_wt << endl;
 	cout << "# transl. accuracy weight: " << p.transl_acc_wt << endl;
-	cout << "#\n#<time> <fitness (saved)> <fitness (recalc.)> <free energy> <structure id> <neutrality> <sensitivity> <sensitivity (no stop)> <fop>" << endl;
+	cout << "#\n#<time> <fitness (saved)> <fitness (recalc.)> <free energy> <structure id> <neutrality> <fop>" << endl;
 
 	vector<GenebankData>::const_iterator cit, ce;
 	cit = v.begin();

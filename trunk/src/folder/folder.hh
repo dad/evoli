@@ -33,8 +33,8 @@ typedef int StructureID;
 typedef pair<int,int> Contact;
 
 /**
- * Stores a contact structure: a list of contacts.
- **/
+\brief This class stores a contact structure: a list of contacts.
+*/
 class ContactStructure {
 private:
 protected:
@@ -43,26 +43,35 @@ public:
 	virtual const vector<Contact>& getContacts() const = 0;
 };
 
+
+/**
+\brief A \ref FoldInfo object contains data generated during the folding of a protein.
+
+At a minimum, a \ref FoldInfo object contains the \ref StructureID of the minimum free energy structure of the protein sequence, as well as a bool indicating whether the sequence folds stably into the minimum free energy structure or not.
+*/
 class FoldInfo {
 protected:
 	double m_free_energy;
-	StructureID m_structure_id;
+	StructureID m_structure_id; ///< \ref StructureID of the minimum free energy structure of the folded protein sequence.
 public:
-	FoldInfo() {
-		m_free_energy = 0.0;
-		m_structure_id = (StructureID)-1;
-	}
+	FoldInfo() : m_free_energy( 0.0 ),
+		m_structure_id( static_cast<StructureID>( -1 ) ) { ; }
 		
-	FoldInfo(double fe, StructureID sid) {
-		m_free_energy = fe;
-		m_structure_id = sid;
-	}
+	FoldInfo(double fe, StructureID sid) : m_free_energy( fe ),
+		m_structure_id( sid ) { ; }
+
 	virtual ~FoldInfo() {}
-	
+
+	/**
+	\return The \ref StructureID of the minimum free energy structure of the folded protein sequence.
+	*/
 	StructureID getStructure() const { return m_structure_id; }
 	double getFreeEnergy() const { return m_free_energy; }
 };
 
+/**
+\brief Abstract basis class for a class that can fold a protein sequence into a (three-dimensional) structure.
+*/
 class Folder {
 private:
 protected:
@@ -98,6 +107,8 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 	@return True if the folder is in good working order, False otherwise.
 	 **/
 	virtual bool good() const = 0;
+
+
 };
 
 #endif // FOLDER_HH

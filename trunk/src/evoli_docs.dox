@@ -1,0 +1,55 @@
+/**
+\mainpage E.voli Documentation
+
+\section sec_intro Introduction
+
+E.voli is a software package to simulate the evolution of proteins and protein-coding gene sequences.
+
+\section sec_installation Installation
+
+To build this project from svn:
+\verbatim
+   ./bootstrap
+   ./configure
+   make
+\endverbatim
+
+The build structure has been tested with automake v1.9, and may
+not work with earlier versions of automake. You will need doxygen to generate the online documentation.
+
+There are a variety of \c configure options that can be helpful: The option \c --enable-debug enables debugging symbols. The option \c --enable-final produces a highly optimized executable ready for production runs. The option \c --disable-apidoc disables the automatic building of the online documentation. This last option can be useful for development, when you have to do frequent recompiles. (The documentation can always be built by typing \c make in the \c doc directory.) The various \c configure options can be combined. For example, for code development, you should probably type:
+\verbatim
+  ./configure --enable-debug --disable-apidoc
+\endverbatim
+
+\section Programs
+
+The E.voli project comes with a number of useful executables:
+- \ref tr-driver -- translational robustness experiments
+- \ref sequence-generator -- generate random protein sequences
+- \ref get-weights -- calculate weights needed for \ref tr-driver
+
+\section sec_coding_style Coding style
+
+Put some guidelines on coding style here.
+
+
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

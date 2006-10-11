@@ -19,6 +19,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 */
 
 
+/** \page get-weights get-weights
+The program \c get-weights is needed to determine the correct weights for the program \c tr-driver. The \ref tr-driver needs parameters error rate and weights. We want to choose these parameters such that, given a particular structure and codon adaptation cost (which affects translational accuracy), a random gene encoding a protein that folds to that structure is accurately translated a particular fraction of the time (say, 85% of the time).  These parameters can be obtained by running the get-weights program as follows:
+\verbatim
+   ./get-weights 3 -5 111 stable-sequence.txt 10000 10 0.85 5
+               0 1  2   3                   4     5  6    7 8
+\endverbatim
+-#  Codon adaptation cost -- average accuracy ratio between optimal and non-optimal codons
+-#  Maximum free energy of folding
+-#  %Random number seed -- best to use an odd number
+-#  Seed gene sequence file containing nucleotide sequence that folds into the target structure with less than maximum free energy
+-#  Equilibration time -- number of generations to equilibrate seed sequence by mutational drift
+-#  Window time -- number of generations for which to measure random sequence statistics
+-#  Target translational accuracy -- fraction of time a random gene is accurately translated
+-#  Number of replicates -- averaged data will also be provided
+*/
+
 #include "compact-lattice-folder.hh"
 #include "fitness-evaluator.hh"
 #include "population.hh"

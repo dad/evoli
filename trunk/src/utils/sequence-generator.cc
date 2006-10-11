@@ -18,6 +18,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 */
 
+/** \page  sequence-generator sequence-generator
+The program \c sequence-generator can be used to generate protein sequences that have specific properties (e.g., fold into specific structures).
+*/
+
 
 #include "compact-lattice-folder.hh"
 #include "translator.hh"
