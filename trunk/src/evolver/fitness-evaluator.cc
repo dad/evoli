@@ -310,19 +310,12 @@ double ErrorproneTranslation::getFitness( const Protein&p ) {
 }
 
 double ErrorproneTranslation::getFitness( const Gene &g ) {
-	//cout << &g << tab << "begin getFitness" << endl;
-	double fitness = 1.0;
-	if ( m_tr_cost > 0 ) {
-		double ffold, frob, facc, ftrunc;
-		calcOutcomes(g, facc, frob, ftrunc, ffold);
-		if (ffold > 0.0 ) {
-			fitness = exp( - m_tr_cost * (1-ffold) / ffold );
-		}
-		else {
-			fitness = 0.0;
-		}
+	double fitness = 0.0;
+	double ffold, frob, facc, ftrunc;
+	calcOutcomes(g, facc, frob, ftrunc, ffold);
+	if (ffold > 0.0 ) {
+		fitness = exp( - m_tr_cost * (1-ffold) / ffold );
 	}
-	//cout << &g << tab << "end getFitness" << endl;
 	return fitness;
 }
 
@@ -497,10 +490,13 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
  *
  */
 double ErrorproneTranslation::calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) {
-	Protein prot = g.translate();
 	// Assess folding of native sequence.
-	bool native_seq_folds = sequenceFolds(prot);
-
+	bool native_seq_folds = g.encodesFullLength();
+	Protein prot = g.translate();
+	if (native_seq_folds) {
+		native_seq_folds = sequenceFolds(prot);
+	}
+	// Now bail out if native sequence is truncated or misfolded.
 	if (!native_seq_folds) {
 		frac_accurate = pow((1-m_error_rate*m_accuracy_weight/m_error_weight), (double)m_protein_length);
 		// These numbers are invalid.
