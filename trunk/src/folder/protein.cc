@@ -177,13 +177,13 @@ bool Gene::mutate(const double prob) {
 }
 
 Protein Gene::translate(const Translator& t) const {
-	Protein prot(length()/3);
+	Protein prot(codonLength());
 	t.translate(*this, prot);
 	return prot;
 }
 
 Protein Gene::translate(void) const {
-	int len = length()/3;
+	int len = codonLength();
 	Translator t;
 	Protein prot(len);
 	t.translate(*this, prot);
