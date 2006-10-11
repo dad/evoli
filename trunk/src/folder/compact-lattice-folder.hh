@@ -238,10 +238,20 @@ public:
 		return m_structures[id]->getSurface();
 	}
 
-	LatticeStructure* getStructure(const int id) const {
-		return m_structures[id];
+	/**
+	Provides access to the LatticeStructure corresponding to a given StructureID .
+        \warning Usage of the returned pointer is potentially unsafe, because
+        the pointer will become invalid upon destruction of the CompactLatticeFolder object.
+	\return A pointer to the corresponding LatticeStructure.
+	*/
+	LatticeStructure* getStructure( StructureID sid ) const {
+		return m_structures[sid];
 	}
-	unsigned int getNumFolded() const {
+
+	/**
+	@return The number of proteins that have been folded so far with this Folder instance.
+	*/
+	uint getNumFolded() const {
 		return m_num_folded;
 	}
 };

@@ -96,18 +96,24 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 	the folding information.
 	*/
 	virtual FoldInfo* fold(const Sequence& s) const = 0;
+	
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
 	 **/ 
 	virtual double getEnergy(const Sequence& s, StructureID sid) const = 0;
+	
 	/**
-	This function assesses whether the folder has been properly initialized.
+	\brief This function assesses whether the folder has been properly initialized.
 	@return True if the folder is in good working order, False otherwise.
 	 **/
 	virtual bool good() const = 0;
 
+	/**
+	@return The number of proteins that have been folded so far with this Folder instance.
+	*/
+	virtual uint getNumFolded() const = 0;
 
 };
 

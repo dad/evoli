@@ -166,9 +166,9 @@ public:
 	double getEnergy(const Sequence& s, StructureID sid) const;
 
 	/**
-	 * @return The number of proteins that have been folded since initialization.
-	 **/
-	int getNumFolded() { return m_num_folded; }
+	@return The number of proteins that have been folded so far with this Folder instance.
+	*/
+	uint getNumFolded() const { return m_num_folded; }
 
 	/**
 	This function assesses whether the folder has been properly initialized.

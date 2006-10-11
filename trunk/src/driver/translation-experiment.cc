@@ -200,10 +200,10 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe)
 		cout << "[" << i+1 << "/" << p.repetitions << "] " << endl;
 	}
 	cout << endl;
-	CompactLatticeFolder* clf = dynamic_cast<CompactLatticeFolder*>(fe.getFolder());
-	if (clf != NULL) {
-		cout << "# Folded " << clf->getNumFolded() << " proteins" << endl;
-		data_file << "# Folded " << clf->getNumFolded() << " proteins" << endl;
+	Folder* folder = fe.getFolder();
+	if ( folder != NULL) {
+		cout << "# Folded " << folder->getNumFolded() << " proteins" << endl;
+		data_file << "# Folded " << folder->getNumFolded() << " proteins" << endl;
 	}
 
 

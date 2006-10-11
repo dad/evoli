@@ -178,8 +178,8 @@ bool Gene::mutate(const double prob) {
 
 Protein Gene::translate(const Translator& t) const {
 	Protein prot(codonLength());
-	bool no_fail = t.translate(*this, prot);
-	assert( no_fail ); // This function should never be used on genes that don't translate correctly
+	bool translation_successful = t.translate(*this, prot);
+	assert( translation_successful ); // This function should never be used on genes that don't translate correctly
 	return prot;
 }
 
@@ -187,8 +187,8 @@ Protein Gene::translate(void) const {
 	int len = codonLength();
 	Translator t;
 	Protein prot(len);
-	bool no_fail = t.translate(*this, prot);
-	assert( no_fail ); // This function should never be used on genes that don't translate correctly
+	bool translation_successful = t.translate(*this, prot);
+	assert( translation_successful ); // This function should never be used on genes that don't translate correctly
 	//cout << this << tab << "translation" << endl;
 	return prot;
 }

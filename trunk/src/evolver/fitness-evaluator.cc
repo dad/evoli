@@ -1,5 +1,5 @@
 /*
-This file is part of the evoli project.
+This file is part of the E.voli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
 Allan Drummond <dadrummond@gmail.com>
 
@@ -487,12 +487,21 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
  */
 double ErrorproneTranslation::calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) {
 	// Assess folding of native sequence.
-	bool native_seq_folds = false;
-	Protein prot = g.translate();
-	if (g.encodesFullLength()) {
-		native_seq_folds = sequenceFolds(prot);
+
+	// First we cover the case of any existing stop codons
+	if ( !g.encodesFullLength() )
+	{
+		// setting everything but frac_truncated to zero seems best
+		// course of action for protein with stop codons.
+		frac_accurate = frac_robust = frac_folded = 0.0;
+		frac_truncated = 1.0;
+		return 0.0;
 	}
-	// Now bail out if native sequence is truncated or misfolded.
+
+	Protein prot( g.translate() );
+	bool native_seq_folds = sequenceFolds(prot);
+
+	// Bail out if native sequence is misfolded.
 	if (!native_seq_folds) {
 		frac_accurate = pow((1-m_error_rate*m_accuracy_weight/m_error_weight), (double)m_protein_length);
 		// These numbers are invalid.
@@ -1074,9 +1083,20 @@ double RobustnessOnlyTranslation::getFitness( const Gene &g )
 /*
  * Computes the expected value of various translational outcomes from the gene g.
  */
-double RobustnessOnlyTranslation::calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) {
-	Protein prot = g.translate();
+double RobustnessOnlyTranslation::calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) 
+{
+	// First we cover the case of any existing stop codons
+	if ( !g.encodesFullLength() )
+	{
+		// setting everything but frac_truncated to zero seems best
+		// course of action for protein with stop codons.
+		frac_accurate = frac_robust = frac_folded = 0.0;
+		frac_truncated = 1.0;
+		return 0.0;
+	}
+
 	// Assess folding of native sequence.
+	Protein prot( g.translate() );
 	bool native_seq_folds = sequenceFolds(prot);
 
 	if (!native_seq_folds) {
