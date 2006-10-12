@@ -113,14 +113,17 @@ int Translator::translateRelativeWeighted( const Gene &g, Protein& residue_seque
 {
 	truncated = false;
 	int numErrors = 0;
-	// 
-	// For an average gene encoding a folded protein, the sum of the site_weights over all codons should be equal
-	// to error_weight, and thus the per-site probability of a translation error (possibly synonymous) will be 
-	// given by m_mutation_prob.  Genes with higher site_weight sums are more likely to be mistranslated.
+	// For an average gene encoding a folded protein, the sum of the
+	// site_weights over all codons should be equal to error_weight,
+	// and thus the per-codon probability of a translation error
+	// (possibly synonymous) will be given by m_mutation_prob.  Genes
+	// with higher site_weight sums are more likely to be
+	// mistranslated.
 	//
-	// When codons are translated with equal accuracy (no codon preference), error_weight should simply be the
-	// length of the gene, each codon's site_weight should be 1.0, and the probability of error is exactly given
-	// by m_mutation_prob.
+	// When codons are translated with equal accuracy (no codon
+	// preference), error_weight should simply be the length of the
+	// gene, each codon's site_weight should be 1.0, and the per-codon
+	// probability of error is exactly given by m_mutation_prob.
 	double avg_error_per_site_weight = error_weight/g.codonLength();
 	for ( int i=0; i<g.codonLength() && !truncated; i++) {
 		int residue = GeneticCodeUtil::geneticCode[g[i]];
@@ -147,15 +150,15 @@ int Translator::translateRelativeWeighted( const Gene &g, Protein& residue_seque
 				targ = p.first;
 			}
 			// Tabulate the results
-			// Check for truncation.
-			if (residue_sequence[i] < 0) { // truncation error
-				truncated = true;
-			}
 			// Only count an error if the polymerized amino acid differs from
 			// the natively encoded residue.
 			if (residue_sequence[i] != residue) {
 				numErrors++;
 			}
+		}
+		// Check for truncation.  May not be an error!
+		if (residue_sequence[i] < 0) {
+			truncated = true;
 		}
 	}
 	return numErrors;
