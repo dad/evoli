@@ -103,7 +103,7 @@ protected:
 	double m_ca_cost;
 	double m_error_rate;
 
-	int m_protein_structure_ID;
+	StructureID m_protein_structure_ID;
 	int m_protein_length;
 
 	double m_accuracy_weight;
@@ -165,7 +165,7 @@ public:
 	 * @param ca_cost Codon adapation cost.  This cost represents the average fold-decrease in codon accuracy for non-optimal codons relative to optimal synonymous codons.
 	 * @param target_fraction_accurate Desired probability that an average folded protein will be translated with out errors.
 	 **/
-	ErrorproneTranslation(Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate );
+	ErrorproneTranslation(Folder *protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate );
 
 	/**
 	 * \brief Destroy this ErrorproneTranslation object.

@@ -111,7 +111,7 @@ ErrorproneTranslation::ErrorproneTranslation() {
 	m_error_weight = 1;
 }
 
-ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate )
+ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate )
 {
 	m_protein_folder = protein_folder;
 	m_protein_length = length;
@@ -139,7 +139,7 @@ ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int l
 	m_accuracy_weight = accuracy_weight;
 
 }
-ErrorproneTranslation::ErrorproneTranslation( Folder *protein_folder, const int length, const int protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight )
+ErrorproneTranslation::ErrorproneTranslation( Folder *protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight )
 {
 	m_protein_folder = protein_folder;
 	m_protein_length = length;
