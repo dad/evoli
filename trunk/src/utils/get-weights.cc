@@ -33,6 +33,11 @@ The program \c get-weights is needed to determine the correct weights for the pr
 -#  Window time -- number of generations for which to measure random sequence statistics
 -#  Target translational accuracy -- fraction of time a random gene is accurately translated
 -#  Number of replicates -- averaged data will also be provided
+
+If the sequence file name does not represent a valid file, the program
+will attempt to interpret the name as a sequence identifier
+(SequenceID, e.g. an integer between 0 and 1080 in the case of the 5x5
+compact lattice model).
 */
 
 #include "compact-lattice-folder.hh"
