@@ -39,14 +39,14 @@ struct TEST_CLASS( fitness_evaluator_basic )
 	void TEST_FUNCTION( create_EPT )
 	{
 		CompactLatticeFolder folder(side_length);
-		ErrorproneTranslation ept(&folder, gene_length, 599, -5, 1, 6, 0.1, 0.1, 0.1 );
+		ErrorproneTranslation ept(&folder, gene_length/3, 599, -5, 1, 6, 0.1, 0.1, 0.1 );
 		TEST_ASSERT(true);
 	}
 
 	void TEST_FUNCTION( create_EPT_without_weights )
 	{
 		CompactLatticeFolder folder(side_length);
-		ErrorproneTranslation ept(&folder, gene_length, 599, -2.0, 1.0, 6.0, 0.85);
+		ErrorproneTranslation ept(&folder, gene_length/3, 599, -2.0, 1.0, 6.0, 0.85);
 		Gene test_gene = Gene::createRandomNoStops(gene_length);
 
 		double fitness = ept.getFitness(test_gene);
@@ -58,17 +58,55 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		double target_accuracy = 0.85;
 		double max_dg = -5;
 		int sid = 599;
-		//ErrorproneTranslation ept(&folder, gene_length, sid, max_dg, 1.0, 6.0, target_accuracy);
-		ErrorproneTranslation ept(&folder, gene_length, sid, max_dg, 1.0, 6.0, 0.0114, 59.0, 104.5);
 		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
-
+		// Test with pre-discovered weights (generated using ./get-weights 6 -5 11 599 1000 1000 0.85 10)
+		ErrorproneTranslation ept(&folder, g.codonLength(), sid, max_dg, 1.0, 6.0, 0.0114735, 57.9439, 102.567);
 		TEST_ASSERT_M(ept.getFolded(g), "Generated test gene not folded.");
-
 		Accumulator accuracies;
+		// Get the stats
+		accumulateStatistics(ept, accuracies, g);
+
+		double std_error = accuracies.stderror();
+		double std_dev = accuracies.stdev();
+		double mean = accuracies.mean();
+		// Really should be using standard error
+		double spread = 3*std_dev;
+		stringstream ss;
+		ss << endl << "Target accuracy = " << target_accuracy << "; actual mean accuracy = " << mean << " +/- " << spread << endl;
+		//cout << ss.str() << endl;
+		TEST_ASSERT_M( ((target_accuracy <= mean+spread) && (target_accuracy >= mean-spread)), ss.str());
+	}
+
+	void TEST_FUNCTION( test_automatic_init_EPT_approximation_for_accuracy ) {
+		CompactLatticeFolder folder(side_length);
+		double target_accuracy = 0.85;
+		double max_dg = -5;
+		int sid = 599;
+		
+		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		// Test with automatically determined weights.
+		ErrorproneTranslation ept(&folder, g.codonLength(), sid, max_dg, 1.0, 6.0, target_accuracy);
+		TEST_ASSERT_M(ept.getFolded(g), "Generated test gene not folded.");
+		Accumulator accuracies;
+		// Get the stats
+		accumulateStatistics(ept, accuracies, g);
+
+		double std_error = accuracies.stderror();
+		double std_dev = accuracies.stdev();
+		double mean = accuracies.mean();
+		// Really should be using standard error
+		double spread = 3*std_dev;
+		stringstream ss;
+		ss << endl << "Target accuracy = " << target_accuracy << "; actual mean accuracy = " << mean << " +/- " << spread << endl;
+		//cout << ss.str() << endl;
+		TEST_ASSERT_M( ((target_accuracy <= mean+spread) && (target_accuracy >= mean-spread)), ss.str());
+	}
+
+	void accumulateStatistics(ErrorproneTranslation& ept, Accumulator& accuracies, Gene g) {
 		// Evolve while preserving fold for tot_equil steps to
 		// equilibrate, then for tot_rand steps, recording weights.
-		int num_rand = 200;
-		int num_equil = 4000;
+		int num_rand = 100;
+		int num_equil = 2000;
 		int nrand=0, nequil=0;
 		while ( nrand < num_rand ) {
 			int randpos = Random::rint(g.codonLength());
@@ -94,15 +132,6 @@ struct TEST_CLASS( fitness_evaluator_basic )
 				g[randpos] = from_codon;
 			}
 		}
-		double std_error = accuracies.stderror();
-		double std_dev = accuracies.stdev();
-		double mean = accuracies.mean();
-		// Really should be using standard error
-		double spread = 3*std_dev;
-		stringstream ss;
-		ss << endl << "Target accuracy = " << target_accuracy << "; actual mean accuracy = " << mean << " +/- " << spread << endl;
-		//cout << ss.str() << endl;
-		TEST_ASSERT_M( ((target_accuracy <= mean+spread) && (target_accuracy >= mean-spread)), ss.str());
 	}
 };
 

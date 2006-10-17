@@ -143,7 +143,7 @@ public:
 	 * \brief Create new ErrorproneTranslation object with pre-determined sequence weights.
 	 *
 	 * @param protein_folder An initialized \ref Folder object.
-	 * @param length Protein sequence length in amino acids.
+	 * @param protein_length Protein sequence length in amino acids.
 	 * @param protein_structure_ID Structure identifier for the native structure all folded proteins must attain.
 	 * @param max_free_energy Maximum free energy of folding for a folded protein.
 	 * @param tr_cost Cost factor used to convert fraction of misfolded proteins f into fitness cost via fitness = exp{- tr_cost*f/(1-f).
@@ -152,20 +152,20 @@ public:
 	 * @param accuracy_weight The reference average sequence weight for a large ensemble of folded proteins, excluding the possibility of synonymous errors.  @see getWeightsForTargetAccuracy.
 	 * @param error_weight The reference average sequence weight for a large ensemble of folded proteins, accounting for both synonymous and nonsynonymous errors.  @see getWeightsForTargetAccuracy.
 	 **/
-	ErrorproneTranslation(Folder *protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
+	ErrorproneTranslation(Folder *protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 
 	/**
 	 * \brief Create new ErrorproneTranslation object which will self-determine sequence weights to achieve a target fraction accurate for randomly chosen genes.
 	 *
 	 * @param protein_folder An initialized \ref Folder object.
-	 * @param length Protein sequence length in amino acids.
+	 * @param protein_length Protein sequence length in amino acids.
 	 * @param protein_structure_ID Structure identifier for the native structure all folded proteins must attain.
 	 * @param max_free_energy Maximum free energy of folding for a folded protein.
 	 * @param tr_cost Cost factor for
 	 * @param ca_cost Codon adapation cost.  This cost represents the average fold-decrease in codon accuracy for non-optimal codons relative to optimal synonymous codons.
 	 * @param target_fraction_accurate Desired probability that an average folded protein will be translated with out errors.
 	 **/
-	ErrorproneTranslation(Folder *protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate );
+	ErrorproneTranslation(Folder *protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate );
 
 	/**
 	 * \brief Destroy this ErrorproneTranslation object.

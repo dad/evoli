@@ -111,10 +111,10 @@ ErrorproneTranslation::ErrorproneTranslation() {
 	m_error_weight = 1;
 }
 
-ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate )
+ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate )
 {
 	m_protein_folder = protein_folder;
-	m_protein_length = length;
+	m_protein_length = protein_length;
 
 	m_max_free_energy = max_free_energy;
 	m_tr_cost = tr_cost;
@@ -125,24 +125,21 @@ ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int l
 	buildWeightMatrix();
 	
 	// Get a seed genotype.
-	Gene seed_gene = GeneUtil::getSequenceForStructure(*protein_folder, length, max_free_energy, protein_structure_ID);
-	//cout << seed_gene << endl;
-	//cout << seed_gene.translate() << flush << endl;
-	//auto_ptr<FoldInfo> fi( m_protein_folder->fold(seed_gene.translate()) );
-	//cout << fi->getFreeEnergy() << " " << fi->getStructure() << endl;
-	
+	Gene seed_gene = GeneUtil::getSequenceForStructure(*protein_folder, protein_length*3, max_free_energy, protein_structure_ID);
+	assert(seed_gene.encodesFullLength());
+	assert(seed_gene.translate().length() == length);
+	assert(getFolded(seed_gene));
 	// Set weights.
 	double error_rate, error_weight, accuracy_weight;
 	getWeightsForTargetAccuracy(seed_gene, target_fraction_accurate, error_rate, accuracy_weight, error_weight, 1000, 1000);
 	m_error_rate = error_rate;
 	m_error_weight = error_weight;
 	m_accuracy_weight = accuracy_weight;
-
 }
-ErrorproneTranslation::ErrorproneTranslation( Folder *protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight )
+ErrorproneTranslation::ErrorproneTranslation( Folder *protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight )
 {
 	m_protein_folder = protein_folder;
-	m_protein_length = length;
+	m_protein_length = protein_length;
 
 	m_max_free_energy = max_free_energy;
 	m_tr_cost = tr_cost;
