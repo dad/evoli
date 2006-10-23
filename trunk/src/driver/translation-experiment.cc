@@ -43,6 +43,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	s << "#   equilibration time: " << p.equilibration_time << endl;
 	s << "#   repetitions: " << p.repetitions << endl;
 	s << "#   random seed: " << p.random_seed << endl;
+	s << "#   run ID: " << p.run_id << endl;
 	s << "#" << endl;
 	return s;
 }
@@ -161,11 +162,8 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe)
 
 	// set up output file
 	stringstream fname;
-	fname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "ca" << p.ca_cost << ".dat";
-	//sprintf( filename, "%s-N%itr%sca%g-gb-rep%i.dat", p.eval_type, p.N, p.tr_cost_str, p.ca_cost, i );
+	fname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "ca" << p.ca_cost << "-id" << p.run_id << ".dat";
 	string filename = fname.str();
-	//char filename[255];
-	//sprintf( filename, "%s-N%itr%sca%g.dat", p.eval_type, p.N, p.tr_cost_str, p.ca_cost );
 
 	ofstream data_file( filename.c_str(), ios::out );
 
@@ -180,7 +178,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe)
 	for ( int i=0; i<p.repetitions; i++ )
 	{
 		stringstream repfname;
-		repfname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "ca" << p.ca_cost << "-gb-rep" << i << ".dat";
+		repfname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "ca" << p.ca_cost << "-gb-rep" << i << "-id" << p.run_id << ".dat";
 		filename = repfname.str();
 		ofstream gen_file( filename.c_str(), ios::out );
 		gen_file << p;

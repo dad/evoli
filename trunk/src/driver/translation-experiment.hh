@@ -52,13 +52,14 @@ public:
 	int random_seed;
 	int N;
 	mutable int structure_ID;
+	string run_id;
 	bool valid;
 
 	Parameters( int ac, char **av ) {
-		if ( ac != 17 )	{
+		if ( ac < 17 )	{
 			valid = false;
 			cout << "Start program like this:" << endl;
-			cout << "\t" << av[0] << " <eval type> <prot length> <pop size> <log10 tr cost> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <mutation rate> <window time> <equilibration time> <repetitions> <random seed>" << endl;
+			cout << "\t" << av[0] << " <eval type> <prot length> <pop size> <log10 tr cost> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <mutation rate> <window time> <equilibration time> <repetitions> <random seed> <run ID>" << endl;
 			return;
 		}
 
@@ -80,6 +81,12 @@ public:
 		equilibration_time = atoi( av[i++] );
 		repetitions = atoi( av[i++] );
 		random_seed = atoi( av[i++] );
+		if (ac==18){
+			run_id = av[i++];
+		}
+		else{
+			run_id = itoa(random_seed, 10);
+		}
 
 		valid = true;
 	}
