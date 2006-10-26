@@ -127,7 +127,7 @@ ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int p
 	// Get a seed genotype.
 	Gene seed_gene = GeneUtil::getSequenceForStructure(*protein_folder, protein_length*3, max_free_energy, protein_structure_ID);
 	assert(seed_gene.encodesFullLength());
-	assert(seed_gene.translate().length() == length);
+	assert(seed_gene.translate().length() == protein_length);
 	assert(getFolded(seed_gene));
 	// Set weights.
 	double error_rate, error_weight, accuracy_weight;
