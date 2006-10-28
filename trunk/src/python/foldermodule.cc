@@ -18,13 +18,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 */
 
 
-#include <Python.h>
-#include <iostream>
+#include <Python.h> // needs to be first include
 #include "protein.hh"
 #include "folder.hh"
 #include "compact-lattice-folder.hh"
-
-#include "Python.h"
 
 static PyObject *FolderErrorObject;
 

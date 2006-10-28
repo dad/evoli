@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 */
 
 
-#include <Python.h>
+#include <Python.h> // needs to be first include
 #include <iostream>
 #include <fstream>
 #include "protein.hh"
@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "decoy-contact-folder.hh"
 #include "gene-util.hh"
 
-#include "Python.h"
 
 static PyObject *FolderErrorObject;
 

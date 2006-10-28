@@ -19,13 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 */
 
 
-#include <Python.h>
-#include <iostream>
+#include <Python.h> // needs to be first include
 
 #include "genetic-code.hh"
 #include "codon.hh"
 
-#include "Python.h"
 
 static PyObject *CodonErrorObject;
 
@@ -56,6 +54,28 @@ bool validCodon( const char* codon )
 	return valid;
 }
 
+static char codon_validCodon__doc__[] =
+"Tests whether a codon is valid (i.e., contains exactly three letters, composed of the letters a, A, c, C, u, U, t, T, g, G) or not."
+;
+
+static PyObject *
+codon_validCodon(PyObject *self /* Not used */, PyObject *args)
+{
+	const char *codon;
+	int size;
+	if ( !PyArg_ParseTuple( args, "s#", &codon, &size ) ) {
+		return NULL;
+	}
+
+	int valid = 1;
+	if ( size != 3 ) 
+		valid = 0;
+	else
+		if ( !validCodon( codon ) )
+			valid = 0;
+	
+	return Py_BuildValue( "i", valid );
+}
 
 static char codon_calcDnDs__doc__[] =
 "Calculates the number of nonsynonymous and synonymous substitutions between two codons, and returns them in a list."
@@ -130,6 +150,7 @@ codon_calcNS(PyObject *self /* Not used */, PyObject *args)
 /* List of methods defined in the module */
 
 static struct PyMethodDef codon_methods[] = {
+	{"validCodon",	(PyCFunction)codon_validCodon,	METH_VARARGS, codon_validCodon__doc__},
 	{"calcDnDs",	(PyCFunction)codon_calcDnDs,	METH_VARARGS, codon_calcDnDs__doc__},
 	{"calcNS",	(PyCFunction)codon_calcNS,	METH_VARARGS, codon_calcNS_doc__},
 	{NULL,	 (PyCFunction)NULL, 0, NULL}		/* sentinel */
