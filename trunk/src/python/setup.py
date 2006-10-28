@@ -23,15 +23,28 @@ print "top_srcdir =", srcdir
 builddir = sys.argv.pop()
 print "top_builddir =", builddir
 
+codon = Extension('codon',
+				   sources = ['codonmodule.cc'],
+				   include_dirs = [srcdir + '/src/tools',\
+							srcdir + '/src/folder'],
+				   libraries = ['tools', 'folder' ],
+				   library_dirs = [builddir + '/src/tools', \
+							builddir + '/src/folder'])
+
+setup (name = 'Codon',
+	          version = '0.1',
+	          description = 'Module exposing functionality related to calculating synonymous and nonsynonymous substitutions and sites to Python',
+	          ext_modules = [codon])
+
 folder = Extension('folder',
 				   sources = ['foldermodule.cc'],
 				   include_dirs = [srcdir + '/src/tools', \
 							srcdir+'/src/folder', \
 							srcdir+'/src/evolver'],
 				   libraries = ['tools', 'folder', 'evolver'],
-				   library_dirs = [srcdir + '/src/tools', \
-							srcdir + '/src/folder', \
-							srcdir + '/src/evolver'])
+				   library_dirs = [builddir + '/src/tools', \
+							builddir + '/src/folder', \
+							builddir + '/src/evolver'])
 
 setup (name = 'CompactLatticeFolder',
 	          version = '0.1',
@@ -44,9 +57,9 @@ decoyfolder = Extension('decoyfolder',
 							srcdir+'/src/folder', \
 							srcdir+'/src/evolver'],
 				   libraries = ['tools', 'folder', 'evolver'],
-				   library_dirs = [srcdir + '/src/tools', \
-							srcdir + '/src/folder', \
-							srcdir + '/src/evolver'])
+				   library_dirs = [builddir + '/src/tools', \
+							builddir + '/src/folder', \
+							builddir + '/src/evolver'])
 
 setup (name = 'DecoyContactFolder',
 	          version = '0.1',
