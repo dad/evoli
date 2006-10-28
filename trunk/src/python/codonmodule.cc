@@ -30,7 +30,7 @@ static PyObject *CodonErrorObject;
 /* ----------------------------------------------------- */
 
 
-bool validCodon( const char* codon )
+bool codonValid( const char* codon )
 {
 	bool valid = true;
 	const char* accept_chars = "aAgGtTuUcC"; // we only allow these characters in codons
@@ -54,12 +54,12 @@ bool validCodon( const char* codon )
 	return valid;
 }
 
-static char codon_validCodon__doc__[] =
+static char codon_codonValid__doc__[] =
 "Tests whether a codon is valid (i.e., contains exactly three letters, composed of the letters a, A, c, C, u, U, t, T, g, G) or not."
 ;
 
 static PyObject *
-codon_validCodon(PyObject *self /* Not used */, PyObject *args)
+codon_codonValid(PyObject *self /* Not used */, PyObject *args)
 {
 	const char *codon;
 	int size;
@@ -71,7 +71,7 @@ codon_validCodon(PyObject *self /* Not used */, PyObject *args)
 	if ( size != 3 ) 
 		valid = 0;
 	else
-		if ( !validCodon( codon ) )
+		if ( !codonValid( codon ) )
 			valid = 0;
 	
 	return Py_BuildValue( "i", valid );
@@ -97,7 +97,7 @@ codon_calcDnDs(PyObject *self /* Not used */, PyObject *args)
 		return NULL;
 	}
 
-	if ( !validCodon( codon1 ) || !validCodon( codon2 ) )
+	if ( !codonValid( codon1 ) || !codonValid( codon2 ) )
 	{
 		PyErr_SetString(CodonErrorObject, "Invalid codon. Codons can contain only the letters a, A, u, U, t, T, g, G, c, C.");
 		return NULL;
@@ -132,7 +132,7 @@ codon_calcNS(PyObject *self /* Not used */, PyObject *args)
 		return NULL;
 	}
 
-	if ( !validCodon( codon1 ) )
+	if ( !codonValid( codon1 ) )
 	{
 		PyErr_SetString(CodonErrorObject, "Invalid codon. Codons can contain only the letters a, A, u, U, t, T, g, G, c, C.");
 		return NULL;
@@ -150,7 +150,7 @@ codon_calcNS(PyObject *self /* Not used */, PyObject *args)
 /* List of methods defined in the module */
 
 static struct PyMethodDef codon_methods[] = {
-	{"validCodon",	(PyCFunction)codon_validCodon,	METH_VARARGS, codon_validCodon__doc__},
+	{"codonValid",	(PyCFunction)codon_codonValid,	METH_VARARGS, codon_codonValid__doc__},
 	{"calcDnDs",	(PyCFunction)codon_calcDnDs,	METH_VARARGS, codon_calcDnDs__doc__},
 	{"calcNS",	(PyCFunction)codon_calcNS,	METH_VARARGS, codon_calcNS_doc__},
 	{NULL,	 (PyCFunction)NULL, 0, NULL}		/* sentinel */
