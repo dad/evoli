@@ -38,17 +38,17 @@ static Folder* folder = NULL;
 static PyObject *
 folder_fold(PyObject *self /* Not used */, PyObject *args)
 {
-    const char *protein_sequence;
+	const char *protein_sequence;
 	if (!folder) {
 		PyErr_SetString(FolderErrorObject, "uninitialized folder: call 'folder.init(n)' with n = side-length of lattice protein");
 		return NULL;
 	}
-    if (!PyArg_ParseTuple(args, "s", &protein_sequence)) {
-        return NULL;
+	if (!PyArg_ParseTuple(args, "s", &protein_sequence)) {
+		return NULL;
 	}
 	Protein p(protein_sequence);
 	auto_ptr<FoldInfo> folding_data( folder->fold(p) );
-    return Py_BuildValue("if", folding_data->getStructure(), folding_data->getFreeEnergy());
+	return Py_BuildValue("if", folding_data->getStructure(), folding_data->getFreeEnergy());
 }
 
 static char folder_getEnergy__doc__[] =
@@ -58,18 +58,18 @@ static char folder_getEnergy__doc__[] =
 static PyObject *
 folder_getEnergy(PyObject *self /* Not used */, PyObject *args)
 {
-    const char *protein_sequence;
+	const char *protein_sequence;
 	int sid;
 	if (!folder) {
 		PyErr_SetString(FolderErrorObject, "uninitialized folder: call 'folder.init(...)'");
 		return NULL;
 	}
-    if (!PyArg_ParseTuple(args, "si", &protein_sequence, &sid)) {
-        return NULL;
+	if (!PyArg_ParseTuple(args, "si", &protein_sequence, &sid)) {
+		return NULL;
 	}
 	Protein p(protein_sequence);
 	double energy = folder->getEnergy(p, sid);
-    return Py_BuildValue("f", energy);
+	return Py_BuildValue("f", energy);
 }
 
 static char folder_init__doc__[] =
@@ -80,8 +80,8 @@ static PyObject *
 folder_init(PyObject *self /* Not used */, PyObject *args)
 {
 	int side_length;
-    if (!PyArg_ParseTuple(args, "i", &side_length))
-        return NULL;
+	if (!PyArg_ParseTuple(args, "i", &side_length))
+		return NULL;
 	folder = new CompactLatticeFolder(side_length);
 	Py_INCREF(Py_None);
 	return Py_None;
