@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 #include "protein.hh"
 #include "folder.hh"
+#include "gene-util.hh"
 
 class FitnessEvaluator {
 private:
@@ -135,7 +136,7 @@ protected:
 	 *
 	 * Note: must be called before getWeightsForTargetAccuracy is called.
 	 **/
-	void ErrorproneTranslation::buildWeightMatrix();
+	void buildWeightMatrix();
 
 public:
 
@@ -394,6 +395,7 @@ public:
 	virtual ~AccuracyOnlyTranslation();
 
 	double getFitness( const Gene& g );
+    double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
 	bool getFolded( const Gene& g );
 };
 
@@ -415,6 +417,7 @@ public:
 	virtual ~RobustnessOnlyTranslation();
 
 	double getFitness( const Gene& g );
+    double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
 
 	/**
 	Compute the estimated fractions accurately translated, folded
@@ -469,10 +472,11 @@ public:
 	 * @param cost_constant The multiplier to convert translational robustness cost into number of misfolded proteins.
 	 * @param toxicity_cutoff The minimum number of misfolded proteins required to get a toxic effect.
 	 **/
-	CutoffErrorproneTranslation::CutoffErrorproneTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight, double cost_constant, int toxicity_cutoff);
+	CutoffErrorproneTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight, double cost_constant, int toxicity_cutoff);
 	
 	virtual ~CutoffErrorproneTranslation();
-	double getFitness( const Gene& g );
+    double getFitness( const Gene& g );
+    double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
 };
 
 /**
