@@ -63,6 +63,11 @@ AC_ARG_ENABLE(final,
 #  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -march=pentium3 -DNDEBUG"
 )
 
+AC_ARG_ENABLE(icc,
+[  --enable-icc: Like --enable-final, but for icc rather than gcc],
+  CXXFLAGS="-xP -O3 -fomit-frame-pointer -DNDEBUG"; LDFLAGS+="-lstdc++"; CXX="icc"; CC="icc"
+)
+
 # documentation
 AC_ARG_ENABLE(apidoc,
   [  --disable-apidoc: Do not build API documentation],
