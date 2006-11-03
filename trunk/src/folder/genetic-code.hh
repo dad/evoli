@@ -35,7 +35,7 @@ private:
 	static double m_dnTable[64][64];
 	static double m_dsTable[64][64];
 	static void calcDnDsPrivate( double &dn, double &ds, int codon1, int codon2 );
-
+	static pair<double, double> calcDnDsWeightedPrivate( int codon1, int codon2, double rho );
 public:
 	/**
 	 * The mapping from integer to residue
@@ -108,6 +108,27 @@ public:
 	static double calcSynonymousSites( int codon, int sites = 7 );
 
 	/**
+	Calculates the number of synonymous sites according to the mutational
+	opportunity definition, i.e., corrected for a potential transition to
+	transversion bias.
+	\param codon The codon to analyze.
+	\param rho Ratio of transitions to transversions. Note that no
+	transition to transversion bias corresponds to rho=.5. 
+	**/
+	static double calcSynMutationOpportunity( int codon, double rho );
+
+	/**
+	Calculates the number of nonsynonymous sites according to the
+	mutational opportunity definition, i.e., corrected for a potential
+	transition to transversion bias. Mutations to stop codons are not counted.
+	\param codon The codon to analyze.
+	\param rho Ratio of transitions to transversions. Note that no
+	transition to transversion bias corresponds to rho=.5. 
+	**/
+	static double calcNonsynMutationOpportunity( int codon, double rho );
+
+
+	/**
 	 * Calculates the number of changes in nonsynonymous (dn) and synonymous
 	 * (ds) substitutions between codon1 and codon2. If the two codons differ
 	 * by more than one base, all possible paths are weighted equally.
@@ -115,6 +136,21 @@ public:
 	 **/
 	static void calcDnDs( double &dn, double &ds, int codon1, int codon2 );
 
+	/**
+	Calculates the number of changes in nonsynonymous (dn) and synonymous
+	(ds) substitutions per mutational opportunity between codon1 and codon2.
+	If the two codons differ by more than one base, all possible paths are weighted
+	according to the transition/transversion ratio rho. Stop codons are excluded
+	from the analysis. Note that mutations are assumed to lead from codon1 to
+	codon2. If you interchange the two, the results will in general change.
+	\warning This function has not been fully debugged, and may contain mistakes (though none are known). Use at your own peril.
+	\param codon1 The originating codon.
+	\param codon2 The destination codon.
+	\param rho The transition/transversion ratio (a ratio of .5 means both are
+	equally frequent).
+	\return A pair containing dn and ds (in this order).
+	 **/
+	static pair<double, double> calcDnDsWeighted( int codon1, int codon2, double rho );
 
 };
 
