@@ -64,14 +64,15 @@ struct Stats
 
 struct RunRecord
 {
+	string orf;
+	string run_id;
 	double cost;
-	string cost_id;
-	int runNumber;
+	int rep;
 	Gene gene;
 };
 
 ostream& operator<<(ostream& os, const RunRecord& rec) {
-	os << rec.cost_id << tab << rec.cost << tab << rec.runNumber << tab << rec.gene << endl;
+	os << rec.orf << tab << rec.cost << tab << rec.run_id << tab << "rep " << rec.rep << tab << rec.gene << endl;
 	return os;
 }
 
@@ -167,18 +168,17 @@ void misfoldDistExperiment(Parameters& p)
 	fin.getline(buf,100);
 	while (!fin.eof()) {
 		RunRecord rec;
-		fin >> rec.cost_id >> rec.runNumber >> rec.gene;
+		fin >> rec.orf >> rec.run_id >> rec.cost >> rec.rep >> rec.gene;
 		if (rec.gene.length() > 0) {
-			rec.cost = pow(10.0,atof(rec.cost_id.c_str()));
 			runResults.push_back(rec);
-			cout << rec;
+			//cout << rec;
 		}
 	}
 	fin.close();
 
 	cout << "# Read " << runResults.size() << " results" << endl;
 	cout << p;
-	cout << "tr\texpr\trun\tdG\tfitness\tfop\tnu\tnacc\tnrob\tntrunc\tnfold\tfacc\tfrob\tftrunc\tffold\tcfacc\tcfrob\tcftrunc\tcffold\tfdens\tmrandrob\tsdrandrob\tgene" << endl;
+	cout << "orf\trun_id\ttr\trep\tdG\tfitness\tfop\tnu\tnacc\tnrob\tntrunc\tnfold\tfacc\tfrob\tftrunc\tffold\tcfacc\tcfrob\tcftrunc\tcffold\tfdens\tmrandrob\tsdrandrob\tgene" << endl;
 	vector<RunRecord>::iterator it = runResults.begin();
 	bool printCodonReport = true;
 
@@ -270,7 +270,7 @@ void misfoldDistExperiment(Parameters& p)
 		double mean_randrob = mean(randrobs);
 		double sd_randrob = sqrt(variance(randrobs));
 
-		cout << rec.cost_id << tab << rec.cost << tab << rec.runNumber << tab << dG << tab << fitness << tab << fop << tab << nu << tab
+		cout << rec.orf << tab << rec.run_id << tab << rec.cost << tab << rec.rep << tab << dG << tab << fitness << tab << fop << tab << nu << tab
 			 << numAccurate << tab << numRobust << tab << numTruncated << tab << numFolded << tab
 			 << setprecision(6) << facc << tab << frob << tab << ftrunc << tab << ffold << tab
 			 << cfacc << tab << cfrob << tab << cftrunc << tab << cffold << tab
