@@ -196,9 +196,9 @@ void misfoldDistExperiment(Parameters& p)
 	for (; it != runResults.end(); it++) {
 		RunRecord& rec = *it;
 		//cout << rec << endl;
-		if (rec.cost < 0.01 || rec.cost > 100) {
+		/*if (rec.cost < 0.01 || rec.cost > 100) {
 			continue;
-		}
+			}*/
 		// find initial structure
 
 		if (rec.cost != last_cost) {
