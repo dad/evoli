@@ -213,7 +213,7 @@ public:
 
 	/**
 	@return A vector of bools indicating whether a given codon
-	is optimal or not (True means codon is optimal). 
+	is optimal or not (True means codon is optimal).
 	*/
 	vector<bool> getOptimalCodons(bool print_report = true) const;
 
@@ -224,20 +224,20 @@ public:
 	biological estimates, such as that 81% of proteins have at
 	least one error on average (estimate from Drummond et al., PNAS
 	102:14338-14343 (2005)).
-	
+
 	When codons have different accuracies, it is difficult to set
 	an error rate for translation per site that achieves this
 	overall target accuracy.  Some genes will be more or less
 	likely to be mistranslated than others based on their codon
 	composition, and particular sites within each gene will be
 	similarly more or less likely to be mistranslated.
-	
+
 	In addition, some errors may be synonymous -- that is, a codon
 	may be translated as if it were another codon, but the result
 	may be that the same amino acid is used.  Such synonymous
 	errors will generally not be reflected in biologically observed
 	error rates.
-	
+
 	Our strategy is to characterize the propensity of a large set
 	of random genes that encode folded proteins to be mistranslated
 	based on their codon composition.  (Folded proteins are
@@ -246,29 +246,29 @@ public:
 	its codon composition.  The average weight over this large,
 	random gene set will then be used as a reference weight for
 	subsequent translation of arbitrary (non-random) genes.
-	
+
 	The basic weight unit is the fold decrease in accuracy at a site
 	relative to a site bearing a preferred codon,
 	[1 + unpreferred<1|0>*(unpreferred_penalty-1)].  For example, if a
 	site has a preferred codon, the site weight is 1; if a site has an
 	unpreferred codon and the accuracy difference between preferred
 	and unpreferred codons is 6, then the site weight is 6.
-	
+
 	The "error weight" for a gene is the sum of its site
 	weights. Genes with higher error weights are more likely to be
 	mistranslated, though in some cases the translation errors may be
 	synonymous.
-	
+
 	The average error weight for a large set of random genes
 	encoding folded proteins sets a reference point for translation
 	of arbitrary genes, and is stored in error_weight.
-	
+
 	Correspondingly, the "accuracy weight" for a gene is the sum of
 	each site weight multiplied by the probability of a
 	nonsynonymous change given an error at that site.  The average
 	accuracy weight again sets a reference point for translation of
 	arbitrary genes, and is stored in accuracy_weight.
-	
+
 	Finally, given an accuracy weight and an error weight, we can
 	set an error rate for translation that will, on average over a
 	large random sample, yield the desired fraction of genes which
@@ -283,7 +283,7 @@ public:
 	@param error_weight Stores computed error weight (see above).
 	@param accuracy_weight Stores computed accuracy weight (see above).
 	 */
-	void getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_fraction_accurate, double& error_rate, 
+	void getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_fraction_accurate, double& error_rate,
 									 double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand);
 
 	/**
@@ -295,6 +295,11 @@ public:
 	 * Sets the translational error rate per codon directly.
 	 **/
 	void setErrorRate(const double error_rate) { m_error_rate = error_rate; }
+
+	/**
+	 * Sets the translational cost directly.
+	 **/
+	void setMisfoldingCost(const double cost) { m_tr_cost = cost; }
 
 	/**
 	 * Sets the translational error rate, accuracy weight and error weight directly.
@@ -474,7 +479,7 @@ public:
 	 * @param toxicity_cutoff The minimum number of misfolded proteins required to get a toxic effect.
 	 **/
 	CutoffErrorproneTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight, double cost_constant, int toxicity_cutoff);
-	
+
 	virtual ~CutoffErrorproneTranslation();
     double getFitness( const Gene& g );
     double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
