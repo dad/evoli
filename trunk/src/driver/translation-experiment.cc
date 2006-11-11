@@ -134,6 +134,12 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostre
 	s << "# Starting genotype: " << g << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, p.u );
+	// If using AccuracyOnlyTranslation, initialize the evaluator with this sequence.
+	AccuracyOnlyTranslation *aot = dynamic_cast<AccuracyOnlyTranslation*>(fe);
+	if (aot != NULL) {
+		Protein target_prot = g.translate();
+		aot->setTargetSequence(target_prot);
+	}
 
 	int loop_length = 100;
 	int n_folded = 0;

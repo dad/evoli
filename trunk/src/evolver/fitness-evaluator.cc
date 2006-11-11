@@ -1013,6 +1013,9 @@ AccuracyOnlyTranslation::AccuracyOnlyTranslation( Folder *protein_folder, const 
  : ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight), m_target_sequence(length) {
 }
 
+void AccuracyOnlyTranslation::setTargetSequence(const Protein& p) {
+	m_target_sequence = p;
+}
 
 bool AccuracyOnlyTranslation::sequenceFolds(Protein& p) {
 	// test if residue sequence is the same as the initialized sequence.
