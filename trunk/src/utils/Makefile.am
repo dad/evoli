@@ -29,7 +29,11 @@ misfold_LDADD = $(libraries)
 get_weights_SOURCES = get-weights.cc
 get_weights_LDADD = $(libraries)
 
-bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer structure-printer misfold get-weights gb-analyzer
+evolved_dg_dist_SOURCES = evolved-dg-dist.cc
+evolved_dg_dist_LDADD = $(libraries)
+
+bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer \
+	structure-printer misfold get-weights gb-analyzer evolved-dg-dist
 
 CLEANFILES = pdbcontacts.pyc pdb.pyc
 
