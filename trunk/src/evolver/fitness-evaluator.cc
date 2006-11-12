@@ -1013,9 +1013,11 @@ AccuracyOnlyTranslation::AccuracyOnlyTranslation( Folder *protein_folder, const 
  : ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight), m_target_sequence(length) {
 }
 
+/*
 void AccuracyOnlyTranslation::setTargetSequence(const Protein& p) {
 	m_target_sequence = p;
 }
+*/
 
 bool AccuracyOnlyTranslation::sequenceFolds(Protein& p) {
 	// test if residue sequence is the same as the initialized sequence.
@@ -1034,6 +1036,11 @@ bool AccuracyOnlyTranslation::getFolded(const Gene &g) {
 }
 
 double AccuracyOnlyTranslation::getFitness( const Gene &g ) {
+	if (g.encodesFullLength()) {
+		// translate the new target sequence
+		m_target_sequence = g.translate();
+	}
+
 	// test if protein translates at all, and if so, if it folds
 	if (!getFolded(g)) {
 		return 0.0;
@@ -1044,7 +1051,7 @@ double AccuracyOnlyTranslation::getFitness( const Gene &g ) {
 	if ( m_tr_cost > 0 )
 	{
 		double ffold, frob, facc, ftrunc;
-		calcOutcomes(g, facc, frob, ftrunc, ffold);
+		calcOutcomes(g, facc, frob, ftrunc, ffold); // this will call AOT::sequenceFolds() above.
 		return exp( - m_tr_cost * (1-ffold)/ ffold );
 	}
 	else return 1.;
