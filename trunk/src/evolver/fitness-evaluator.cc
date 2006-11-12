@@ -354,6 +354,14 @@ double ErrorproneTranslation::estimateErrorRateFromAccuracy(const double target_
 	return error_rate_estimate;
 }
 
+double ErrorproneTranslation::estimateAccuracyFromErrorRate(const double error_rate, const double accuracy_weight, const double error_weight) const {
+	double acc_estimate = pow((1.0 - error_rate*accuracy_weight/error_weight),m_protein_length);
+	double err_rate_estimate = estimateErrorRateFromAccuracy(acc_estimate, accuracy_weight, error_weight);
+	double eps = 1e-6;
+	assert( abs(error_rate - err_rate_estimate) < eps);
+	return acc_estimate;
+}
+
 void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_fraction_accurate, double& error_rate, 
 														double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand) {
 
@@ -1066,6 +1074,16 @@ RobustnessOnlyTranslation::RobustnessOnlyTranslation(Folder *protein_folder, con
 	m_fraction_accurate = 1.0 - pow((1.0 - error_rate), (double)length);
 }
 
+RobustnessOnlyTranslation::RobustnessOnlyTranslation(Folder *protein_folder, const int length, const StructureID protein_structure_ID, 
+													 const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, 
+													 const double accuracy_weight, const double error_weight ) :
+	ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight) {
+
+	// Fixed fraction mistranslated based on error rate
+	m_fraction_accurate = estimateAccuracyFromErrorRate(error_rate, accuracy_weight, error_weight);
+	//cout << "acc = " << m_fraction_accurate << endl;
+}
+
 double RobustnessOnlyTranslation::getFitness( const Gene &g )
 {
 	double fitness = 0.0;
@@ -1077,7 +1095,7 @@ double RobustnessOnlyTranslation::getFitness( const Gene &g )
 				// Actual fraction folded will be (1-m_fraction_mistranslated) [all fold] + m_fraction_mistranslated*nu [neutral point mutations]
 				double nu = GeneUtil::calcNeutrality(*m_protein_folder, p, m_max_free_energy);
 				double ffold = m_fraction_accurate + nu*(1 - m_fraction_accurate);
-				double fitness = exp( - m_tr_cost * (1.0 - ffold) / ffold );
+				fitness = exp( - m_tr_cost * (1.0 - ffold) / ffold );
 			}
 			else {
 				fitness = 1.0;

@@ -94,22 +94,22 @@ int main( int ac, char **av)
 
 	// initialize the protein folder
 	int side_length = (int)(sqrt(float(p.protein_length)));
-	CompactLatticeFolder* folder = new CompactLatticeFolder(side_length);
+	CompactLatticeFolder folder(side_length);
 
 	cout << p;
 
 	// Choose the FitnessEvaluator based on input parameters (p.eval_type).
 	ErrorproneTranslation* fe = NULL;
 	if (p.eval_type == "tr") {
-		ErrorproneTranslation* ept = new ErrorproneTranslation( folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+		ErrorproneTranslation* ept = new ErrorproneTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 		fe = ept;
 	}
 	else if (p.eval_type == "acc") {
-		AccuracyOnlyTranslation* afe = new AccuracyOnlyTranslation( folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+		AccuracyOnlyTranslation* afe = new AccuracyOnlyTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 		fe = afe;
 	}
 	else if (p.eval_type == "rob") {
-		RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation( folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate );
+		RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 		fe = rob;
 	}
 	if (!fe) {
@@ -121,7 +121,6 @@ int main( int ac, char **av)
 	evolutionExperiment( p, *fe );
 	//evolutionTest( p, *fe );
 	delete fe;
-	delete folder;
 
 	return 0;
 }

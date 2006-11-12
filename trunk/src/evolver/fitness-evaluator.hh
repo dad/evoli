@@ -318,6 +318,12 @@ public:
 	double estimateErrorRateFromAccuracy(const double target_fraction_accurate, const double accuracy_weight, const double error_weight) const;
 
 	/**
+	 * Compute the expected fraction accurately translated,
+	 * given the error rate and weights provided.
+	 */
+	double ErrorproneTranslation::estimateAccuracyFromErrorRate(const double error_rate, const double accuracy_weight, const double error_weight) const;
+
+	/**
 	 * Compute the estimated fractions accurately translated, folded
 	 * despite mistranslation, truncated and folded, using the error
 	 * spectrum of this FitnessEvaluator.  If the natively encoded
@@ -420,6 +426,8 @@ public:
 
 	RobustnessOnlyTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy,
 		const double tr_cost, const double ca_cost, const double error_rate );
+	RobustnessOnlyTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy,
+		const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 	virtual ~RobustnessOnlyTranslation();
 
 	double getFitness( const Gene& g );
