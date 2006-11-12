@@ -321,7 +321,7 @@ public:
 	 * Compute the expected fraction accurately translated,
 	 * given the error rate and weights provided.
 	 */
-	double ErrorproneTranslation::estimateAccuracyFromErrorRate(const double error_rate, const double accuracy_weight, const double error_weight) const;
+	double estimateAccuracyFromErrorRate(const double error_rate, const double accuracy_weight, const double error_weight) const;
 
 	/**
 	 * Compute the estimated fractions accurately translated, folded
