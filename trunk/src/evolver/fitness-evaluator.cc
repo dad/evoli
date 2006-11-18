@@ -1014,6 +1014,35 @@ double ErrorproneTranslation::m_codon_cost[64] = {
 };
 
 
+FoldingOnlyFitness::FoldingOnlyFitness( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy,
+	  const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight ) :
+	ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight)  {
+}
+
+FoldingOnlyFitness::~FoldingOnlyFitness() {
+}
+
+
+double FoldingOnlyFitness::getFitness( const Gene& g ) {
+  return (getFolded(g) ? 1.0 : 0.0);
+}
+
+double FoldingOnlyFitness::getFitness( const Protein& p ) {
+  return getFitness( GeneUtil::reverseTranslate(p) );
+}
+
+bool FoldingOnlyFitness::getFolded(const Gene &g) {
+	// first test if protein translates at all, and if so, if it folds
+	bool res = g.encodesFullLength();
+	if ( res ) {
+		Protein p = g.translate();
+		res = sequenceFolds(p);
+	}
+	return res;
+}
+
+
+
 AccuracyOnlyTranslation::~AccuracyOnlyTranslation() {
 }
 
@@ -1021,21 +1050,14 @@ AccuracyOnlyTranslation::AccuracyOnlyTranslation( Folder *protein_folder, const 
  : ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight), m_target_sequence(length) {
 }
 
-/*
-void AccuracyOnlyTranslation::setTargetSequence(const Protein& p) {
-	m_target_sequence = p;
-}
-*/
-
 bool AccuracyOnlyTranslation::sequenceFolds(Protein& p) {
 	// test if residue sequence is the same as the initialized sequence.
-	//cout << "AOT::sF" << endl;
 	return m_target_sequence == p;
 }
 
 bool AccuracyOnlyTranslation::getFolded(const Gene &g) {
-	bool res = g.encodesFullLength();
 	// first test if protein translates at all, and if so, if it folds
+	bool res = g.encodesFullLength();
 	if ( res ) {
 		Protein p = g.translate();
 		res = ErrorproneTranslation::sequenceFolds(p);
@@ -1054,10 +1076,7 @@ double AccuracyOnlyTranslation::getFitness( const Gene &g ) {
 		return 0.0;
 	}
 
-	//cout << "seq folded" << endl;
-
-	if ( m_tr_cost > 0 )
-	{
+	if ( m_tr_cost > 0 ) {
 		double ffold, frob, facc, ftrunc;
 		calcOutcomes(g, facc, frob, ftrunc, ffold); // this will call AOT::sequenceFolds() above.
 		return exp( - m_tr_cost * (1-ffold)/ ffold );

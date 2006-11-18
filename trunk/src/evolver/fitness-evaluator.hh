@@ -387,11 +387,30 @@ public:
 	static double m_codon_cost[64];
 };
 
-/** \brief A \ref FitnessEvaluator, derived from \ref ErrorproneTranslation, in which all fitness cost is due to mistranslation only.
+/** \brief A \ref FitnessEvaluator, derived from \ref ErrorproneTranslation, in which fitness is 1 if the native protein folds stably, and 0 otherwise.
 
-This class implements a case of \ref ErrorproneTranslation  where translation is error-prone and any mistranslation to an incorrect amino acid leads to a consequent fitness cost, regardless of whether the translated protein would fold correctly or not.
+This class implements a case of \ref ErrorproneTranslation where translation is error-prone but mistranslation has no cost.
  */
+class FoldingOnlyFitness : public ErrorproneTranslation {
+private:
+	FoldingOnlyFitness();
 
+protected:
+
+public:
+	FoldingOnlyFitness( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy,
+						const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
+  virtual ~FoldingOnlyFitness();
+
+  double getFitness( const Gene& g );
+  double getFitness( const Protein& p );
+  bool getFolded( const Gene& g );
+};
+
+/** \brief A \ref FitnessEvaluator, derived from \ref ErrorproneTranslation, in which fitness differences are due to different effective translational accuracies influenced by the gene sequence.
+
+This class implements a case of \ref ErrorproneTranslation where translation is error-prone and all mistranslated proteins are costly, independent of whether they fold.
+ */
 class AccuracyOnlyTranslation : public ErrorproneTranslation {
 private:
 	AccuracyOnlyTranslation();

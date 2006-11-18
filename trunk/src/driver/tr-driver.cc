@@ -94,6 +94,7 @@ int main( int ac, char **av)
 
 	// initialize the protein folder
 	int side_length = (int)(sqrt(float(p.protein_length)));
+	assert(side_length*side_length == p.protein_length);
 	CompactLatticeFolder folder(side_length);
 
 	cout << p;
@@ -111,6 +112,10 @@ int main( int ac, char **av)
 	else if (p.eval_type == "rob") {
 		RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
 		fe = rob;
+	}
+	else if (p.eval_type == "nu") {
+		FoldingOnlyFitness* fof = new FoldingOnlyFitness( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+		fe = fof;
 	}
 	if (!fe) {
 		cerr << "ERROR: unknown fitness evaluator type '" << p.eval_type << "'.  Exiting..." << endl;
