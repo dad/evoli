@@ -55,6 +55,14 @@ public:
 	@return A string object containing the protein sequence, using the single-letter amino-acid alphabet.
 	*/
 	string toString() const;
+
+	/**
+	Creates a random protein.
+	@param length Length of the desired protein, in residues
+	@return The random protein.
+	*/
+	static Protein createRandom(const int length);
+
 };
 
 class Translator;

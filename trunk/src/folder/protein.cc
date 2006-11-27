@@ -58,6 +58,14 @@ int Protein::distance(const Protein& p) const {
 	return diffs;
 }
 
+Protein Protein::createRandom(const int length) {
+	Protein p(length);
+	Protein::iterator pit = p.begin();
+	for (; pit != p.end(); pit++) {
+		*pit = Random::rint(20);
+	}
+	return p;
+}
 
 string Protein::toString() const {
 	string res;
