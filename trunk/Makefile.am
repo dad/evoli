@@ -1,12 +1,10 @@
 ## Makefile.am
 
-BASE_SUBDIRS = src test
+SUBDIRS = src test
 
 # build apidoc if requested
 if BUILD_APIDOC
-  SUBDIRS = $(BASE_SUBDIRS) doc
-else
-  SUBDIRS = $(BASE_SUBDIRS)	
+  SUBDIRS += doc
 endif
 
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure configure.scan autoscan.log \
