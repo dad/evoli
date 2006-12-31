@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "tools.hh"
 #include "gene-util.hh"
 #include "compact-lattice-folder.hh"
+#include "mutator.hh"
 
 #include <cmath>
 #include <cstdio>
@@ -107,13 +108,15 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, vector<bool>& is_optimal,
 		     double &ave_fop )
 {
 	// initialize the population
-	Population pop( 1000 );
+	Population<Gene, ErrorproneTranslation, SimpleMutator> pop( 1000 );
+	SimpleMutator mut(0.00001);
 
 	Folder& folder = *(fe->getFolder());
 	// Find a sequence.
 	Gene g = GeneUtil::getSequenceForStructure(folder, 75, -5, 599);
 	// Fill the population with the genotype that we found above
-	pop.init( g, fe, 0.00001 );
+	pop.init( g, fe, &mut );
+	GenebankAnalyzer<Gene> analyzer(pop.getGenebank());
 
 	int loop_length = 100;
 	int n_folded = 0;
@@ -121,10 +124,10 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, vector<bool>& is_optimal,
 		for ( int j=0; j<loop_length; j++ ) {
 			pop.evolve();
 		}
-		pop.prepareCoalescenceCalcs();
-		if ( pop.calcCoalescenceTime() > 2000 )
+		analyzer.prepareCoalescenceCalcs(pop.begin(), pop.end(), pop.getNumGenerations());
+		if ( analyzer.calcCoalescenceTime() > 2000 )
 			break;
 	}
 
-	return pop.analyzeDnDs( 1000, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
+	return analyzer.analyzeDnDs( 1000, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 }

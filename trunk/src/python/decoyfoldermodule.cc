@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <Python.h> // needs to be first include
 #include <iostream>
 #include <fstream>
+#include "random.hh"
 #include "protein.hh"
 #include "folder.hh"
 #include "decoy-contact-folder.hh"
@@ -134,6 +135,7 @@ decoyfolder_init(PyObject *self /* Not used */, PyObject *args)
 	const char *map_dir;
 	double nconf;
 	int length;
+	length = Random::runif();
 	if (!PyArg_ParseTuple(args, "idss", &length, &nconf, &map_file, &map_dir))
 		return NULL;
 	string path = map_file;

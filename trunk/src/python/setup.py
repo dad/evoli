@@ -23,18 +23,6 @@ print "top_srcdir =", srcdir
 builddir = sys.argv.pop()
 print "top_builddir =", builddir
 
-codon = Extension('codon',
-				   sources = ['codonmodule.cc'],
-				   include_dirs = [srcdir + '/src/tools',\
-							srcdir + '/src/folder'],
-				   libraries = ['tools', 'folder' ],
-				   library_dirs = [builddir + '/src/tools', \
-							builddir + '/src/folder'])
-
-setup (name = 'Codon',
-	          version = '0.1',
-	          description = 'Module exposing functionality related to calculating synonymous and nonsynonymous substitutions and sites to Python',
-	          ext_modules = [codon])
 
 folder = Extension('folder',
 				   sources = ['foldermodule.cc'],
@@ -65,4 +53,17 @@ setup (name = 'DecoyContactFolder',
 	          version = '0.1',
 	          description = 'Module exposing decoy-contact protein folding to Python',
 	          ext_modules = [decoyfolder])
+
+codon = Extension('codon',
+				   sources = ['codonmodule.cc'],
+				   include_dirs = [srcdir + '/src/tools',\
+							srcdir + '/src/folder'],
+				   libraries = ['tools', 'folder' ],
+				   library_dirs = [builddir + '/src/tools', \
+							builddir + '/src/folder'])
+
+setup (name = 'Codon',
+	          version = '0.1',
+	          description = 'Module exposing functionality related to calculating synonymous and nonsynonymous substitutions and sites to Python',
+	          ext_modules = [codon])
 

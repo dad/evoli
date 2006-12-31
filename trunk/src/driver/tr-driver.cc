@@ -1,7 +1,7 @@
 /*
 This file is part of the evoli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
-Allan Drummond <dadrummond@gmail.com>
+Allan Drummond <dadrummond@alumni.princeton.edu>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -98,6 +98,8 @@ int main( int ac, char **av)
 	CompactLatticeFolder folder(side_length);
 
 	cout << p;
+	// Create Polymerase based on input parameter p.mutation_rate
+	Polymerase poly(p.u);
 
 	// Choose the FitnessEvaluator based on input parameters (p.eval_type).
 	ErrorproneTranslation* fe = NULL;
@@ -123,7 +125,7 @@ int main( int ac, char **av)
 	}
 
 	cout << setprecision(4);
-	evolutionExperiment( p, *fe );
+	evolutionExperiment( p, *fe, poly);
 	//evolutionTest( p, *fe );
 	delete fe;
 

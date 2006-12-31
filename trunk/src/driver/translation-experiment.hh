@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "translator.hh"
 #include "tools.hh"
 #include "gene-util.hh"
+#include "mutator.hh"
 
 #include <cmath>
 #include <cstdio>
@@ -98,6 +99,6 @@ int getStructureID( Folder &b, const Gene &g );
 bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
 		     double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f,
 		     double &ave_fop );
-void evolutionTest( const Parameters &p, ErrorproneTranslation& fe);
-void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe);
+void evolutionTest( const Parameters &p, ErrorproneTranslation& fe, Polymerase& poly);
+void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polymerase& poly);
 

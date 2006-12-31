@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "decoy-contact-folder.hh"
 #include "fitness-evaluator.hh"
 #include "population.hh"
+#include "mutator.hh"
 
 struct TEST_CLASS( population )
 {
@@ -38,16 +39,35 @@ struct TEST_CLASS( population )
 	{
 		int N = 20;
 		double U = .001;
-		Population pop( N );
 		CompactLatticeFolder folder( 4 );
 		ProteinFreeEnergyFitness fe( &folder );
+		Population<Gene, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
+		SimpleMutator mut(U);
 		Gene g( "AAAAAAAAGAGUCCUACCACCCUUGACCUCAUGUCCUGUGCAGAUAAU" );
 		
-		pop.init( g, &fe, U );
+		pop.init( g, &fe, &mut );
 		// without evolution, mean fitness should equal the fitness
 		// of the incoming gene, which should be 0.691722
 		TEST_ASSERT( fabs(fe.getFitness( g )-0.691722) < 1e-4 );
 		TEST_ASSERT( fabs(pop.getAveFitness()-0.691722) < 1e-4 );
+	}
+
+	void TEST_FUNCTION( num_generations )
+	{
+		int N = 20;
+		double U = .001;
+		CompactLatticeFolder folder( 4 );
+		ProteinFreeEnergyFitness fe( &folder );
+		Population<Gene, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
+		SimpleMutator mut(U);
+		Gene g( "AAAAAAAAGAGUCCUACCACCCUUGACCUCAUGUCCUGUGCAGAUAAU" );
+		
+		pop.init( g, &fe, &mut );
+		int num_generations = 102;
+		for ( int j=0; j<num_generations; j++ ) {
+			pop.evolve();
+		}
+		TEST_ASSERT( pop.getNumGenerations() == num_generations );
 	}
 
 	void TEST_FUNCTION( lattice_folder )
@@ -59,24 +79,27 @@ struct TEST_CLASS( population )
 		Random::seed( 37 ); // initialize random number generator
 		CompactLatticeFolder b(size);
 		ProteinFreeEnergyFitness fe( &b );
-		Population p( N );
+		Population<Gene, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
+		SimpleMutator mut(U);
 		Gene g = Gene::createRandom( length*3 );
 		bool randomOK = true;
 		TEST_ASSERT( randomOK = ( g == Gene( "GGGAAGUGCGUCCAGCAGAGUUGGGUAUGGGAGGGAUCUAAGUUAAAG" ) ) );
 		//std::cout << g << std::endl;
 		if ( !randomOK )
 			cout << "Test failures in function lattice_folder likely due to differences in random number generator" << endl;
-		p.init( g, &fe, U );
+		pop.init( g, &fe, &mut );
+		GenebankAnalyzer<Gene> analyzer(pop.getGenebank());
+
 		int equil_time = 100;
 		int window_size = 30;
 		for ( int i=0; ; i++ )
 		{
 			for ( int j=0; j<100; j++ )
 			{
-				p.evolve();
+				pop.evolve();
 			}
-			p.prepareCoalescenceCalcs();
-			if ( p.calcCoalescenceTime() > equil_time + window_size )
+			analyzer.prepareCoalescenceCalcs(pop.begin(), pop.end(), pop.getNumGenerations());
+			if ( analyzer.calcCoalescenceTime() > equil_time + window_size )
 				break;
 		}
 //		p.printGenebank( cout );
@@ -85,7 +108,7 @@ struct TEST_CLASS( population )
 		for( int i=0; i<64; i++ )
 			is_optimal.push_back( false );
 
-		p.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
+		analyzer.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 
 		//std::cout << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
 
@@ -102,7 +125,8 @@ struct TEST_CLASS( population )
 		int protein_length = 300;
 		int N = 100;
 		double U = 1.0/(N*protein_length);
-		Population pop( N );
+		Population<Gene, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
+		SimpleMutator mut(U);
 		string fname = "test/data/rand_contact_maps/maps.txt";
 		ifstream fin(fname.c_str());
 		string dir = "test/data/rand_contact_maps/";
@@ -125,7 +149,7 @@ struct TEST_CLASS( population )
 
 		double fitness = fe.getFitness(g);
 		
-		pop.init( g, &fe, U );
+		pop.init( g, &fe, &mut );
 		// with evolution, mean fitness should be greater than the fitness
 		// of the incoming gene.
 		
