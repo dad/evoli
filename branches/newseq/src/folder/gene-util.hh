@@ -340,7 +340,7 @@ public:
 			//cout << p << endl;
 			fdata = auto_ptr<FoldInfo>( b.fold(p) );
 			found = (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= min_free_energy_for_starting);
-			cout << fdata->getStructure() << "\t" << fdata->getFreeEnergy() << "\t" << g << endl;
+			//cout << fdata->getStructure() << "\t" << fdata->getFreeEnergy() << "\t" << g << endl;
 		} while ( !found );
 
 		int fail_count = 0;
@@ -362,13 +362,13 @@ public:
 			else {
 				Protein p = g2.translate();
 				fdata = auto_ptr<FoldInfo>( b.fold(p) );
-				cout << fdata->getStructure() << "\t" << fdata->getFreeEnergy() << "\t" << g << endl;
+				//cout << fdata->getStructure() << "\t" << fdata->getFreeEnergy() << "\t" << g << endl;
 				if (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= G-0.001) {
 					// we found an improved sequence. grab it, and reset failure count
 					g = g2;
 					G = fdata->getFreeEnergy();
 					fail_count = 0;
-					cout << G << endl;
+					//cout << G << endl;
 				}
 			}
 

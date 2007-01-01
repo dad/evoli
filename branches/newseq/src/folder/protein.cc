@@ -100,10 +100,10 @@ CodingDNA CodingDNA::createRandomNoStops(unsigned int length ) {
 bool CodingDNA::encodesFullLength(void) const {
 	bool full_length = (length() % 3)==0;
 	CodingRNA rna = transcribe();
-	cout << rna.codonLength() << endl;
+	//cout << rna.codonLength() << endl;
 	for (int i=0; i<rna.codonLength() && full_length; i++) {
 		full_length = (GeneticCodeUtil::RNACodonToAA[rna.getCodon(i)] != GeneticCodeUtil::STOP);
-		cout << i << " " << full_length << endl;
+		//cout << i << " " << full_length << endl;
 	}
 	return full_length;
 }
@@ -111,9 +111,9 @@ bool CodingDNA::encodesFullLength(void) const {
 Protein CodingDNA::translate(const Translator& t) const {
 	Protein prot(codonLength());
 	CodingRNA rna = transcribe();
-	cout << rna << endl;
+	//cout << rna << endl;
 	bool translation_successful = t.translate(rna, prot);
-	cout << prot << endl;
+	//cout << prot << endl;
 	assert( translation_successful ); // This function should never be used on genes that don't translate correctly
 	return prot;
 }

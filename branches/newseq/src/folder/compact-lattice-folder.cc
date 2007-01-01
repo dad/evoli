@@ -766,6 +766,12 @@ void CompactLatticeFolder::enumerateStructures()
 //	 cout << "#Total number of potentially interacting pairs: " << count << endl;
 }
 
+void CompactLatticeFolder::getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const {
+	for (int i=0; i<s.size(); i++) {
+		aa_indices[i] = GeneticCodeUtil::letter_to_residue_map[s[i]];
+	}
+}
+
 /**
  * Fold the sequence and return information about the result (structure, free energy).
  */
@@ -778,6 +784,9 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 	int minIndex = 0;
 	double Z = 0;
 	double G;
+	vector<int> aa_indices(s.size());
+
+	getAminoAcidIndices(s, aa_indices);
 
 	for ( int i=0; i<m_num_structures; i++ ) {
 		double E = 0;
@@ -787,7 +796,7 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 		vector<pair<int,int> >::const_iterator it=pair_list.begin();
 		for ( ; it!=pair_list.end(); it++ )
 		{
-			double deltaE = contactEnergy(s[(*it).first-1], s[(*it).second-1]);
+			double deltaE = contactEnergy(aa_indices[(*it).first-1], aa_indices[(*it).second-1]);
 			E += deltaE;
 		}
 		// check if binding energy is lower than any previously calculated one

@@ -78,6 +78,13 @@ bool DecoyContactFolder::good() const {
 	return m_structures.size() > 0;
 }
 
+
+void DecoyContactFolder::getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const {
+	for (int i=0; i<s.size(); i++) {
+		aa_indices[i] = GeneticCodeUtil::letter_to_residue_map[s[i]];
+	}
+}
+
 double DecoyContactFolder::getEnergy(const Sequence& s, StructureID sid) const {
 	double G = 0;
 	if (sid >= m_structures.size()) {
@@ -109,6 +116,9 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Sequence& s) const {
 	double sumG = 0.0;
 	double sumsqG = 0.0;
 
+	vector<int> aa_indices(s.size());
+	getAminoAcidIndices(s, aa_indices);
+
 	for ( unsigned int sid = 0; sid < m_structures.size(); sid++) {
 		double G = 0;
 		// calculate binding energy of this fold
@@ -119,7 +129,7 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Sequence& s) const {
 			int s1 = (*it).first;
 			int s2 = (*it).second;
 			if (s1 < m_length && s2 < m_length) {
-				double contact_G = contactEnergy( s[s1], s[s2] );
+				double contact_G = contactEnergy( aa_indices[s1], aa_indices[s2] );
 				// DAD: debugging
 				/*if (sid == 24) {
 					cout << num_contacts << "\t" << s1 << "\t" << s2 << "\t" << GeneticCodeUtil::residueLetters[s[s1]+1] << "\t" << GeneticCodeUtil::residueLetters[s[s2]+1] << "\t" << contact_G << endl;
