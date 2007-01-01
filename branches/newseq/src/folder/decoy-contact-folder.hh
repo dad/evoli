@@ -128,11 +128,6 @@ protected:
 		return ProteinContactEnergies::ProteinContactEnergies::WilliamsPLoSCB2006[residue1][residue2]; }
 	//=MJ85TableVI[residue1][residue2]; }
 
-	/**
-	 * Turn amino acid characters into indices to enable fast lookup during folding.
-	 **/
-	void getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const;
-
 public:
 	/**
 	 * Create DecoyContactFolder using already existing structure objects.

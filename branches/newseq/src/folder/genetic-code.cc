@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 const char GeneticCodeUtil::STOP = '*';
 
 // The genetic code
-const pair<const Codon,char> GeneticCodeUtil::codon_aa_pairs[64] = 
+const pair<const Codon,char> GeneticCodeUtil::codonAAPairs[64] = 
 {
 	pair<const Codon,char>(Codon("AAA"), 'K'),
 	pair<const Codon,char>(Codon("AAC"), 'N'),
@@ -95,7 +95,7 @@ const pair<const Codon,char> GeneticCodeUtil::codon_aa_pairs[64] =
 	pair<const Codon,char>(Codon("UUU"), 'F')
 };
 
-hash_map<const Codon, char, hash_codon > GeneticCodeUtil::RNACodonToAA(GeneticCodeUtil::codon_aa_pairs, GeneticCodeUtil::codon_aa_pairs+64);
+hash_map<const Codon, char, hash_codon > GeneticCodeUtil::RNACodonToAA(GeneticCodeUtil::codonAAPairs, GeneticCodeUtil::codonAAPairs+64);
 
 /*typedef hash_map<char, vector<const Codon>, hash<char> > aa_codon_map;
 hash_map<char, vector<const Codon>, hash<char> > GeneticCodeUtil::AAToRNACodon();
@@ -141,7 +141,7 @@ pair<const char, int> letterResidues[21] =
 
 };
 
-map<const char, int, less<const char> > GeneticCodeUtil::letter_to_residue_map(letterResidues, letterResidues+sizeof(letterResidues)/sizeof(letterResidues[0]));
+map<const char, int, less<const char> > GeneticCodeUtil::letterToResidueMap(letterResidues, letterResidues+sizeof(letterResidues)/sizeof(letterResidues[0]));
 
 // this is the mapping from integer to residue that we use
 const char *GeneticCodeUtil::residues[20] =

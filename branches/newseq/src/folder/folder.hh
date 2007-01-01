@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <cstring>
 #include <iostream>
 #include "sequence.hh"
+#include "genetic-code.hh" // this is possibly a bad dependence
 
 using namespace std;
 typedef int StructureID;
@@ -75,6 +76,17 @@ public:
 class Folder {
 private:
 protected:
+	/**
+	 * Turn amino acid characters into indices to enable fast lookup during folding.
+	 **/
+	void getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const
+	{
+		for (int i=0; i<s.size(); i++) {
+			aa_indices[i] = GeneticCodeUtil::letterToResidueMap[s[i]];
+		}
+	}
+
+
 public:
 	virtual ~Folder() {}
 	/**

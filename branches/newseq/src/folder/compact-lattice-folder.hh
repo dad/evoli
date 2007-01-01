@@ -205,12 +205,6 @@ protected:
 		return ProteinContactEnergies::MJ96TableIII[residue1][residue2]; }
 	//return ProteinContactEnergies::MJ85TableVI[residue1][residue2]; }
 
-	/**
-	 * Turn amino acid characters into indices to enable fast lookup during folding.
-	 **/
-	void getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const;
-
-
 public:
 	CompactLatticeFolder( int size );
 	virtual ~CompactLatticeFolder();

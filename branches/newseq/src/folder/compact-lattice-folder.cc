@@ -766,11 +766,6 @@ void CompactLatticeFolder::enumerateStructures()
 //	 cout << "#Total number of potentially interacting pairs: " << count << endl;
 }
 
-void CompactLatticeFolder::getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const {
-	for (int i=0; i<s.size(); i++) {
-		aa_indices[i] = GeneticCodeUtil::letter_to_residue_map[s[i]];
-	}
-}
 
 /**
  * Fold the sequence and return information about the result (structure, free energy).

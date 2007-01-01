@@ -79,11 +79,6 @@ bool DecoyContactFolder::good() const {
 }
 
 
-void DecoyContactFolder::getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const {
-	for (int i=0; i<s.size(); i++) {
-		aa_indices[i] = GeneticCodeUtil::letter_to_residue_map[s[i]];
-	}
-}
 
 double DecoyContactFolder::getEnergy(const Sequence& s, StructureID sid) const {
 	double G = 0;

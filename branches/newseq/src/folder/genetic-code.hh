@@ -53,7 +53,7 @@ private:
 public:
 	static const char STOP;
 
-	static const pair<const Codon,char> codon_aa_pairs[64];
+	static const pair<const Codon,char> codonAAPairs[64];
 	
 	/**
 	 * Mapping from codons to amino acids
@@ -88,7 +88,7 @@ public:
 	/**
 	 * The mapping from characters to residues
 	 **/
-    static map<const char, int, less<const char> > letter_to_residue_map;
+	static map<const char, int, less<const char> > letterToResidueMap;
 
 	/**
 	 * Reverse lookup for genetic code. Contains all codons for a given residue. The first number
