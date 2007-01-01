@@ -73,7 +73,7 @@ struct TEST_CLASS( population )
 
 	void TEST_FUNCTION( lattice_folder )
 	{
-		cout << "lattice_folder" << endl;
+		//cout << "lattice_folder" << endl;
 		int N = 50;
 		int size = 4;
 		int length = size*size;
@@ -83,11 +83,11 @@ struct TEST_CLASS( population )
 		ProteinFreeEnergyFitness fe( &b );
 		Population<CodingDNA, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
 		SimpleMutator mut(U);
-		cout << endl << length*3 << endl;
+		//cout << endl << length*3 << endl;
 		CodingDNA g = CodingDNA::createRandom( length*3 );
-		cout << g << endl;
+		//cout << g << endl;
 		CodingDNA q( "GACGTTACGCGGCACAAGGTGAAGCGAGAACTCCCGGAATTAGCAGTT" );
-		cout << q << endl;
+		//cout << q << endl;
 		bool randomOK = true;
 		TEST_ASSERT( randomOK = ( g == q ) );
 		//std::cout << g << std::endl;
@@ -114,7 +114,7 @@ struct TEST_CLASS( population )
 
 		analyzer.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 
-		//std::cout << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
+		std::cout << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
 
 		TEST_ASSERT( fabs( ave_dn - 7) < 1e-4 );
 		TEST_ASSERT( fabs( ave_ds - 1) < 1e-4 );
