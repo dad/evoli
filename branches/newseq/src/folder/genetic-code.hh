@@ -1,7 +1,7 @@
 /*
 This file is part of the evoli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
-Allan Drummond <dadrummond@gmail.com>
+Allan Drummond <drummond@alumni.princeton.edu>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,10 +22,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #ifndef GENETIC_CODE_HH
 #define GENETIC_CODE_HH
 
+#include "protein.hh"
 #include <iostream>
 #include <map>
+// uncomment next line for older versions of gcc
+//#include <hash_map>
+// comment out next two lines for older versions of gcc
+#include <ext/hash_map>
+using namespace __gnu_cxx;
 
 using namespace std;
+
+// Helper class to hash Codons
+struct hash_codon {
+	size_t operator()(const Codon c) const { 
+		hash<const char*> h;
+		return h(c.c_str());
+	}
+};
 
 class GeneticCodeUtil
 {
@@ -37,6 +51,20 @@ private:
 	static void calcDnDsPrivate( double &dn, double &ds, int codon1, int codon2 );
 	static pair<double, double> calcDnDsWeightedPrivate( int codon1, int codon2, double rho );
 public:
+	static const char STOP;
+
+	static const pair<const Codon,char> codon_aa_pairs[64];
+	
+	/**
+	 * Mapping from codons to amino acids
+	 **/ 
+	static hash_map<const Codon, char, hash_codon > RNACodonToAA;
+
+	/**
+	 * Mapping from amino acids to codons
+	 **/ 
+	//static hash_map<char, vector<const Codon>, hash<char> > AAToRNACodon;
+
 	/**
 	 * The mapping from integer to residue
 	 **/
@@ -94,7 +122,6 @@ public:
 	 * Prints a table of the genetic code.
 	 **/
 	static void printGeneticCode( ostream &s );
-
 
 	/**
 	 * Calculates the number of synonymous sites in the codon. The variable

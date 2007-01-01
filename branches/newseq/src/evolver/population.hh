@@ -128,9 +128,13 @@ public:
 template <typename Organism>
 class Genebank
 {
+public:
+	typedef map<int, GenebankEntry<Organism> * > EntryMap;
+	//typedef EntryMap::iterator EntryMapIterator;
+	//typedef EntryMap::const_iterator const_EntryMapIterator;
 private:
 	int m_maxId;
-	map<int, GenebankEntry<Organism>*> m_organismMap;
+	EntryMap m_organismMap;
 
 
 	Genebank( const Genebank & );
@@ -394,11 +398,10 @@ template <typename Organism>
 void Genebank<Organism>::clear()
 {
 	m_maxId = 0;
-	// DAD: Why does this fail to compile?
-	/*map<int, GenebankEntry<Organism> * >::iterator it = m_organismMap.begin();
+	typename EntryMap::iterator it = m_organismMap.begin();
 	for ( ; it!=m_organismMap.end(); it++ )
 		delete (*it).second;
-		m_organismMap.clear();*/
+		m_organismMap.clear();
 }
 
 template <typename Organism>
@@ -479,8 +482,7 @@ void Genebank<Organism>::print( ostream &s ) const
 	s << "#--- Genebank ---\n#<Id> <parentId> <Count> <birth time> <coalescent> <fitness> <organism>" << endl;
 
 	const char* tab = "\t";
-	// DAD: Why does this fail to compile?
-	/*map<int, GenebankEntry<Organism>*>::const_iterator it = m_organismMap.begin();
+	typename EntryMap::const_iterator it = m_organismMap.begin();
 	for ( ; it!=m_organismMap.end(); it++ )
         {
 			int parentId;
@@ -495,7 +497,7 @@ void Genebank<Organism>::print( ostream &s ) const
 				c = 'y';
 
 			s << g->getId() << tab << parentId << tab << g->getCount() << tab << g->getBirthTime() << tab << c << tab << g->getFitness() << tab << g->getOrganism() << endl;
-			}*/
+			}
 	s << endl;
 }
 

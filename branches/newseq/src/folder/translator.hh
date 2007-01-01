@@ -35,12 +35,12 @@ public:
 	Translator( double mutation_prob);
 	Translator();
 
-	bool translateErrorFree( const Gene &g, Protein& residue_sequence ) const;
-	bool translate( const Gene &g, Protein& residue_sequence ) const;
+	bool translateErrorFree( const CodingRNA &g, Protein& residue_sequence ) const;
+	bool translate( const CodingRNA &g, Protein& residue_sequence ) const;
 
-	int translateWeighted( const Gene &g, Protein& residue_sequence, const vector<vector<pair<double, int> > >& weights,
+	int translateWeighted( const CodingRNA &g, Protein& residue_sequence, const vector<vector<pair<double, int> > >& weights,
 						   const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated);
-	int translateRelativeWeighted( const Gene &g, Protein& residue_sequence, const double relative_gene_weight,
+	int translateRelativeWeighted( const CodingRNA &g, Protein& residue_sequence, const double relative_gene_weight,
 								   const vector<vector<pair<double, int> > >& weights, const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated);
 };
 

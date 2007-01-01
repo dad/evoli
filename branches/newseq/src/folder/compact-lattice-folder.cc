@@ -779,8 +779,7 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 	double Z = 0;
 	double G;
 
-	for ( int i=0; i<m_num_structures; i++ )
-	{
+	for ( int i=0; i<m_num_structures; i++ ) {
 		double E = 0;
 
 		// calculate binding energy of this fold
@@ -799,9 +798,7 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 		}
 		// add energy to partition sum
 		Z +=  exp(-E/kT);
-
 	}
-
 
 	// calculate free energy of folding
 	G = minE + kT * log( Z - exp(-minE/kT) );

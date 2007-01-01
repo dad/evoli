@@ -22,24 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "protein.hh"
 #include "translator.hh"
 #include "codon.hh"
+#include "genetic-code.hh"
 #include <sstream>
-
-Protein::Protein(const int length) : Sequence(length) {
-}
-
-Protein::Protein(const Protein& p) : Sequence(p.m_sequence) {
-}
-
-Protein::Protein(const string& seq_string) : Sequence(0) {
-	stringstream s(seq_string);
-	string seq;
-	s >> seq;
-
-	m_sequence.clear();
-	for (int i=0; i<seq.size(); i++) {
-		m_sequence.push_back( GeneticCodeUtil::letter_to_residue_map[seq[i]] );
-	}
-}
 
 int Protein::distance(const Protein& p) const {
 	// we don't handle sequences of different lengths properly, 
@@ -58,90 +42,37 @@ int Protein::distance(const Protein& p) const {
 	return diffs;
 }
 
-Protein Protein::createRandom(const int length) {
-	Protein p(length);
+Protein::Protein(unsigned int length) : Sequence(length, 'A') {
+}
+
+Protein::Protein(unsigned int length, char val) : Sequence(length, val) {
+}
+
+Protein Protein::createRandom(unsigned int length) {
+	Protein p(length, 'A');
 	Protein::iterator pit = p.begin();
 	for (; pit != p.end(); pit++) {
-		*pit = Random::rint(20);
+		*pit = GeneticCodeUtil::residueLetters[Random::rint(20)+1][0];
 	}
 	return p;
 }
 
-string Protein::toString() const {
-	string res;
-	for ( Protein::const_iterator it=begin(); it != end(); it++) {
-		res += GeneticCodeUtil::residueLetters[*it+1];
-	}
-	return res;
+
+CodingDNA::CodingDNA() : Sequence(0, 'A') {
 }
 
-
-
-Gene::Gene() : Sequence(0) {
+CodingDNA::CodingDNA(const CodingDNA& dna) : Sequence(dna) {
 }
 
-Gene::Gene(const int length) : Sequence(length/3) {
+CodingDNA::CodingDNA(unsigned int length) : Sequence(length, 'A') {
 }
 
-Gene::Gene(const Gene& g) : Sequence(g.m_sequence) {
+CodingDNA::CodingDNA(unsigned int length, char val) : Sequence(length, val) {
 }
 
-Gene::Gene(const string& seq_string) : Sequence(0) {
-	stringstream s(seq_string);
-	char c1, c2, c3;
-
-	// read leading whitespace
-	do {
-		s.get( c1 );
-	}
-	while ( s && ( ( c1 == ' ' ) || ( c1 == '\n' ) || ( c1 == '\t' ) ) );
-
-	// read until next whitespace
-	while ( s && ( c1 != ' ' ) && ( c1 != '\n' ) && ( c1 != '\t' ) ) {
-		s.get( c2 );
-		s.get( c3 );
-		m_sequence.push_back( CodonUtil::lettersToCodon( c1, c2, c3 ) );
-		s.get( c1 );
-	}
-}
-
-char Gene::getBase(const uint index) const {
-	char res = 'X';
-	int triplet_pos = index % 3;
-	int codon = (*this)[(index-triplet_pos)/3];
-	//cout << codon << " ";
-	//CodonUtil::printCodon(cout, codon);
-	//cout << " ";
-	int x = (codon >> (2*(2-triplet_pos))) & 3;
-	switch( x )	{
-		case 0:
-			res = 'A';
-			break;
-		case 1:
-			res = 'C';
-			break;
-		case 2:
-			res = 'G';
-			break;
-		case 3:
-			res = 'U';
-			break;
-	}
-	//cout << res << endl;
-	return res;
-}
-
-string Gene::toString() const {
-	string res;
-	for (uint i=0; i<m_sequence.size()*3; i++) {
-		res += getBase(i);
-	}
-	return res;
-}
-
-Gene Gene::createRandom(const int length ) {
-	Gene g( length );
-	Gene::iterator it = g.begin();
+CodingDNA CodingDNA::createRandom(unsigned int length ) {
+	CodingDNA g( length, 'A');
+	CodingDNA::iterator it = g.begin();
 
 	for ( ; it != g.end(); it++) {
 		*it = Random::rint( 64 );
@@ -149,56 +80,74 @@ Gene Gene::createRandom(const int length ) {
 	return g;
 }
 
-Gene Gene::createRandomNoStops(const int length ) {
-	Gene g( length );
-	Gene::iterator it = g.begin();
+CodingDNA CodingDNA::createRandomNoStops(unsigned int length ) {
+	assert( length % 3 == 0 );
+	CodingDNA g( length, 'A' );
+	CodingDNA::iterator it = g.begin();
+	string nts("ATGC");
 
-	for ( ; it != g.end(); it++) {
+	for (unsigned int j=0; j<length/3; j++) {
 		do {
-			*it = Random::rint( 64 );
-		} while (GeneticCodeUtil::geneticCode[*it] < 0);
+			for (unsigned int k=0; k<3; k++) {
+				char nt = nts[Random::rint( 4 )];
+				g[3*j+k] = nt;
+			}
+		} while (GeneticCodeUtil::RNACodonToAA[g.transcribe().getCodon(j)] == GeneticCodeUtil::STOP);
 	}
 	return g;
 }
 
-bool Gene::encodesFullLength(void) const {
+bool CodingDNA::encodesFullLength(void) const {
 	bool full_length = (length() % 3)==0;
-	Gene::const_iterator it = begin();
-	while (it != end() && full_length) {
-		full_length = (GeneticCodeUtil::geneticCode[*it] >= 0);
-		it++;
+	CodingRNA rna = transcribe();
+	cout << rna.codonLength() << endl;
+	for (int i=0; i<rna.codonLength() && full_length; i++) {
+		full_length = (GeneticCodeUtil::RNACodonToAA[rna.getCodon(i)] != GeneticCodeUtil::STOP);
+		cout << i << " " << full_length << endl;
 	}
 	return full_length;
 }
 
-bool Gene::mutate(const double prob) {
-	bool changed = false;
-	Gene::iterator it = begin();
-	for ( ; it != end(); it++) {
-		int codon = *it;
-		(*it) = CodonUtil::mutateCodon( prob, codon );
-		if ( !changed && (*it) != codon ) {
-			changed = true;
-		}
-	}
-	return changed;
-}
-
-Protein Gene::translate(const Translator& t) const {
+Protein CodingDNA::translate(const Translator& t) const {
 	Protein prot(codonLength());
-	bool translation_successful = t.translate(*this, prot);
+	CodingRNA rna = transcribe();
+	cout << rna << endl;
+	bool translation_successful = t.translate(rna, prot);
+	cout << prot << endl;
 	assert( translation_successful ); // This function should never be used on genes that don't translate correctly
 	return prot;
 }
 
-Protein Gene::translate(void) const {
+Protein CodingDNA::translate(void) const {
 	int len = codonLength();
 	Translator t;
 	Protein prot(len);
-	bool translation_successful = t.translate(*this, prot);
+	CodingRNA rna = transcribe();
+	//cout << rna << endl;
+	bool translation_successful = t.translateErrorFree(rna, prot);
+	//cout << prot << endl;
 	assert( translation_successful ); // This function should never be used on genes that don't translate correctly
 	//cout << this << tab << "translation" << endl;
 	return prot;
+}
+
+CodingRNA CodingDNA::transcribe() const {
+	CodingRNA rna(*this);
+	string T("T");
+	string U("U");
+	int pos = 0;
+	pos = rna.find(T, pos);
+	while (pos>=0) {
+		rna.replace(pos, 1, U);
+		pos = rna.find(T, pos);
+	}
+	return rna;
+}
+
+void CodingDNA::setCodon(unsigned int codon_index, const Codon& codon) {
+	//cout << codon_index << " " << codon << endl;
+	assert(codon_index*3 < length()-2);
+	replace(codon_index*3, 3, codon);
 }
 
 

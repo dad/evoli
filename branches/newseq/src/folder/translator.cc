@@ -35,47 +35,52 @@ Translator::Translator()
 		: m_mutation_prob( 0 )
 {}
 
-bool Translator::translateErrorFree( const Gene &g, Protein& residue_sequence ) const {
+bool Translator::translateErrorFree( const CodingRNA &g, Protein& residue_sequence ) const {
 	bool no_stop = true;
 
 	int i = 0;
-	for ( Gene::const_iterator it = g.begin(); it != g.end() && no_stop; it++ )	{
-		int residue = GeneticCodeUtil::geneticCode[*it];
-		no_stop = (residue >= 0 );
-		residue_sequence[i++] = residue;
+	for (int i=0; i<g.codonLength(); i++) {
+		Codon ci = g.getCodon(i);
+		const char residue = GeneticCodeUtil::RNACodonToAA[ci];
+		no_stop = (residue != GeneticCodeUtil::STOP );
+		residue_sequence[i] = residue;
+		//cout << ci << " " << i << " " << residue << endl;
 	}
 	return no_stop;
 }
 
-bool Translator::translate( const Gene &g, Protein& residue_sequence ) const {
+bool Translator::translate( const CodingRNA &g, Protein& residue_sequence ) const {
 	if ( m_mutation_prob == 0 )
 		return translateErrorFree( g, residue_sequence );
 
 	bool no_stop = true;
 
-	int i = 0;
-	for ( Gene::const_iterator it = g.begin(); it != g.end() && no_stop; it++ )	{
-		int residue = GeneticCodeUtil::geneticCode[*it];
-		no_stop = (residue >= 0 );
+	//int i = 0;
+	//for ( CodingRNA::const_iterator it = g.begin(); it != g.end() && no_stop; it++ )	{
+	for ( unsigned int i=0; i<g.codonLength(); i++) {
+		Codon ci = g.getCodon(i);
+		char residue = GeneticCodeUtil::RNACodonToAA[ci];
 		if ( Random::runif() < m_mutation_prob )
 			residue = ( residue + Random::rint( 20 ) ) % 20;
+		no_stop = (residue != GeneticCodeUtil::STOP );
 		residue_sequence[i++] = residue;
 	}
 	return no_stop;
 }
 
-int Translator::translateWeighted( const Gene &g, Protein& residue_sequence, const vector<vector<pair<double, int> > >& weights,
+int Translator::translateWeighted( const CodingRNA &g, Protein& residue_sequence, const vector<vector<pair<double, int> > >& weights,
 									       const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated)
 {
 	double mut_weight_total = 0.0;
-	for ( Gene::const_iterator it = g.begin(); it != g.end(); it++ )	{
+	for ( CodingRNA::const_iterator it = g.begin(); it != g.end(); it++ )	{
 		mut_weight_total += (1.0 + prefCodons[*it]*(nonPrefCodonPenalty-1));
 	}
 
 	truncated = false;
 	int numErrors = 0;
-	for ( int i=0; i<g.codonLength() && !truncated; i++) {
-		int residue = GeneticCodeUtil::geneticCode[g[i]];
+	for ( unsigned int i=0; i<g.codonLength() && !truncated; i++) {
+		Codon ci = g.getCodon(i);
+		char residue = GeneticCodeUtil::RNACodonToAA[ci];
 		residue_sequence[i] = residue;
 
 		if ( residue < 0 ) {
@@ -91,7 +96,7 @@ int Translator::translateWeighted( const Gene &g, Protein& residue_sequence, con
 				// The first member of the pair is a cumulative probability; the second is
 				// the residue resulting from the error.
 				for (unsigned int j=0; j<weights[g[i]].size() && (rand > targ); j++) {
-					pair<double, int> p = weights[g[i]][j];
+					pair<double, char> p = weights[g[i]][j];
 					residue_sequence[i] = p.second;
 					targ = p.first;
 				}
@@ -107,7 +112,7 @@ int Translator::translateWeighted( const Gene &g, Protein& residue_sequence, con
 	return numErrors;
 }
 
-int Translator::translateRelativeWeighted( const Gene &g, Protein& residue_sequence, const double error_weight,
+int Translator::translateRelativeWeighted( const CodingRNA &g, Protein& residue_sequence, const double error_weight,
 										   const vector<vector<pair<double, int> > >& weights, const double* prefCodons, 
 										   const double nonPrefCodonPenalty, bool& truncated)
 {
@@ -116,7 +121,7 @@ int Translator::translateRelativeWeighted( const Gene &g, Protein& residue_seque
 	// For an average gene encoding a folded protein, the sum of the
 	// site_weights over all codons should be equal to error_weight,
 	// and thus the per-codon probability of a translation error
-	// (possibly synonymous) will be given by m_mutation_prob.  Genes
+	// (possibly synonymous) will be given by m_mutation_prob.  CodingRNAs
 	// with higher site_weight sums are more likely to be
 	// mistranslated.
 	//

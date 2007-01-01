@@ -13,13 +13,14 @@ SimpleMutator::SimpleMutator(double mutation_rate) {
 SimpleMutator::~SimpleMutator() {
 }
 
-bool SimpleMutator::mutate(Gene& seq) {
+bool SimpleMutator::mutate(CodingDNA& seq) {
 	bool changed = false;
-	Gene::iterator it = seq.begin();
-	for ( ; it != seq.end(); it++) {
-		int codon = *it;
-		(*it) = CodonUtil::mutateCodon( m_mutation_rate, codon );
-		if ( !changed && (*it) != codon ) {
+	string nts("ACGT");
+	CodingDNA::iterator it = seq.begin();
+	for (int i=0; i<seq.length(); i++) {
+		if (Random::runif() < m_mutation_rate) {
+			char nt = nts[Random::rint( 4 )];
+			seq[i] = nt;
 			changed = true;
 		}
 	}
@@ -45,17 +46,17 @@ Polymerase::Polymerase(double mutation_rate, vector<vector<double> >& mutation_m
 Polymerase::~Polymerase() {
 }
 
-bool Polymerase::mutate(Gene& seq) {
+bool Polymerase::mutate(CodingDNA& seq) {
 	// DAD: implement mutation matrix
 	bool changed = false;
-	Gene::iterator it = seq.begin();
-	for ( ; it != seq.end(); it++) {
-		int codon = *it;
-		(*it) = CodonUtil::mutateCodon( m_mutation_rate, codon );
-		if ( !changed && (*it) != codon ) {
+	string nts("ACGT");
+	CodingDNA::iterator it = seq.begin();
+	for (int i=0; i<seq.length(); i++) {
+		if (Random::runif() < m_mutation_rate) {
+			char nt = nts[Random::rint( 4 )];
+			seq[i] = nt;
 			changed = true;
 		}
 	}
 	return changed;
-	
 }

@@ -24,7 +24,96 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <vector>
 #include <ostream>
 
+const char GeneticCodeUtil::STOP = '*';
 
+// The genetic code
+const pair<const Codon,char> GeneticCodeUtil::codon_aa_pairs[64] = 
+{
+	pair<const Codon,char>(Codon("AAA"), 'K'),
+	pair<const Codon,char>(Codon("AAC"), 'N'),
+	pair<const Codon,char>(Codon("AAG"), 'K'),
+	pair<const Codon,char>(Codon("AAU"), 'N'),
+	pair<const Codon,char>(Codon("ACA"), 'T'),
+	pair<const Codon,char>(Codon("ACC"), 'T'),
+	pair<const Codon,char>(Codon("ACG"), 'T'),
+	pair<const Codon,char>(Codon("ACU"), 'T'),
+	pair<const Codon,char>(Codon("AGA"), 'R'),
+	pair<const Codon,char>(Codon("AGC"), 'R'),
+	pair<const Codon,char>(Codon("AGG"), 'R'),
+	pair<const Codon,char>(Codon("AGU"), 'R'),
+	pair<const Codon,char>(Codon("AUA"), 'I'),
+	pair<const Codon,char>(Codon("AUC"), 'I'),
+	pair<const Codon,char>(Codon("AUG"), 'M'),
+	pair<const Codon,char>(Codon("AUU"), 'I'),
+	pair<const Codon,char>(Codon("CAA"), 'Q'),
+	pair<const Codon,char>(Codon("CAC"), 'H'),
+	pair<const Codon,char>(Codon("CAG"), 'Q'),
+	pair<const Codon,char>(Codon("CAU"), 'H'),
+	pair<const Codon,char>(Codon("CCA"), 'P'),
+	pair<const Codon,char>(Codon("CCC"), 'P'),
+	pair<const Codon,char>(Codon("CCG"), 'P'),
+	pair<const Codon,char>(Codon("CCU"), 'P'),
+	pair<const Codon,char>(Codon("CGA"), 'S'),
+	pair<const Codon,char>(Codon("CGC"), 'R'),
+	pair<const Codon,char>(Codon("CGG"), 'S'),
+	pair<const Codon,char>(Codon("CGU"), 'R'),
+	pair<const Codon,char>(Codon("CUA"), 'L'),
+	pair<const Codon,char>(Codon("CUC"), 'L'),
+	pair<const Codon,char>(Codon("CUG"), 'L'),
+	pair<const Codon,char>(Codon("CUU"), 'L'),
+	pair<const Codon,char>(Codon("GAA"), 'E'),
+	pair<const Codon,char>(Codon("GAC"), 'D'),
+	pair<const Codon,char>(Codon("GAG"), 'E'),
+	pair<const Codon,char>(Codon("GAU"), 'D'),
+	pair<const Codon,char>(Codon("GCA"), 'A'),
+	pair<const Codon,char>(Codon("GCC"), 'A'),
+	pair<const Codon,char>(Codon("GCG"), 'A'),
+	pair<const Codon,char>(Codon("GCU"), 'A'),
+	pair<const Codon,char>(Codon("GGA"), 'G'),
+	pair<const Codon,char>(Codon("GGC"), 'G'),
+	pair<const Codon,char>(Codon("GGG"), 'G'),
+	pair<const Codon,char>(Codon("GGU"), 'G'),
+	pair<const Codon,char>(Codon("GUA"), 'V'),
+	pair<const Codon,char>(Codon("GUC"), 'V'),
+	pair<const Codon,char>(Codon("GUG"), 'V'),
+	pair<const Codon,char>(Codon("GUU"), 'V'),
+	pair<const Codon,char>(Codon("UAA"), GeneticCodeUtil::STOP),
+	pair<const Codon,char>(Codon("UAC"), 'Y'),
+	pair<const Codon,char>(Codon("UAG"), GeneticCodeUtil::STOP),
+	pair<const Codon,char>(Codon("UAU"), 'Y'),
+	pair<const Codon,char>(Codon("UCA"), 'S'),
+	pair<const Codon,char>(Codon("UCC"), 'S'),
+	pair<const Codon,char>(Codon("UCG"), 'S'),
+	pair<const Codon,char>(Codon("UCU"), 'S'),
+	pair<const Codon,char>(Codon("UGA"), GeneticCodeUtil::STOP),
+	pair<const Codon,char>(Codon("UGC"), 'C'),
+	pair<const Codon,char>(Codon("UGG"), 'W'),
+	pair<const Codon,char>(Codon("UGU"), 'C'),
+	pair<const Codon,char>(Codon("UUA"), 'L'),
+	pair<const Codon,char>(Codon("UUC"), 'F'),
+	pair<const Codon,char>(Codon("UUG"), 'L'),
+	pair<const Codon,char>(Codon("UUU"), 'F')
+};
+
+hash_map<const Codon, char, hash_codon > GeneticCodeUtil::RNACodonToAA(GeneticCodeUtil::codon_aa_pairs, GeneticCodeUtil::codon_aa_pairs+64);
+
+/*typedef hash_map<char, vector<const Codon>, hash<char> > aa_codon_map;
+hash_map<char, vector<const Codon>, hash<char> > GeneticCodeUtil::AAToRNACodon();
+static {
+	for (int i=0; i<64; i++) {
+		pair<const Codon, char> p = codon_aa_pairs[i];
+		char key = p.first;
+		aa_codon_map::iterator it = GeneticCodeUtil::AAToRNACodon.find(key);
+		if (it == GeneticCodeUtil::AAToRNACodon.end()) {
+			// Insert a new vector
+			GeneticCodeUtil::AAToRNACodon[key] = vector<const Codon>(1,p.second);
+		}
+		else {
+			// Append next codon
+			GeneticCodeUtil::AAToRNACodon[key].push_back(p.second);
+		}
+	}
+	};*/
 
 pair<const char, int> letterResidues[21] =
 {
