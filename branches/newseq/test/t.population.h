@@ -39,13 +39,14 @@ struct TEST_CLASS( population )
 	{
 		int N = 20;
 		double U = .001;
-		CompactLatticeFolder folder( 4 );
+		CompactLatticeFolder folder( side_length );
 		ProteinFreeEnergyFitness fe( &folder );
-		Population<Gene, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
+		Population<CodingDNA, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
 		SimpleMutator mut(U);
-		Gene g( "AAAAAAAAGAGUCCUACCACCCUUGACCUCAUGUCCUGUGCAGAUAAU" );
-		
+		CodingDNA g( "AAAAAAAAGAGTCCTACCACCCTTGACCTCATGTCCTGTGCAGATAAT" );
+		//cout << g.translate() << endl;
 		pop.init( g, &fe, &mut );
+		//cout << endl << fe.getFitness( g ) << endl;
 		// without evolution, mean fitness should equal the fitness
 		// of the incoming gene, which should be 0.691722
 		TEST_ASSERT( fabs(fe.getFitness( g )-0.691722) < 1e-4 );
@@ -60,7 +61,7 @@ struct TEST_CLASS( population )
 		ProteinFreeEnergyFitness fe( &folder );
 		Population<Gene, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
 		SimpleMutator mut(U);
-		Gene g( "AAAAAAAAGAGUCCUACCACCCUUGACCUCAUGUCCUGUGCAGAUAAU" );
+		Gene g( "AAAAAAAAGAGTCCTACCACCCTTGACCTCATGTCCTGTGCAGATAAT" );
 		
 		pop.init( g, &fe, &mut );
 		int num_generations = 102;
@@ -72,6 +73,7 @@ struct TEST_CLASS( population )
 
 	void TEST_FUNCTION( lattice_folder )
 	{
+		cout << "lattice_folder" << endl;
 		int N = 50;
 		int size = 4;
 		int length = size*size;
@@ -79,30 +81,32 @@ struct TEST_CLASS( population )
 		Random::seed( 37 ); // initialize random number generator
 		CompactLatticeFolder b(size);
 		ProteinFreeEnergyFitness fe( &b );
-		Population<Gene, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
+		Population<CodingDNA, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
 		SimpleMutator mut(U);
-		Gene g = Gene::createRandom( length*3 );
+		cout << endl << length*3 << endl;
+		CodingDNA g = CodingDNA::createRandom( length*3 );
+		cout << g << endl;
+		CodingDNA q( "GACGTTACGCGGCACAAGGTGAAGCGAGAACTCCCGGAATTAGCAGTT" );
+		cout << q << endl;
 		bool randomOK = true;
-		TEST_ASSERT( randomOK = ( g == Gene( "GGGAAGUGCGUCCAGCAGAGUUGGGUAUGGGAGGGAUCUAAGUUAAAG" ) ) );
+		TEST_ASSERT( randomOK = ( g == q ) );
 		//std::cout << g << std::endl;
 		if ( !randomOK )
 			cout << "Test failures in function lattice_folder likely due to differences in random number generator" << endl;
 		pop.init( g, &fe, &mut );
-		GenebankAnalyzer<Gene> analyzer(pop.getGenebank());
+		GenebankAnalyzer<CodingDNA> analyzer(pop.getGenebank());
 
 		int equil_time = 100;
 		int window_size = 30;
-		for ( int i=0; ; i++ )
-		{
-			for ( int j=0; j<100; j++ )
-			{
+		for ( int i=0; ; i++ ) {
+			for ( int j=0; j<100; j++ )	{
 				pop.evolve();
 			}
 			analyzer.prepareCoalescenceCalcs(pop.begin(), pop.end(), pop.getNumGenerations());
 			if ( analyzer.calcCoalescenceTime() > equil_time + window_size )
 				break;
 		}
-//		p.printGenebank( cout );
+//		p.printCodingDNAbank( cout );
 		double ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop;
 		vector<bool> is_optimal;
 		for( int i=0; i<64; i++ )

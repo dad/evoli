@@ -71,11 +71,12 @@ CodingDNA::CodingDNA(unsigned int length, char val) : Sequence(length, val) {
 }
 
 CodingDNA CodingDNA::createRandom(unsigned int length ) {
-	CodingDNA g( length, 'A');
-	CodingDNA::iterator it = g.begin();
+	CodingDNA g( length, 'A' );
+	string nts("ATGC");
 
-	for ( ; it != g.end(); it++) {
-		*it = Random::rint( 64 );
+	for (unsigned int j=0; j<length; j++) {
+		char nt = nts[Random::rint( 4 )];
+		g[j] = nt;
 	}
 	return g;
 }

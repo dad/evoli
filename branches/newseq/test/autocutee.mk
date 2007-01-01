@@ -1,6 +1,6 @@
 # cutee autogen: begin
 CUTEE=./cutee
-t_runners=t.random.cutee.cc t.protein.cutee.cc t.genetic-code.cutee.cc 
+t_runners=t.random.cutee.cc t.protein.cutee.cc t.genetic-code.cutee.cc t.folder.cutee.cc t.population.cutee.cc 
 
 %.cutee.cc: $(srcdir)/%.h
 	$(CUTEE) -o $@ $<

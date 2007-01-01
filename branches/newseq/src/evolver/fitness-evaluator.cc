@@ -44,7 +44,7 @@ ProteinFreeEnergyFitness::ProteinFreeEnergyFitness( Folder *protein_folder )
 ProteinFreeEnergyFitness::~ProteinFreeEnergyFitness() {
 }
 
-double ProteinFreeEnergyFitness::getFitness( const Gene &g ) {
+double ProteinFreeEnergyFitness::getFitness( const CodingDNA &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
 		return getFitness(p);
