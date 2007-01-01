@@ -227,7 +227,7 @@ void misfoldDistExperiment(Parameters& p)
 		double fop = GeneUtil::calcFop( rec.gene, isOptimal);
 		Protein prot = rec.gene.translate();
 		auto_ptr<FoldInfo> fi( folder.fold(prot) );
-		double dG = fi->getFreeEnergy();
+		double dG = fi->getDeltaG();
 
 		int numAccurate = 0;
 		int numTruncated = 0;

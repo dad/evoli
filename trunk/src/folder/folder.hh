@@ -51,13 +51,13 @@ At a minimum, a \ref FoldInfo object contains the \ref StructureID of the minimu
 */
 class FoldInfo {
 protected:
-	double m_free_energy;
+	double m_DeltaG;
 	StructureID m_structure_id; ///< \ref StructureID of the minimum free energy structure of the folded protein sequence.
 public:
-	FoldInfo() : m_free_energy( 0.0 ),
+	FoldInfo() : m_DeltaG( 0.0 ),
 		m_structure_id( static_cast<StructureID>( -1 ) ) { ; }
 		
-	FoldInfo(double fe, StructureID sid) : m_free_energy( fe ),
+	FoldInfo(double fe, StructureID sid) : m_DeltaG( fe ),
 		m_structure_id( sid ) { ; }
 
 	virtual ~FoldInfo() {}
@@ -66,7 +66,7 @@ public:
 	\return The \ref StructureID of the minimum free energy structure of the folded protein sequence.
 	*/
 	StructureID getStructure() const { return m_structure_id; }
-	double getFreeEnergy() const { return m_free_energy; }
+	double getDeltaG() const { return m_DeltaG; }
 };
 
 /**
@@ -118,7 +118,6 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 };
 
 #endif // FOLDER_HH
-
 
 
 

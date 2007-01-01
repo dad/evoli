@@ -246,7 +246,7 @@ void printGenebank( CompactLatticeFolder &b, const Params p, const vector<Geneba
 	{
 		GenebankData d = *cit;
 		auto_ptr<FoldInfo> fi( b.fold( d.g.translate() ) );
-		d.free_energy = fi->getFreeEnergy();
+		d.free_energy = fi->getDeltaG();
 		d.struct_id = fi->getStructure();
 				
 		ErrorproneTranslation *ept = new ErrorproneTranslation( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost,

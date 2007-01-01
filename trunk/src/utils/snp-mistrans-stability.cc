@@ -142,7 +142,7 @@ void evolStabExperiment(Parameters& p) {
 		fe->setMisfoldingCost(rec.cost);
 		Protein prot = rec.gene.translate();
 		auto_ptr<FoldInfo> fi(folder.fold(prot));
-		double dG = fi->getFreeEnergy();
+		double dG = fi->getDeltaG();
 		vector<double> stabilities;
 		stabilities.reserve(p.num_to_fold);
 		fe->stabilityOutcomes(rec.gene, p.num_to_fold, stabilities);

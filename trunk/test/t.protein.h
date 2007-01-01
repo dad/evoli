@@ -108,7 +108,7 @@ struct TEST_CLASS( protein_gene_basic )
 		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		Protein p = g.translate();
 		auto_ptr<FoldInfo> fi( folder.fold(p) );
-		TEST_ASSERT( fi->getFreeEnergy() <= max_dg );
+		TEST_ASSERT( fi->getDeltaG() <= max_dg );
 		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
 		return;
 	}
