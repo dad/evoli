@@ -122,7 +122,7 @@ protected:
 	a given codon will be mistranslated as a given amino acid, including
 	a stop.
 	*/
-	vector<vector<pair<double, int> > > m_cum_weight_matrix;
+	vector<vector<pair<double, char> > > m_cum_weight_matrix;
 
 	double calcWeight( int co, int ct );
 	virtual bool sequenceFolds(Protein& p);
@@ -197,7 +197,7 @@ public:
 	Set fitness costs for codons. The implemented cost scheme weights
 	each codon by the alphabetical order of its one-letter code.
 	*/
-	virtual void setCodonCosts();
+	//virtual void setCodonCosts();
 
 	/**
 	Writes the currently defined codon costs to a stream.
@@ -210,7 +210,7 @@ public:
 	the pointer will become invalid upon destruction of the \ref ErrorproneTranslation class.
 	*/
 	double* getCodonCosts() const;
-	vector<vector<pair<double, int> > > getTranslationWeights() const;
+	vector<vector<pair<double, char> > > getTranslationWeights() const;
 
 	/**
 	@return A vector of bools indicating whether a given codon

@@ -38,10 +38,10 @@ public:
 	bool translateErrorFree( const CodingRNA &g, Protein& residue_sequence ) const;
 	bool translate( const CodingRNA &g, Protein& residue_sequence ) const;
 
-	int translateWeighted( const CodingRNA &g, Protein& residue_sequence, const vector<vector<pair<double, int> > >& weights,
+	int translateWeighted( const CodingRNA &g, Protein& residue_sequence, const vector<vector<pair<double, char> > >& weights,
 						   const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated);
 	int translateRelativeWeighted( const CodingRNA &g, Protein& residue_sequence, const double relative_gene_weight,
-								   const vector<vector<pair<double, int> > >& weights, const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated);
+								   const vector<vector<pair<double, char> > >& weights, const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated);
 };
 
 

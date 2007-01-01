@@ -43,22 +43,79 @@ struct hash_codon {
 
 class GeneticCodeUtil
 {
+public:
+	typedef hash_map<const Codon, char, hash_codon > CodonMap;
 private:
 	// All this is needed for the function calc DnDs.
 	static bool m_setup;
+	static hash_map<const char*, double, hash<const char*> > GeneticCodeUtil::m_dnLookup;
+	static hash_map<const char*, double, hash<const char*> > GeneticCodeUtil::m_dsLookup;
 	static double m_dnTable[64][64];
 	static double m_dsTable[64][64];
-	static void calcDnDsPrivate( double &dn, double &ds, int codon1, int codon2 );
-	static pair<double, double> calcDnDsWeightedPrivate( int codon1, int codon2, double rho );
+	static void calcDnDsPrivate( double &dn, double &ds, Codon codon1, Codon codon2 );
+	static pair<double, double> calcDnDsWeightedPrivate( Codon codon1, Codon codon2, double rho );
+
+	/**
+	 * Pairing of amino-acid letters with integer indices.
+	 **/
+	static const pair<const char, int> aaLetterIndices[21];
+
+	/**
+	 * Mapping from amino-acid letters to integer indices
+	 **/ 
+	static const map<const char, int, less<const char> > aminoAcidLetterToIndexMap;
+
+	/**
+	 * Mapping from proper RNA codons to amino acids.
+	 **/ 
+	static const CodonMap RNACodonToAA;
+
+	/**
+	 * Mapping from DNA pseudo-codons to amino acids.
+	 **/ 
+	static const CodonMap DNACodonToAA;
+
+	/**
+	 * Mapping from all codons (RNA and DNA) to amino acids.
+	 **/ 
+	static const CodonMap codonToAA;
+
 public:
 	static const char STOP;
+	static const char INVALID_AA;
+	static const char INVALID_NT;
+	static const int INVALID_INDEX;
+	static const char* AMINO_ACIDS;
+	static const char* RNA_NUCLEOTIDES;
+	static const char* DNA_NUCLEOTIDES;
+	static const char* ALL_NUCLEOTIDES;
 
-	static const pair<const Codon,char> codonAAPairs[64];
-	
+	static const pair<const Codon,char> codonAAPairs[128];
+
 	/**
-	 * Mapping from codons to amino acids
-	 **/ 
-	static hash_map<const Codon, char, hash_codon > RNACodonToAA;
+	 * Retrieve the amino acid corresponding to this codon.
+	 **/
+	static char geneticCode(const Codon);
+
+	/**
+	 * Retrieve an index for this amino-acid letter code
+	 **/
+	static int aminoAcidLetterToIndex(char aa);
+
+	/**
+	 * Retrieve an amino-acid letter code for this index
+	 **/
+	static char indexToAminoAcidLetter(int index);
+
+	/**
+	 * Retrieve an index for this codon.
+	 **/
+	static int codonToIndex(Codon codon);
+
+	/**
+	 * Retrieve the codon for this index.
+	 **/
+	static Codon indexToCodon(int index);
 
 	/**
 	 * Mapping from amino acids to codons
@@ -66,40 +123,10 @@ public:
 	//static hash_map<char, vector<const Codon>, hash<char> > AAToRNACodon;
 
 	/**
-	 * The mapping from integer to residue
-	 **/
-	static const char* residues[20];
-	/**
-	 * The mapping from integer to residue single-letter codes
-	 **/
-	static const char* residueLetters[21];
-
-	/**
-	 * The genetic code
-	 * we represent each base by two binary digits:
-	 *   A: 00, C: 01, G: 10, U: 11
-	 * Then, each codon is an integer between 0 and 63. For example,
-	 * GUG = 101110 = 46. At position 46 in the array, we therefore need a 5
-	 * (because GUG codes for the residue VAL, which has index 5 according to the
-	 * mapping defined above.
-	 **/
-	static const int geneticCode[64];
-
-	/**
-	 * The mapping from characters to residues
-	 **/
-	static map<const char, int, less<const char> > letterToResidueMap;
-
-	/**
 	 * Reverse lookup for genetic code. Contains all codons for a given residue. The first number
 	 * in the array for each residue is the number of codons.
 	 **/
 	static const int residueToAllCodonsTable[20][7];
-
-	/**
-	 * Table to convert from residues to a single (arbitrarily chosen) codon.
-	 */
-	static const int residueToCodonTable[21];
 
 	/**
 	 * Table to figure out whether a particular amino acid can occur
@@ -111,17 +138,17 @@ public:
 	 * Translates the given codon into a residue, and outputs the result
 	 * to the given ostream.
 	 **/
-	static void printResidue( ostream &s, int codon );
+	static void printResidue( ostream &s, Codon codon );
 
 	/**
 	 * Translates given codon into a residue, and returns the residue one-character code.
 	 **/
-	static char residueLetter( int codon );
+	static char residueLetter( Codon codon );
 
 	/**
 	 * Prints a table of the genetic code.
 	 **/
-	static void printGeneticCode( ostream &s );
+	//static void printGeneticCode( ostream &s );
 
 	/**
 	 * Calculates the number of synonymous sites in the codon. The variable
@@ -132,7 +159,7 @@ public:
 	 *  sites = 4 implies only the first base is considered
 	 *  etc.
 	 **/
-	static double calcSynonymousSites( int codon, int sites = 7 );
+	static double calcSynonymousSites( Codon codon, int sites = 7 );
 
 	/**
 	Calculates the number of synonymous sites according to the mutational
@@ -142,7 +169,7 @@ public:
 	\param rho Ratio of transitions to transversions. Note that no
 	transition to transversion bias corresponds to rho=.5. 
 	**/
-	static double calcSynMutationOpportunity( int codon, double rho );
+	static double calcSynMutationOpportunity( Codon codon, double rho );
 
 	/**
 	Calculates the number of nonsynonymous sites according to the
@@ -152,7 +179,7 @@ public:
 	\param rho Ratio of transitions to transversions. Note that no
 	transition to transversion bias corresponds to rho=.5. 
 	**/
-	static double calcNonsynMutationOpportunity( int codon, double rho );
+	static double calcNonsynMutationOpportunity( Codon codon, double rho );
 
 
 	/**
@@ -161,7 +188,7 @@ public:
 	 * by more than one base, all possible paths are weighted equally.
 	 * Stop codons are not excluded from the analysis.
 	 **/
-	static void calcDnDs( double &dn, double &ds, int codon1, int codon2 );
+	static void calcDnDs( double &dn, double &ds, Codon codon1, Codon codon2 );
 
 	/**
 	Calculates the number of changes in nonsynonymous (dn) and synonymous
@@ -177,7 +204,7 @@ public:
 	equally frequent).
 	\return A pair containing dn and ds (in this order).
 	 **/
-	static pair<double, double> calcDnDsWeighted( int codon1, int codon2, double rho );
+	static pair<double, double> calcDnDsWeighted( Codon codon1, Codon codon2, double rho );
 
 };
 

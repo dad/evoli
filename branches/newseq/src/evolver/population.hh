@@ -612,29 +612,26 @@ void Population<Organism, FitnessEvaluator, Mutator>::evolve()
 	iterator g = begin(); //iterator over the population
 	iterator e = end();
 	double *bin = m_selectionBins;
-	for ( ; g != e; g++)
-        {
-			fitnessSum += (*g)->getFitness();
-			(*bin) = fitnessSum; bin++;
-        }
+	for ( ; g != e; g++) {
+		fitnessSum += (*g)->getFitness();
+		(*bin) = fitnessSum; bin++;
+	}
 	// now normalize the bins
 	for (int i=0; i<m_N; i++)
 		m_selectionBins[i] /= fitnessSum;
 
 
 	// now do the selection/mutation step
-	for ( int i=0; i<m_N; i++ )
-        {
-			index = Random::randintFromDistr( m_selectionBins, m_N );
-			m_pop[outBuffer][i] =  createOffspring( m_pop[m_buffer][index] );
-        }
+	for ( int i=0; i<m_N; i++ ) {
+		index = Random::randintFromDistr( m_selectionBins, m_N );
+		m_pop[outBuffer][i] =  createOffspring( m_pop[m_buffer][index] );
+	}
 
 	// un-register the organisms of the old generation
-	for (int i=0; i<m_N; i++)
-        {
-			m_genebank.removeOrganism( m_pop[m_buffer][i] );
-			m_pop[m_buffer][i] = 0; // make sure we don't have dangling pointers
-        }
+	for (int i=0; i<m_N; i++) {
+		m_genebank.removeOrganism( m_pop[m_buffer][i] );
+		m_pop[m_buffer][i] = 0; // make sure we don't have dangling pointers
+	}
 
 	m_buffer = outBuffer;
 }

@@ -41,7 +41,7 @@ bool Translator::translateErrorFree( const CodingRNA &g, Protein& residue_sequen
 	int i = 0;
 	for (int i=0; i<g.codonLength(); i++) {
 		Codon ci = g.getCodon(i);
-		const char residue = GeneticCodeUtil::RNACodonToAA[ci];
+		char residue = GeneticCodeUtil::geneticCode(ci);
 		no_stop = (residue != GeneticCodeUtil::STOP );
 		residue_sequence[i] = residue;
 		//cout << ci << " " << i << " " << residue << endl;
@@ -59,7 +59,7 @@ bool Translator::translate( const CodingRNA &g, Protein& residue_sequence ) cons
 	//for ( CodingRNA::const_iterator it = g.begin(); it != g.end() && no_stop; it++ )	{
 	for ( unsigned int i=0; i<g.codonLength(); i++) {
 		Codon ci = g.getCodon(i);
-		char residue = GeneticCodeUtil::RNACodonToAA[ci];
+		char residue = GeneticCodeUtil::geneticCode(ci);
 		if ( Random::runif() < m_mutation_prob )
 			residue = ( residue + Random::rint( 20 ) ) % 20;
 		no_stop = (residue != GeneticCodeUtil::STOP );
@@ -68,7 +68,7 @@ bool Translator::translate( const CodingRNA &g, Protein& residue_sequence ) cons
 	return no_stop;
 }
 
-int Translator::translateWeighted( const CodingRNA &g, Protein& residue_sequence, const vector<vector<pair<double, int> > >& weights,
+int Translator::translateWeighted( const CodingRNA &g, Protein& residue_sequence, const vector<vector<pair<double, char> > >& weights,
 									       const double* prefCodons, const double nonPrefCodonPenalty, bool& truncated)
 {
 	double mut_weight_total = 0.0;
@@ -80,14 +80,15 @@ int Translator::translateWeighted( const CodingRNA &g, Protein& residue_sequence
 	int numErrors = 0;
 	for ( unsigned int i=0; i<g.codonLength() && !truncated; i++) {
 		Codon ci = g.getCodon(i);
-		char residue = GeneticCodeUtil::RNACodonToAA[ci];
+		int codon_index = GeneticCodeUtil::codonToIndex(ci);
+		char residue = GeneticCodeUtil::geneticCode(ci);
 		residue_sequence[i] = residue;
 
 		if ( residue < 0 ) {
 			truncated = true;
 		}
 		else {
-			double threshold = m_mutation_prob*(1.0 + prefCodons[g[i]]*(nonPrefCodonPenalty-1))/(mut_weight_total/g.codonLength());
+			double threshold = m_mutation_prob*(1.0 + prefCodons[codon_index]*(nonPrefCodonPenalty-1))/(mut_weight_total/g.codonLength());
 			double rand = Random::runif();
 			if ( rand < threshold ) {
 				// Weight the outcomes of a missense substitution.
@@ -95,8 +96,8 @@ int Translator::translateWeighted( const CodingRNA &g, Protein& residue_sequence
 				double targ = 0.0;
 				// The first member of the pair is a cumulative probability; the second is
 				// the residue resulting from the error.
-				for (unsigned int j=0; j<weights[g[i]].size() && (rand > targ); j++) {
-					pair<double, char> p = weights[g[i]][j];
+				for (unsigned int j=0; j<weights[codon_index].size() && (rand > targ); j++) {
+					pair<double, char> p = weights[codon_index][j];
 					residue_sequence[i] = p.second;
 					targ = p.first;
 				}
@@ -113,7 +114,7 @@ int Translator::translateWeighted( const CodingRNA &g, Protein& residue_sequence
 }
 
 int Translator::translateRelativeWeighted( const CodingRNA &g, Protein& residue_sequence, const double error_weight,
-										   const vector<vector<pair<double, int> > >& weights, const double* prefCodons, 
+										   const vector<vector<pair<double, char> > >& weights, const double* prefCodons, 
 										   const double nonPrefCodonPenalty, bool& truncated)
 {
 	truncated = false;
@@ -131,13 +132,16 @@ int Translator::translateRelativeWeighted( const CodingRNA &g, Protein& residue_
 	// probability of error is exactly given by m_mutation_prob.
 	double avg_error_per_site_weight = error_weight/g.codonLength();
 	for ( int i=0; i<g.codonLength() && !truncated; i++) {
-		int residue = GeneticCodeUtil::geneticCode[g[i]];
+		Codon ci = g.getCodon(i);
+		int codon_index = GeneticCodeUtil::codonToIndex(ci);
+		char residue = GeneticCodeUtil::geneticCode(ci);
+		
 		residue_sequence[i] = residue;
 
 		// Compute the site weight, accounting for codon preference.
 		// Each site weight is proportional to the probability that an
 		// error occurs at this codon relative to other codons in the gene.
-		double site_weight = (1.0 + prefCodons[g[i]]*(nonPrefCodonPenalty-1));
+		double site_weight = (1.0 + prefCodons[codon_index]*(nonPrefCodonPenalty-1));
 
 		// With probability threshold_prob, make a translation error (possibly synonymous).
 		double threshold_prob = m_mutation_prob * site_weight / avg_error_per_site_weight;
@@ -149,8 +153,8 @@ int Translator::translateRelativeWeighted( const CodingRNA &g, Protein& residue_
 			// The first member of the pair is a cumulative probability; the second is
 			// the residue resulting from the error.
 			// Find the event corresponding to rand.
-			for (unsigned int j=0; j<weights[g[i]].size() && (rand > targ); j++) {
-				pair<double, int> p = weights[g[i]][j];
+			for (unsigned int j=0; j<weights[codon_index].size() && (rand > targ); j++) {
+				pair<double, char> p = weights[codon_index][j];
 				residue_sequence[i] = p.second;
 				targ = p.first;
 			}

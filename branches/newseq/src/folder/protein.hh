@@ -32,6 +32,7 @@ using namespace std;
 
 class Codon : public Sequence {
 public:
+	Codon() : Sequence("AAA") {}
 	Codon(const Sequence& s, unsigned int start) : Sequence(s, start, 3) {
 	}
 	Codon(const string&s) : Sequence(s) {}
@@ -49,13 +50,6 @@ public:
 	Protein(unsigned int length, char val);
 	Protein(const string& s) : Sequence(s) {}
 	~Protein() {}
-
-	/**
-	Calculates the Hamming distance to another protein. Assumes that 
-	the two proteins are of equal lengths.
-	@return The hamming distance to the protein given as argument.
-	*/
-	int distance(const Protein& p) const;
 
 	/**
 	Converts the protein sequence into a string useful for output etc.

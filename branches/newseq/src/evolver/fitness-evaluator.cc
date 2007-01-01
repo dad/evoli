@@ -188,14 +188,16 @@ void ErrorproneTranslation::buildWeightMatrix() {
 	for ( int c=0; c<64; c++ ) {
 		for (int aa=0; aa<21; aa++)	{
 			if (aa<20) {
-				m_cum_weight_matrix[c][aa].second = aa;
+				m_cum_weight_matrix[c][aa].second = GeneticCodeUtil::indexToAminoAcidLetter(aa);
 			}
 			else {
-				m_cum_weight_matrix[c][aa].second = -1;
+				m_cum_weight_matrix[c][aa].second = GeneticCodeUtil::STOP;
 			}
 		}
 		for (int tc=0; tc<64; tc++)	{
-			int aa = GeneticCodeUtil::geneticCode[tc];
+			Codon codon = GeneticCodeUtil::indexToCodon(tc);
+			char aa_char = GeneticCodeUtil::geneticCode(codon);
+			int aa = GeneticCodeUtil::indexToAminoAcidLetter(aa_char);
 			if (aa < 0)	{
 				aa = 20;
 			}
@@ -204,12 +206,12 @@ void ErrorproneTranslation::buildWeightMatrix() {
 			m_cum_weight_matrix[c][aa].first += codon_to_codon_probabilities[c][tc];
 		}
 		// Sort the weights in preparation for computing ordered cumulative probabilities
-		vector<pair<double,int> >& v = m_cum_weight_matrix[c];
+		vector<pair<double,char> >& v = m_cum_weight_matrix[c];
 		sort(v.begin(), v.end(), greater_pair_first());
 		// Calculate the cumulative probabilities.
 		double tot = 0.0;
 		for (unsigned int i=0; i<m_cum_weight_matrix[c].size(); i++) {
-			pair<double, int>&p = m_cum_weight_matrix[c][i];
+			pair<double, char>&p = m_cum_weight_matrix[c][i];
 			p.first += tot;
 			tot = p.first;
 		}
@@ -252,37 +254,33 @@ double ErrorproneTranslation::calcWeight( int co, int ct )
 		return 0;
 
 	double stop_factor = 1;
-	if ( GeneticCodeUtil::geneticCode[ct] < 0 ) // does target codon code for stop?
+	Codon from_codon = GeneticCodeUtil::indexToCodon(co);
+	Codon to_codon = GeneticCodeUtil::indexToCodon(ct);
+	if ( GeneticCodeUtil::geneticCode(to_codon) == GeneticCodeUtil::STOP ) // does target codon code for stop?
 		stop_factor = 0.33; // then probability is reduced to approx. one third.
 
 	int lo1, lo2, lo3;
 	int lt1, lt2, lt3;
 
-	CodonUtil::codonToLetters( lo1, lo2, lo3, co );
-	CodonUtil::codonToLetters( lt1, lt2, lt3, ct );
-
-	if ( lo1 != lt1 && lo2 == lt2 && lo3 == lt3 )
-	{
-		if ( CodonUtil::isTransition( lo1, lt1 ) )
-			return 1.*stop_factor;
-		else
-			return 0.5*stop_factor;
-	}
-
-	if ( lo2 != lt2 && lo1 == lt1 && lo3 == lt3 )
-	{
-		if ( CodonUtil::isTransition( lo2, lt2 ) )
-			return 0.5*stop_factor;
-		else
-			return 0.1*stop_factor;
-	}
-
-	if ( lo3 != lt3 && lo1 == lt1 && lo2 == lt2 )
-	{
-		if ( CodonUtil::isTransition( lo3, lt3 ) )
-			return 1.*stop_factor;
-		else
-			return 1.*stop_factor;
+	if (from_codon.distance(to_codon) == 1) {
+		if (from_codon[0] != to_codon[0]) {
+			if ( CodonUtil::isTransition( from_codon[0], to_codon[0] ) )
+				return 1.*stop_factor;
+			else
+				return 0.5*stop_factor;
+		}
+		if (from_codon[1] != to_codon[1]) {
+			if ( CodonUtil::isTransition( from_codon[1], to_codon[1] ) )
+				return 0.5*stop_factor;
+			else
+				return 0.1*stop_factor;
+		}
+		if (from_codon[2] != to_codon[2]) {
+			if ( CodonUtil::isTransition( from_codon[2], to_codon[2] ) )
+				return 1.*stop_factor;
+			else
+				return 1.*stop_factor;
+		}
 	}
 
 	return 0;
@@ -433,13 +431,13 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 	while ( nrand < num_rand ) {
 		int randpos = Random::rint(g.codonLength());
 		// go through all possible point mutations
-		int from_codon = g[randpos];
-		int to_codon = from_codon;
+		Codon from_codon = g.getCodon(randpos);
+		Codon to_codon = from_codon;
 		do {
-			to_codon = Random::rint(64);
+			to_codon = GeneticCodeUtil::indexToCodon(Random::rint(64));
 		} while (to_codon == from_codon);
 
-		g[randpos] = to_codon;
+		g.setCodon(randpos,to_codon);
 		if (getFolded(g)) {
 			nequil++;
 			if (nequil > num_equil) {
@@ -448,21 +446,22 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 				double err_weight_total = 0.0;
 				for ( unsigned int i=0; i<g.codonLength(); i++ ) {
 					double last_event_prob = 0.0;
-
+					Codon ci = g.getCodon(i);
+					int codon_index = GeneticCodeUtil::codonToIndex(ci);
 					// Compute probability of synonymous error
 					double p_synonymous = 0.0;
-					for (unsigned int outcome=0; outcome<m_cum_weight_matrix[g[i]].size(); outcome++) {
-						pair<double, int> event = m_cum_weight_matrix[g[i]][outcome];
+					for (unsigned int outcome=0; outcome<m_cum_weight_matrix[codon_index].size(); outcome++) {
+						pair<double, char> event = m_cum_weight_matrix[codon_index][outcome];
 						// events record cumulative probabilities, so get the probability.
 						double event_prob = event.first - last_event_prob;
-						if (event.second == GeneticCodeUtil::geneticCode[g[i]]) {
+						if (event.second == GeneticCodeUtil::geneticCode(ci)) {
 							// Synonymous error
 							p_synonymous += event_prob;
 						}
 						last_event_prob = event_prob;
 					}
 					// Compute the site_weight and aggregate.
-					double site_weight = (1.0 + m_codon_cost[g[i]]*(m_ca_cost-1));
+					double site_weight = (1.0 + m_codon_cost[codon_index]*(m_ca_cost-1));
 					acc_weight_total += site_weight * (1-p_synonymous);
 					err_weight_total += site_weight;
 				}
@@ -473,7 +472,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 			}
 		}
 		else {
-			g[randpos] = from_codon;
+			g.setCodon(randpos, from_codon);
 		}
 	}
 
@@ -671,7 +670,7 @@ void ErrorproneTranslation::stabilityOutcomes( const Gene &g, const int num_to_f
 }
 
 
-void ErrorproneTranslation::setCodonCosts() {
+/*void ErrorproneTranslation::setCodonCosts() {
 	// This algorithm weights each codon by the alphabetical order of its
 	// one-letter code.
 	// Codon cost matrix
@@ -753,28 +752,48 @@ void ErrorproneTranslation::setCodonCosts() {
 		}
 		float weight = (float)((int)c-(int)'A'+1.0)/20.0;  // scaled from 0 to 1.
 		m_codon_cost[codon] += weight;
-		/*if (m_codon_cost[codon] == 0) {
-			m_codon_cost[codon] = m_codon_cost[codon] + weight - 0.5;
-		}
-		else {
-			m_codon_cost[codon] = m_codon_cost[codon] + weight - 0.5;
-		}*/
+		//if (m_codon_cost[codon] == 0) {
+		//	m_codon_cost[codon] = m_codon_cost[codon] + weight - 0.5;
+		//}
+		//else {
+		//	m_codon_cost[codon] = m_codon_cost[codon] + weight - 0.5;
+		//}
 	}
-}
+}*/
 
 void ErrorproneTranslation::printCodonCosts(ostream& os) {
-	for (int codon=0; codon<64; codon++) {
+	for (int ci=0; ci<64; ci++) {
 		os << "# ";
-		CodonUtil::printCodon(cout, codon);
-		os << "\t" << GeneticCodeUtil::residueLetters[GeneticCodeUtil::geneticCode[codon]+1] << "\t" << m_codon_cost[codon] << endl;
+		Codon codon = GeneticCodeUtil::indexToCodon(ci);
+		os << codon;
+		//CodonUtil::printCodon(cout, codon);
+		os << "\t" << GeneticCodeUtil::geneticCode(codon) << "\t" << m_codon_cost[ci] << endl;
 	}
 
 }
 
 double* ErrorproneTranslation::getCodonCosts() const { return ErrorproneTranslation::m_codon_cost; }
 
-vector<vector<pair<double, int> > > ErrorproneTranslation::getTranslationWeights() const { return m_cum_weight_matrix; }
+vector<vector<pair<double, char> > > ErrorproneTranslation::getTranslationWeights() const { return m_cum_weight_matrix; }
 
+vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
+	vector<bool> is_optimal(64, false);
+	
+	for (int ci=0; ci<64; ci++) {
+		Codon codon = GeneticCodeUtil::indexToCodon(ci);
+		char aa = GeneticCodeUtil::geneticCode(codon);
+		if (m_codon_cost[ci] == 0) {
+			is_optimal[ci] = true;
+		}
+		if (print_report) {
+			cout << aa << ": " << codon << " is optimal" << endl;
+		}
+	}
+	
+	return is_optimal;
+}
+
+/*
 vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 	// Compute fraction accurately translated (facc) for each codon.  Optimal codons
 	// have facc significantly higher than average for the family.
@@ -788,20 +807,22 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 	vector<pair<int,int> > codon_accuracies(64, pair<int,int>(0,0));   // (accurate,total) pairs for all codons
 	vector<int> family_degeneracies(20,0);
 
-	for (int codon=0; codon<64; codon++) {
-		int aa = GeneticCodeUtil::geneticCode[codon];
-		if (aa >= 0) {  // if not stop codon
+	for (int ci=0; ci<64; ci++) {
+		Codon codon = GeneticCodeUtil::indexToCodon(ci);
+		char aa_char = GeneticCodeUtil::geneticCode(codon);
+		int aa = GeneticCodeUtil::aminoAcidLetterToIndex(aa_char);
+		if (aa_char != GeneticCodeUtil::STOP) {  // if not stop
 			family_degeneracies[aa]++;
 			for (int reps=0; reps<max_reps; reps++) {
-				g[0] = codon;
+				g.setCodon(0, codon);
 				int n_errors = t.translateRelativeWeighted(g, p, m_error_weight/m_protein_length, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
 				// Increment totals
 				family_accuracies[aa].second++;
-				codon_accuracies[codon].second++;
+				codon_accuracies[ci].second++;
 				if (n_errors==0) {  // Properly translated
 					// Increment accuracy counts
 					family_accuracies[aa].first++;
-					codon_accuracies[codon].first++;
+					codon_accuracies[ci].first++;
 				}
 			}
 		}
@@ -814,14 +835,16 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 	vector<double> aa_max_faccs(20, -1.0);  // The best codons' faccs.
 	vector<bool> is_optimal(64, false);
 
-	for (int codon=0; codon<64; codon++) {
-		int aa = GeneticCodeUtil::geneticCode[codon];
-		if (aa >= 0) {  // if not stop codon
-			pair<int,int> acc = codon_accuracies[codon];
+	for (int ci=0; ci<64; ci++) {
+		Codon codon = GeneticCodeUtil::indexToCodon(ci);
+		char aa_char = GeneticCodeUtil::geneticCode(codon);
+		int aa = GeneticCodeUtil::aminoAcidLetterToIndex(aa_char);
+		if (aa_char != GeneticCodeUtil::STOP) {  // if not stop
+			pair<int,int> acc = codon_accuracies[ci];
 			double facc = acc.first/(double)acc.second;
 			if (facc > aa_max_faccs[aa]) {
 				aa_max_faccs[aa] = facc;
-				max_facc_codons[aa] = codon;
+				max_facc_codons[aa] = ci;
 			}
 		}
 	}
@@ -847,19 +870,21 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 		aa_max_faccs.clear();
 		aa_max_faccs.resize(20,-1.0);
 
-		for (int codon=0; codon<64; codon++) {
-			int aa = GeneticCodeUtil::geneticCode[codon];
+		for (int ci=0; ci<64; ci++) {
+			Codon codon = GeneticCodeUtil::indexToCodon(ci);
+			char aa_char = GeneticCodeUtil::geneticCode(codon);
+			int aa = GeneticCodeUtil::aminoAcidLetterToIndex(aa_char);
 			// Don't both reconsidering optimal codons or nondegenerate codons
-			if (is_optimal[codon] || family_degeneracies[aa] < 2) {
+			if (is_optimal[ci] || family_degeneracies[aa] < 2) {
 				continue;
 			}
 			if (aa >= 0) {  // if not stop codon
-				pair<int,int> acc = codon_accuracies[codon];
+				pair<int,int> acc = codon_accuracies[ci];
 				pair<int,int> tacc = family_accuracies[aa];
 				double facc = (tacc.first-acc.first)/(double)(tacc.second-acc.second);
 				double myfacc = acc.first/(double)acc.second;
 				if ((1-facc)/(1-myfacc) > m_ca_cost/3) { // Arbitrary fold cutoff.
-					is_optimal[codon] = true;
+					is_optimal[ci] = true;
 				}
 			}
 		}
@@ -925,7 +950,7 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 
 
 	// debugging
-	/*
+	
 	int num_optimal_codons = 0;
 	for (int j=0; j<64; j++) {
 		CodonUtil::printCodon(cout, j);
@@ -935,12 +960,12 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 		}
 	}
 	cout << "Total of " << num_optimal_codons << " optimal codons." << endl;
-	*/
+	
 
 	return is_optimal;
 
 }
-
+*/
 
 
 

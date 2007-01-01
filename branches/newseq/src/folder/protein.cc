@@ -25,23 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "genetic-code.hh"
 #include <sstream>
 
-int Protein::distance(const Protein& p) const {
-	// we don't handle sequences of different lengths properly, 
-	// so they better be of the same length	
-	assert( length() == p.length() );
-	
-	int diffs = 0;
-	Protein::const_iterator qit = begin();
-	Protein::const_iterator pit = p.begin();
-
-	for (; qit != end() && pit != p.end(); qit++, pit++) {
-		if (*pit != *qit) {
-			diffs++;
-		}
-	}
-	return diffs;
-}
-
 Protein::Protein(unsigned int length) : Sequence(length, 'A') {
 }
 
@@ -52,7 +35,8 @@ Protein Protein::createRandom(unsigned int length) {
 	Protein p(length, 'A');
 	Protein::iterator pit = p.begin();
 	for (; pit != p.end(); pit++) {
-		*pit = GeneticCodeUtil::residueLetters[Random::rint(20)+1][0];
+		char aa = GeneticCodeUtil::indexToAminoAcidLetter(Random::rint(20)+1);
+		*pit = aa;
 	}
 	return p;
 }
@@ -93,7 +77,7 @@ CodingDNA CodingDNA::createRandomNoStops(unsigned int length ) {
 				char nt = nts[Random::rint( 4 )];
 				g[3*j+k] = nt;
 			}
-		} while (GeneticCodeUtil::RNACodonToAA[g.transcribe().getCodon(j)] == GeneticCodeUtil::STOP);
+		} while (GeneticCodeUtil::geneticCode(g.transcribe().getCodon(j)) == GeneticCodeUtil::STOP);
 	}
 	return g;
 }
@@ -103,7 +87,7 @@ bool CodingDNA::encodesFullLength(void) const {
 	CodingRNA rna = transcribe();
 	//cout << rna.codonLength() << endl;
 	for (int i=0; i<rna.codonLength() && full_length; i++) {
-		full_length = (GeneticCodeUtil::RNACodonToAA[rna.getCodon(i)] != GeneticCodeUtil::STOP);
+		full_length = (GeneticCodeUtil::geneticCode(rna.getCodon(i)) != GeneticCodeUtil::STOP);
 		//cout << i << " " << full_length << endl;
 	}
 	return full_length;

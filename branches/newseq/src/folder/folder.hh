@@ -78,12 +78,17 @@ private:
 protected:
 	/**
 	 * Turn amino acid characters into indices to enable fast lookup during folding.
+	 *
+	 * @return Whether all indices were valid (>= 0).
 	 **/
-	void getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const
+	bool getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const
 	{
-		for (int i=0; i<s.size(); i++) {
-			aa_indices[i] = GeneticCodeUtil::letterToResidueMap[s[i]];
+		int index = 0;
+		for (int i=0; i<s.size() && index >= 0; i++) {
+			index = GeneticCodeUtil::aminoAcidLetterToIndex(s[i]);
+			aa_indices[i] = index;
 		}
+		return index >= 0;
 	}
 
 

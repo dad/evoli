@@ -52,10 +52,11 @@ public:
 	 **/
 	static double calcSynonymousSites( const CodingDNA & g )
 	{
-		CodingDNA::const_iterator it = g.begin(), e = g.end();
+		CodingRNA rna = g.transcribe();
 		double s = 0;
-		for ( ; it != e; it++ )
-			s += GeneticCodeUtil::calcSynonymousSites( *it );
+		for (int i=0; i<rna.codonLength(); i++) {
+			s += GeneticCodeUtil::calcSynonymousSites( rna.getCodon(i) );
+		}
 		return s;
 	}
 
@@ -72,7 +73,7 @@ public:
 
 		for ( unsigned int i=0; i<e; i++ )
 		{
-			tmp_S = GeneticCodeUtil::calcSynonymousSites( g[i] );
+			tmp_S = GeneticCodeUtil::calcSynonymousSites( g.getCodon(i) );
 			tmp_N = 3 - tmp_S;
 
 			if ( surface[i] )
@@ -102,7 +103,7 @@ public:
 
 		for ( int i=0; i<e; i++ )
 		{
-			GeneticCodeUtil::calcDnDs( tmp_dn, tmp_ds, g1[i], g2[i] );
+			GeneticCodeUtil::calcDnDs( tmp_dn, tmp_ds, g1.getCodon(i), g2.getCodon(i) );
 			//			 CodonUtil::printCodon( cout, g1[i] );
 			//			 cout << " ";
 			//			 CodonUtil::printCodon( cout, g2[i] );
@@ -128,7 +129,7 @@ public:
 
 		for ( int i=0; i<e; i++ )
 		{
-			GeneticCodeUtil::calcDnDs( tmp_dn, tmp_ds, g1[i], g2[i] );
+			GeneticCodeUtil::calcDnDs( tmp_dn, tmp_ds, g1.getCodon(i), g2.getCodon(i) );
 			//			 CodonUtil::printCodon( cout, g1[i] );
 			//			 cout << " ";
 			//			 CodonUtil::printCodon( cout, g2[i] );
@@ -159,36 +160,21 @@ public:
 
 		int count = 0;
 		// go through all positions in the protein
-		for ( unsigned int i=0; i<p.length(); i++ )
-		{
-
+		for ( unsigned int i=0; i<p.length(); i++ )	{
 			// go through all possible point mutations
-			// (avoid operator %, which can be very slow)
-			const int res = p[i];
-			int tempres = res + 1;
-			while ( tempres < 20 )
-			{
-				p[i] = tempres;
+			char oldaa = p[i];
+			for (int j=0; j<20; j++) {
+				char newaa = GeneticCodeUtil::AMINO_ACIDS[j];
+				if (newaa == oldaa)
+					continue;
+				p[i] = newaa;
 				// sequence folds into correct structure with low free energy?
 				fold_data = auto_ptr<FoldInfo>( b.fold(p) );
 				if (fold_data->getStructure() == structure_id && fold_data->getFreeEnergy() < cutoff) {
 					count += 1;
 				}
-				tempres++;
 			}
-
-			tempres = 0;
-			while ( tempres < res )
-			{
-				p[i] = tempres;
-				// sequence folds into correct structure with low free energy?
-				fold_data = auto_ptr<FoldInfo>( b.fold(p) );
-				if (fold_data->getStructure() == structure_id && fold_data->getFreeEnergy() < cutoff) {
-					count += 1;
-				}
-				tempres++;
-			}
-			p[i] = res;
+			p[i] = oldaa;
 		}
 		return count / (19.0*p.length());
 	}
@@ -199,16 +185,16 @@ public:
 	 **/
 	static double calcFop( const CodingDNA &g, const vector<bool>& is_optimal ) {
 		int count = 0, tot=0;
-		CodingDNA::const_iterator it = g.begin(), e = g.end();
-		int methionine = 14;
-		int tryptophan = 58;
+		char methionine = 'M';
+		char tryptophan = 'W';
 		int codon = -1;
-
-		for ( ; it != e; it++ )	{
-			codon = *it;
-			if ( !(codon == methionine || codon == tryptophan)) {
+		for (int i=0; i<g.codonLength(); i++) {
+			Codon c = g.getCodon(i);
+			int index = GeneticCodeUtil::codonToIndex(c);
+			char aa = GeneticCodeUtil::geneticCode(c);
+			if ( !(aa == methionine || aa == tryptophan)) {
 				tot += 1;
-				if (is_optimal[codon]) {
+				if (is_optimal[index]) {
 					count += 1;
 				}
 			}
@@ -229,18 +215,19 @@ public:
 		{
 			int sopt = 0, copt = 0, scount = 0, ccount = 0;
 
-			for ( uint i=0; i<g.codonLength(); i++ )
-			{
+			for ( uint i=0; i<g.codonLength(); i++ ) {
+				Codon ci = g.getCodon(i);
+				int index = GeneticCodeUtil::codonToIndex(ci);
 				if ( surface[i] )
 				{
 					scount += 1;
-					if ( codon_costs[g[i]] == 0 )
+					if ( codon_costs[index] == 0 )
 						sopt += 1;
 				}
 				else
 				{
 					ccount += 1;
-					if ( codon_costs[g[i]] == 0 )
+					if ( codon_costs[index] == 0 )
 						copt += 1;
 				}
 			}
@@ -276,7 +263,7 @@ public:
 	 */
 	static CodingDNA reverseTranslate(const Protein& prot) {
 		// DAD: strange...size of the GeneticCodeUtil hash_map RNACodonToAA is 139, not 64!  Figure this out.
-		hash_map<const Codon, char, hash_codon> gc(GeneticCodeUtil::codon_aa_pairs, GeneticCodeUtil::codon_aa_pairs+64);
+		hash_map<const Codon, char, hash_codon> gc(GeneticCodeUtil::codonAAPairs, GeneticCodeUtil::codonAAPairs+64);
 		// DAD: probably only want to do this once!
 		hash_map<char, vector<Codon>, hash<char> > AAToRNACodons;
 		hash_map<const Codon, char, hash_codon>::iterator map_it = gc.begin();

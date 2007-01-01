@@ -781,7 +781,10 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 	double G;
 	vector<int> aa_indices(s.size());
 
-	getAminoAcidIndices(s, aa_indices);
+	bool valid = getAminoAcidIndices(s, aa_indices);
+	if (!valid) {
+		return new FoldInfo(9999, -1);
+	}
 
 	for ( int i=0; i<m_num_structures; i++ ) {
 		double E = 0;
@@ -910,11 +913,11 @@ void CompactLatticeFolder::printContactEnergyTable( ostream &s ) const
 	s << "Contact energies:" << endl;
 	s << "      ";
 	for ( int i=0; i<20; i++ )
-		s << GeneticCodeUtil::residues[i] << "   ";
+		s << GeneticCodeUtil::indexToAminoAcidLetter(i) << "   ";
 	s << endl;
 	for ( int i=0; i<20; i++ )
 	{
-		s << GeneticCodeUtil::residues[i] << " ";
+		s << GeneticCodeUtil::indexToAminoAcidLetter(i) << " ";
 		for ( int j=0; j<20; j++ )
 		{
 			s.width(5);
