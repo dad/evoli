@@ -142,7 +142,10 @@ struct TEST_CLASS( protein_gene_basic )
 		CompactLatticeFolder folder(side_length);
 		double max_dg = -1;
 		int sid = 574;
-		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		Random::seed(11);
+		int nfolded = folder.getNumFolded();
+		CodingDNA g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		//cout << "num folded: " << (folder.getNumFolded() - nfolded) << endl;
 		Protein p = g.translate();
 		//cout << "xx" << p << endl;
 		auto_ptr<FoldInfo> fi( folder.fold(p) );

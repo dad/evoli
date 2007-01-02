@@ -83,17 +83,7 @@ struct TEST_CLASS( population )
 		ProteinFreeEnergyFitness fe( &b );
 		Population<CodingDNA, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
 		SimpleMutator mut(U);
-		//cout << endl << length*3 << endl;
-		//CodingDNA g = CodingDNA::createRandom( length*3 );
 		CodingDNA g( "GGGAAGTGCGTCCAGCAGAGTTGGGTATGGGAGGGATCTAAGTTAAAG" );
-		//cout << g << endl;
-		CodingDNA q( "GACGTTACGCGGCACAAGGTGAAGCGAGAACTCCCGGAATTAGCAGTT" );
-		//cout << q << endl;
-		bool randomOK = true;
-		TEST_ASSERT( randomOK = ( g == q ) );
-		//std::cout << g << std::endl;
-		if ( !randomOK )
-			cout << "Test failures in function lattice_folder likely due to differences in random number generator" << endl;
 		pop.init( g, &fe, &mut );
 		GenebankAnalyzer<CodingDNA> analyzer(pop.getGenebank());
 
@@ -112,13 +102,13 @@ struct TEST_CLASS( population )
 
 		analyzer.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 
-		std::cout << endl << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
+		//std::cout << endl << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
 
-		TEST_ASSERT( fabs( ave_dn - 12) < 1e-4 );
-		TEST_ASSERT( fabs( ave_ds - 2) < 1e-4 );
-		TEST_ASSERT( fabs( ave_N - 33.7222) < 1e-4 );
-		TEST_ASSERT( fabs( ave_S - 14.2778) < 1e-4 );
-		TEST_ASSERT( fabs( ave_f - 0.934205) < 1e-4 );
+		TEST_ASSERT( fabs( ave_dn - 7) < 1e-4 );
+		TEST_ASSERT( fabs( ave_ds - 4) < 1e-4 );
+		TEST_ASSERT( fabs( ave_N - 36.7556) < 1e-4 );
+		TEST_ASSERT( fabs( ave_S - 11.2444) < 1e-4 );
+		TEST_ASSERT( fabs( ave_f - 0.992876) < 1e-4 );
 		TEST_ASSERT( fabs( ave_fop - 0) < 1e-10 );
 	}
 

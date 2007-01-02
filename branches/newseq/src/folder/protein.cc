@@ -80,6 +80,7 @@ CodingDNA CodingDNA::createRandomNoStops(unsigned int length ) {
 	CodingDNA g( length );
 	//cout << "rand" << endl;
 	for (unsigned int j=0; j<length/3; j++) {
+		Codon codon;
 		do {
 			for (unsigned int k=0; k<3; k++) {
 				char nt = GeneticCodeUtil::DNA_NUCLEOTIDES[Random::rint( 4 )];

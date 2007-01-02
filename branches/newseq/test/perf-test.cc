@@ -47,7 +47,7 @@ int main( int ac, char **av)
 {
 	cout << "# Starting performance test" << endl;
 	time_t overall_time = time(NULL);
-	Random::seed(11);
+	Random::seed(13);
 	cout << "# Initializing folder" << endl;
 	time_t start_time = time(NULL);
 	// initialize the protein folder
@@ -83,12 +83,8 @@ void evolutionExperiment( ErrorproneTranslation& fe)
 
 	int count = 0;
 	int reps = 1;
-	for ( int i=0; i<reps; i++ )
-	{
-		stringstream repfname;
-
-		if ( runAndAnalyzeReplica( &fe, is_optimal, dn, ds, N, S, f, fop ) )
-		{
+	for ( int i=0; i<reps; i++ ) {
+		if ( runAndAnalyzeReplica( &fe, is_optimal, dn, ds, N, S, f, fop ) ) {
 			count += 1;
 			dn_s1 += dn; dn_s2 += dn*dn;
 			ds_s1 += ds; ds_s2 += ds*ds;
@@ -123,10 +119,12 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, vector<bool>& is_optimal,
 		for ( int j=0; j<loop_length; j++ ) {
 			pop.evolve();
 		}
+		cout << "nf ev: " << folder.getNumFolded() << endl;
 		analyzer.prepareCoalescenceCalcs(pop.begin(), pop.end(), pop.getNumGenerations());
 		if ( analyzer.calcCoalescenceTime() > 2000 )
 			break;
 	}
+	cout << "# Evolved for " << pop.getNumGenerations() << " generations" << endl;
 
 	return analyzer.analyzeDnDs( 1000, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 }

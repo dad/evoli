@@ -78,21 +78,23 @@ Parameters getParams( int ac, char **av )
 // finds a random sequence with folding energy smaller than cutoff.
 void getSequence( Folder &b, const Parameters &p, ostream &s )
 {
+	int nfolded = b.getNumFolded();
 	Gene g = GeneUtil::getSequence(b, 3*p.protein_length, p.free_energy_cutoff);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
 	s << g << " " << fdata->getFreeEnergy() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
-	  << endl;
+	  << " " << (b.getNumFolded()-nfolded) << endl;
 }
 
 // finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 void getSequenceTargeted( Folder &b, const Parameters &p, const int struct_id, ostream &s )
 {
+	int nfolded = b.getNumFolded();
 	Gene g = GeneUtil::getSequenceForStructure(b, 3*p.protein_length, p.free_energy_cutoff, struct_id);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
 	s << g << " " << fdata->getFreeEnergy() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
-	  << endl;
+	  << " " << (b.getNumFolded()-nfolded) << endl;
 }
 
 int main( int ac, char **av)
@@ -107,7 +109,7 @@ int main( int ac, char **av)
 	CompactLatticeFolder b(side_length);
 
 	cout << p;
-	cout << "# <sequence> <free energy> <structure id> <neutrality>" << endl;
+	cout << "# <sequence> <free energy> <structure id> <neutrality> <nfolded>" << endl;
 
 	for ( int i=0; i<p.repetitions; i++ )
 	{

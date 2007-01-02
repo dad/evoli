@@ -1,7 +1,7 @@
 /*
 This file is part of the evoli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
-Allan Drummond <dadrummond@gmail.com>
+Allan Drummond <drummond@alumni.princeton.edu>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -317,16 +317,19 @@ public:
 		bool found = false;
 		double min_free_energy_for_starting = max(300.0, free_energy_cutoff);
 
+		int nfolded = b.getNumFolded();
 		// find sequence that encodes the desired structure
+		int q=0;
 		do {
 			g = CodingDNA::createRandomNoStops( length );
 			//cout << g << endl;
 			Protein p = g.translate();
-			//cout << p << endl;
 			fdata = auto_ptr<FoldInfo>( b.fold(p) );
 			found = (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= min_free_energy_for_starting);
 			//cout << fdata->getStructure() << "\t" << fdata->getFreeEnergy() << "\t" << g << endl;
+			//cout << q++ << " " << g << " " << p << " " << fdata->getStructure() << " " << fdata->getFreeEnergy() << endl;
 		} while ( !found );
+		//cout << "nf: " << (b.getNumFolded() - nfolded) << endl;
 
 		//cout << "hey" << endl;
 
