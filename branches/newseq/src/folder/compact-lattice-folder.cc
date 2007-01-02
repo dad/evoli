@@ -785,7 +785,12 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 	if (!valid) {
 		return new FoldInfo(9999, -1);
 	}
-
+	/*cout << "ack " << s << endl;
+	for (int j=0; j<s.length(); j++) {
+		cout << aa_indices[j] << ' ';
+	}
+	cout << endl;
+	*/
 	for ( int i=0; i<m_num_structures; i++ ) {
 		double E = 0;
 
@@ -794,6 +799,9 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 		vector<pair<int,int> >::const_iterator it=pair_list.begin();
 		for ( ; it!=pair_list.end(); it++ )
 		{
+			//cout << (*it).first << " " << (*it).second << endl;
+			assert((*it).first >0 && (*it).first <= aa_indices.size());
+			assert((*it).second >0 && (*it).second <= aa_indices.size());
 			double deltaE = contactEnergy(aa_indices[(*it).first-1], aa_indices[(*it).second-1]);
 			E += deltaE;
 		}
@@ -806,7 +814,7 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 		// add energy to partition sum
 		Z +=  exp(-E/kT);
 	}
-
+	//cout << "arg" << endl;
 	// calculate free energy of folding
 	G = minE + kT * log( Z - exp(-minE/kT) );
 

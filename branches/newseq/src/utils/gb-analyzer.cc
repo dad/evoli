@@ -326,19 +326,19 @@ void analyzeSurfaceCore( CompactLatticeFolder &b, Params p, const vector<Geneban
 	{
 		double n, s, nSurf, nCore, sSurf, sCore;
 		double N, S, NSurf, NCore, SSurf, SCore;
-		GeneUtil::calcDnDs( n, s, d.g, (*cit).g );
+		pair<double,double> sitens = GeneUtil::calcDnDs( d.g, (*cit).g );
 		GeneUtil::calcDnDsSurfaceCore( nSurf, nCore, sSurf, sCore, d.g, (*cit).g, surface );
 		S = GeneUtil::calcSynonymousSites( d.g );
 		N = GeneUtil::calcTotalSites( d.g ) - S;
 		GeneUtil::calcSNSitesSurfaceCore( NSurf, NCore, SSurf, SCore, d.g, surface );
-		nn += n;
-		ns += s;
+		nn += sitens.first;
+		ns += sitens.second;
 		nnSurf += nSurf;
 		nnCore += nCore;
 		nsSurf += sSurf;
 		nsCore += sCore;
-		dn += n/N;
-		ds += s/S;
+		dn += sitens.first/N;
+		ds += sitens.second/S;
 		dnSurf += nSurf/NSurf;
 		dnCore += nCore/NCore;
 		dsSurf += sSurf/SSurf;

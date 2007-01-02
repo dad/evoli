@@ -115,7 +115,7 @@ protected:
 	This weight matrix contains the probability that a given codon will
 	be mistranslated as a given amino acid, including a stop (at pos 20).
 	*/
-	vector<vector<double> > m_weight_matrix;
+	//vector<vector<double> > m_weight_matrix;
 
 	/**
 	This weight matrix contains the sorted cumulative probability that

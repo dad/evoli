@@ -51,6 +51,8 @@ private:
 	static bool m_setup;
 	static StringDoubleMap m_dnLookup;
 	static StringDoubleMap m_dsLookup;
+	static double m_dnTable[][64];
+	static double m_dsTable[][64];
 	static void calcDnDsPrivate( double &dn, double &ds, Codon codon1, Codon codon2 );
 	static pair<double, double> calcDnDsWeightedPrivate( Codon codon1, Codon codon2, double rho );
 

@@ -765,7 +765,7 @@ bool GenebankAnalyzer<Organism>::analyzeDnDs( int window_size, double &ave_dn, d
 
 	// now go backwards and record all the changes
 	int last_b_time = b_time;
-	while ( 1 ) {
+	while ( true ) {
 		e2 = e->getParent();
 		if ( e2 == 0 ) // we have reached the final ancestor, so we are done
 			break;
@@ -776,11 +776,12 @@ bool GenebankAnalyzer<Organism>::analyzeDnDs( int window_size, double &ave_dn, d
 		syn_sites = GeneUtil::calcSynonymousSites( e2->getOrganism() );
 		nsyn_sites = sites - syn_sites;
 		double dn, ds;
-		GeneUtil::calcDnDs( dn, ds, e2->getOrganism(), e->getOrganism() );
+		
+		pair<double,double> dnds = GeneUtil::calcDnDs( e2->getOrganism(), e->getOrganism() );
 		
 		// and record
-		dn_vect[last_b_time] = dn;
-		ds_vect[last_b_time]= ds;
+		dn_vect[last_b_time] = dnds.first;
+		ds_vect[last_b_time]= dnds.second;
 		nsyn_sites_vect[b_time] = nsyn_sites;
 		syn_sites_vect[b_time] = syn_sites;
 		fitness_vect[b_time] = f;

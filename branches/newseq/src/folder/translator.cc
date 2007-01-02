@@ -84,7 +84,7 @@ int Translator::translateWeighted( const CodingRNA &g, Protein& residue_sequence
 		char residue = GeneticCodeUtil::geneticCode(ci);
 		residue_sequence[i] = residue;
 
-		if ( residue < 0 ) {
+		if ( residue == GeneticCodeUtil::STOP ) {
 			truncated = true;
 		}
 		else {
@@ -101,7 +101,7 @@ int Translator::translateWeighted( const CodingRNA &g, Protein& residue_sequence
 					residue_sequence[i] = p.second;
 					targ = p.first;
 				}
-				if (residue_sequence[i] < 0) { // truncation error
+				if (residue_sequence[i] == GeneticCodeUtil::STOP) { // truncation error
 					truncated = true;
 				}
 				if (residue_sequence[i] != residue) {
@@ -166,7 +166,7 @@ int Translator::translateRelativeWeighted( const CodingRNA &g, Protein& residue_
 			}
 		}
 		// Check for truncation.  May not be an error!
-		if (residue_sequence[i] < 0) {
+		if ( residue_sequence[i] == GeneticCodeUtil::STOP ) {
 			truncated = true;
 		}
 	}

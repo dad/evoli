@@ -94,11 +94,11 @@ public:
 	 * from genotype 1 to genotype 2 (these numbers are not! normalized by
 	 * the number of synonymous/nonsynonymous sites).
 	 **/
-	static void calcDnDs( double &dn, double &ds, const CodingDNA &g1, const CodingDNA &g2 )
+	static pair<double,double> calcDnDs( const CodingDNA &g1, const CodingDNA &g2 )
 	{
 		assert( g1.length() == g2.length() );
 		int e = g1.codonLength();
-		dn = ds =0;
+		double dn =0, ds =0;
 		for ( int i=0; i<e; i++ )
 		{
 			pair<double,double> dnds = GeneticCodeUtil::calcDnDs( g1.getCodon(i), g2.getCodon(i) );
@@ -109,6 +109,7 @@ public:
 			dn += dnds.first;
 			ds += dnds.second;
 		}
+		return pair<double,double>(dn,ds);
 	}
 
 	/**
@@ -185,14 +186,15 @@ public:
 		int count = 0, tot=0;
 		char methionine = 'M';
 		char tryptophan = 'W';
-		int codon = -1;
+
 		for (int i=0; i<g.codonLength(); i++) {
 			Codon c = g.getCodon(i);
 			int index = GeneticCodeUtil::codonToIndex(c);
+			assert( index >= 0 && index < is_optimal.size() );
+			//assert(is_optimal.size() == 64);
 			char aa = GeneticCodeUtil::geneticCode(c);
 			if ( !(aa == methionine || aa == tryptophan)) {
 				tot += 1;
-				cout << index << endl;
 				if (is_optimal[index]) {
 					count += 1;
 				}
@@ -238,6 +240,8 @@ public:
 
 	/**
 	 * Produces a sequence encoding the same amino acid sequence as gene g, but with randomly chosen codons.
+	 * @param g A gene sequence.
+	 * @return A gene sequence encoding the same protein sequence as g, with randomly selected codons.  
 	 * Returns the original sequence if it doesn't translate properly.
 	 **/
 	static CodingDNA randomizeCodons( const CodingDNA &g ) {
@@ -323,6 +327,8 @@ public:
 			found = (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= min_free_energy_for_starting);
 			//cout << fdata->getStructure() << "\t" << fdata->getFreeEnergy() << "\t" << g << endl;
 		} while ( !found );
+
+		//cout << "hey" << endl;
 
 		int fail_count = 0;
 		int total_fail_count = 0;

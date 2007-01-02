@@ -77,18 +77,17 @@ CodingDNA CodingDNA::createRandom(unsigned int length ) {
 
 CodingDNA CodingDNA::createRandomNoStops(unsigned int length ) {
 	assert( length % 3 == 0 );
-	CodingDNA g( length, 'A' );
-	CodingDNA::iterator it = g.begin();
-	string nts("ATGC");
-
+	CodingDNA g( length );
+	//cout << "rand" << endl;
 	for (unsigned int j=0; j<length/3; j++) {
 		do {
 			for (unsigned int k=0; k<3; k++) {
-				char nt = nts[Random::rint( 4 )];
+				char nt = GeneticCodeUtil::DNA_NUCLEOTIDES[Random::rint( 4 )];
 				g[3*j+k] = nt;
 			}
-		} while (GeneticCodeUtil::geneticCode(g.transcribe().getCodon(j)) == GeneticCodeUtil::STOP);
+		} while (GeneticCodeUtil::geneticCode(g.getCodon(j)) == GeneticCodeUtil::STOP);
 	}
+	//cout << "end rand" << g << endl;
 	return g;
 }
 

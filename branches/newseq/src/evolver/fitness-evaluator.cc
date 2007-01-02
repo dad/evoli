@@ -123,9 +123,8 @@ ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int p
 
 	// Build the weight matrices for translation.
 	buildWeightMatrix();
-	
 	// Get a seed genotype.
-	Gene seed_gene = GeneUtil::getSequenceForStructure(*protein_folder, protein_length*3, max_free_energy, protein_structure_ID);
+	CodingDNA seed_gene = GeneUtil::getSequenceForStructure(*protein_folder, protein_length*3, max_free_energy, protein_structure_ID);
 	assert(seed_gene.encodesFullLength());
 	assert(seed_gene.translate().length() == protein_length);
 	assert(getFolded(seed_gene));
@@ -155,7 +154,7 @@ ErrorproneTranslation::ErrorproneTranslation( Folder *protein_folder, const int 
 void ErrorproneTranslation::buildWeightMatrix() {
 	// This weight matrix contains the probability that a given codon will be mistranslated as a given amino acid,
 	// including a stop (at pos 20).
-	m_weight_matrix.resize( 64 );
+	//m_weight_matrix.resize( 64 );
 
 	//This weight matrix contains the sorted cumulative probability that
 	//a given codon will be mistranslated as a given amino acid, including a stop.
@@ -163,7 +162,7 @@ void ErrorproneTranslation::buildWeightMatrix() {
 
 	for (int c=0; c<64; c++)
 	{
-		m_weight_matrix[c].resize( 21 ); // 20 aa's plus stop
+		//m_weight_matrix[c].resize( 21 ); // 20 aa's plus stop
 		m_cum_weight_matrix[c].resize(21, pair<double,int>(0.0,-2));
 	}
 	vector<vector<double> > codon_to_codon_probabilities(64);
@@ -197,12 +196,12 @@ void ErrorproneTranslation::buildWeightMatrix() {
 		for (int tc=0; tc<64; tc++)	{
 			Codon codon = GeneticCodeUtil::indexToCodon(tc);
 			char aa_char = GeneticCodeUtil::geneticCode(codon);
-			int aa = GeneticCodeUtil::indexToAminoAcidLetter(aa_char);
+			int aa = GeneticCodeUtil::aminoAcidLetterToIndex(aa_char);
 			if (aa < 0)	{
 				aa = 20;
 			}
 
-			m_weight_matrix[c][aa] += codon_to_codon_probabilities[c][tc];
+			//m_weight_matrix[c][aa] += codon_to_codon_probabilities[c][tc];
 			m_cum_weight_matrix[c][aa].first += codon_to_codon_probabilities[c][tc];
 		}
 		// Sort the weights in preparation for computing ordered cumulative probabilities
@@ -216,7 +215,6 @@ void ErrorproneTranslation::buildWeightMatrix() {
 			tot = p.first;
 		}
 	}
-
 
 	//    print the result for good measure
 //	 for ( int c=0; c<64; c++ )
@@ -489,7 +487,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
  * Computes the expected value of various translational outcomes from the gene g.
  *
  */
-double ErrorproneTranslation::calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) {
+double ErrorproneTranslation::calcOutcomes( const CodingDNA &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) {
 	// Assess folding of native sequence.
 
 	// First we cover the case of any existing stop codons
@@ -520,13 +518,15 @@ double ErrorproneTranslation::calcOutcomes( const Gene &g, double &frac_accurate
 	double p_fold = 1.0;
 	double p_notrunc = 1.0;
 	double inv_site_error_weight = 1.0/(m_error_weight/g.codonLength());
-	int codon = -2;
+	Codon codon;
+	int codon_index = -2;
 	// Iterate over all sites
 	for ( int i=0; i<prot.length(); i++ ) {
-		const int old_res = prot[i];
-		codon = g[i];
+		const char old_res = prot[i];
+		codon = g.getCodon(i);
+		codon_index = GeneticCodeUtil::codonToIndex(codon);
 		// Probability of an event at this site
-		double site_weight = 1.0 + m_codon_cost[codon]*(m_ca_cost-1);
+		double site_weight = 1.0 + m_codon_cost[codon_index]*(m_ca_cost-1);
 		double p_codon_error = m_error_rate * site_weight * inv_site_error_weight;
 		// Now go through possible translation outcomes at this codon.
 		double last_prob = 0.0;
@@ -536,14 +536,14 @@ double ErrorproneTranslation::calcOutcomes( const Gene &g, double &frac_accurate
 		for (unsigned int noutcome=0; noutcome<21; noutcome++) {
 			// The first member of the pair is a cumulative probability; the second is
 			// the residue resulting from the error.
-			pair<double, int> p = m_cum_weight_matrix[codon][noutcome];
+			pair<double, char> p = m_cum_weight_matrix[codon_index][noutcome];
 			prot[i] = p.second;
 			// Probability of this particular event given an error at this site
 			double p_outcome = (p.first-last_prob);
 			if (p_outcome < 1e-6) { // Ignore this and all subsequent very-low-probability events
 				break;
 			}
-			bool trunc = (prot[i] < 0); // truncation error.
+			bool trunc = (prot[i] == GeneticCodeUtil::STOP); // truncation error.
 			if (trunc) {
 				p_trunc_site += p_outcome;
 			}

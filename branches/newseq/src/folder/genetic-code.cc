@@ -206,6 +206,7 @@ int GeneticCodeUtil::aminoAcidLetterToIndex(char aa) {
 		return (*it).second;
 	}
 	else {
+		assert(false);
 		return INVALID_INDEX;
 	}
 }
@@ -217,7 +218,7 @@ char GeneticCodeUtil::indexToAminoAcidLetter(int index) {
 
 int GeneticCodeUtil::codonToIndex(Codon codon) {
 	// DAD: currently (potentially) PAINFULLY slow.
-	int index = -1;
+	int index = INVALID_INDEX;
 	for (index=0; index<128; index++) {
 		Codon c = codonAAPairs[index].first;
 		if (c == codon) {
@@ -592,6 +593,8 @@ double GeneticCodeUtil::calcNonsynMutationOpportunity( Codon test_codon, double 
 bool GeneticCodeUtil::m_setup=false;
 GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dnLookup;
 GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dsLookup;
+double GeneticCodeUtil::m_dnTable[64][64];
+double GeneticCodeUtil::m_dsTable[64][64];
 
 pair<double, double> GeneticCodeUtil::calcDnDs( Codon test_codon1, Codon test_codon2 ) {
 	// Short-circuit if trivial...
@@ -603,60 +606,35 @@ pair<double, double> GeneticCodeUtil::calcDnDs( Codon test_codon1, Codon test_co
 	Codon codon2 = test_codon2.transcribe();
 	double dn=-1, ds=-1;
 
-	//hash_map<const char*, double, hash<const char*> > m_dnLookup;
-	//hash_map<const char*, double, hash<const char*> > m_dsLookup;
 	// This implementation is not thread-safe.
 	if ( !m_setup )	{
 		//int num_records = 0;
-		// DAD: setting m_setup to false generates good behavior, while m_setup = true
-		// yields incorrect behavior.  Happens whether optimizations are on or not.
-		m_setup = false; //true;
-		m_dnLookup.clear();
-		m_dnLookup.resize(64*64);
-		m_dsLookup.clear();
-		m_dsLookup.resize(64*64);
+		m_setup = true;
+		//m_dnLookup.clear();
+		//m_dnLookup.resize(64*64);
+		//m_dsLookup.clear();
+		//m_dsLookup.resize(64*64);
 		for ( int i=0; i<64; i++) {
 			for ( int j=0; j<64; j++ )	{
 				Codon c1 = codonAAPairs[i].first;
 				Codon c2 = codonAAPairs[j].first;
+				int c1index = codonToIndex(c1);
+				int c2index = codonToIndex(c2);
 				calcDnDsPrivate( dn, ds, c1, c2 );
-				const char* key = (c1+c2).c_str();
-				m_dnLookup[key] = dn;
-				m_dsLookup[key] = ds;
-				//num_records++;
-				//cout << "in:  " << key << " " << c1 << " " << c2 << " " << dn << " " << ds << " " << num_records << " " << m_dnLookup.size() << endl;
-				//key = (c2+c1).c_str();
-				//dn = m_dnLookup[key];
-				//ds = m_dsLookup[key];
-				//cout << "opp: " << key << " " << c1 << " " << c2 << " " << dn << " " << ds << endl;
+				//const char* key = (c1+c2).c_str();
+				m_dnTable[c1index][c2index] = dn;
+				m_dsTable[c1index][c2index] = ds;
+				//cout << c1index << " " << c2index << " " << dn << " " << ds << endl;
 			}
 		}
 	}
-
-	const char* key = (codon1+codon2).c_str();
-	StringDoubleMap::const_iterator it = m_dnLookup.find(key);
-	if (it != m_dnLookup.end()) {
-		dn = (*it).second;
-	}
-	else {
-		//cout << "n ent: " << m_dnLookup.count(key) << endl;
-		if (false) {
-			it = m_dnLookup.begin();
-			int k =0;
-			for (; it != m_dnLookup.end(); ++it, k++ ) {
-				const pair<const char*, double>& xx = *it;
-				cout << k << " " << xx.first << " " << xx.second << endl;
-			}
-		}
-		//cout << "dn fail: " << codon1 << " " << codon2 << " " << key << " " << m_dnLookup.size() << " " << (*(m_dnLookup.begin())).first << endl;
-	}
-	it = m_dsLookup.find(key);
-	if (it != m_dsLookup.end()) {
-		ds = (*it).second;
-	}
-	else {
-		//cout << "ds fail: " << codon1 << " " << codon2 << " " << key << " " << m_dsLookup.size() << endl;
-	}
+	
+	int c1index = codonToIndex(codon1);
+	int c2index = codonToIndex(codon2);
+	assert(c1index >= 0 && c1index < 64);
+	assert(c2index >= 0 && c2index < 64);
+	dn = m_dnTable[c1index][c2index];
+	ds = m_dsTable[c1index][c2index];
 	return pair<double,double>(dn,ds);
 }
 

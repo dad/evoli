@@ -106,21 +106,18 @@ struct TEST_CLASS( population )
 			if ( analyzer.calcCoalescenceTime() > equil_time + window_size )
 				break;
 		}
-//		p.printCodingDNAbank( cout );
 		double ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop;
-		vector<bool> is_optimal;
-		for( int i=0; i<64; i++ )
-			is_optimal.push_back( false );
+		vector<bool> is_optimal(64, false);
 
 		analyzer.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 
-		std::cout << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
+		//std::cout << endl << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
 
-		TEST_ASSERT( fabs( ave_dn - 7) < 1e-4 );
-		TEST_ASSERT( fabs( ave_ds - 1) < 1e-4 );
-		TEST_ASSERT( fabs( ave_N - 37.7667) < 1e-4 );
-		TEST_ASSERT( fabs( ave_S - 10.2333) < 1e-4 );
-		TEST_ASSERT( fabs( ave_f - 0.998525) < 1e-4 );
+		TEST_ASSERT( fabs( ave_dn - 12) < 1e-4 );
+		TEST_ASSERT( fabs( ave_ds - 2) < 1e-4 );
+		TEST_ASSERT( fabs( ave_N - 33.7222) < 1e-4 );
+		TEST_ASSERT( fabs( ave_S - 14.2778) < 1e-4 );
+		TEST_ASSERT( fabs( ave_f - 0.934205) < 1e-4 );
 		TEST_ASSERT( fabs( ave_fop - 0) < 1e-10 );
 	}
 
@@ -129,7 +126,7 @@ struct TEST_CLASS( population )
 		int protein_length = 300;
 		int N = 100;
 		double U = 1.0/(N*protein_length);
-		Population<Gene, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
+		Population<CodingDNA, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
 		SimpleMutator mut(U);
 		string fname = "test/data/rand_contact_maps/maps.txt";
 		ifstream fin(fname.c_str());

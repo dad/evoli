@@ -144,6 +144,7 @@ struct TEST_CLASS( protein_gene_basic )
 		int sid = 574;
 		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		Protein p = g.translate();
+		//cout << "xx" << p << endl;
 		auto_ptr<FoldInfo> fi( folder.fold(p) );
 		TEST_ASSERT( fi->getFreeEnergy() <= max_dg );
 		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
