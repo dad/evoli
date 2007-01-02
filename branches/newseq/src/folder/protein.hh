@@ -37,6 +37,12 @@ public:
 	}
 	Codon(const string&s) : Sequence(s) {}
 	Codon(const char*s) : Sequence(s) {}
+
+	/**
+	 * Transcribes DNA pseudo-codon into RNA codon.
+	 * @return A Codon, with instances of T in the original Codon replaced by U.
+	 **/
+	Codon transcribe() const;
 };
 
 typedef pair<int, int> Contact;

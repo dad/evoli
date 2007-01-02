@@ -481,8 +481,10 @@ int synHelper(Codon& codon, Codon& varcodon, unsigned int ntpos) {
 	return numSyn;
 }
 
-double GeneticCodeUtil::calcSynonymousSites( Codon codon, int sites )
+double GeneticCodeUtil::calcSynonymousSites( Codon test_codon, int sites )
 {
+	// Turn into an RNA codon
+	Codon codon = test_codon.transcribe();
 	int numSyn = 0;
 	Codon varcodon(codon);
 
@@ -499,12 +501,14 @@ double GeneticCodeUtil::calcSynonymousSites( Codon codon, int sites )
 }
 
 
-double GeneticCodeUtil::calcSynMutationOpportunity( Codon codon, double rho )
+double GeneticCodeUtil::calcSynMutationOpportunity( Codon test_codon, double rho )
 {
 	double S = 0;
 	double wti = 2*rho; // weight for transitions, have to multiply by two because there are two times as many transversions
 	double wtv = 1; // weight for transversions
 	const char* nts = GeneticCodeUtil::RNA_NUCLEOTIDES;
+	// Turn into an RNA codon
+	Codon codon = test_codon.transcribe();
 
 	Codon varcodon(codon);
 
@@ -539,12 +543,14 @@ double GeneticCodeUtil::calcSynMutationOpportunity( Codon codon, double rho )
 	return S/(2.+2*rho);
 }
 
-double GeneticCodeUtil::calcNonsynMutationOpportunity( Codon codon, double rho )
+double GeneticCodeUtil::calcNonsynMutationOpportunity( Codon test_codon, double rho )
 {
 	double N = 0;
 	double wti = 2*rho; // weight for transitions, have to multiply by two because there are two times as many transversions
 	double wtv = 1; // weight for transversions
-	string nts("AUGC"); // Alternative nucleotides
+	const char* nts = GeneticCodeUtil::RNA_NUCLEOTIDES;
+	// Turn into an RNA codon
+	Codon codon = test_codon.transcribe();
 
 	Codon varcodon(codon);
 
@@ -580,52 +586,84 @@ double GeneticCodeUtil::calcNonsynMutationOpportunity( Codon codon, double rho )
 }
 
 bool GeneticCodeUtil::m_setup=false;
-hash_map<const char*, double, hash<const char*> > GeneticCodeUtil::m_dnLookup;
-hash_map<const char*, double, hash<const char*> > GeneticCodeUtil::m_dsLookup;
-double GeneticCodeUtil::m_dnTable[64][64];
-double GeneticCodeUtil::m_dsTable[64][64];
+GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dnLookup;
+GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dsLookup;
 
-void GeneticCodeUtil::calcDnDs( double &dn, double &ds, Codon codon1, Codon codon2 ) {
+pair<double, double> GeneticCodeUtil::calcDnDs( Codon test_codon1, Codon test_codon2 ) {
+	// Short-circuit if trivial...
+	if (test_codon1 == test_codon2) {
+		return pair<double,double>(0.,0.);
+	}
+	// Turn into RNA codons
+	Codon codon1 = test_codon1.transcribe();
+	Codon codon2 = test_codon2.transcribe();
+	double dn=-1, ds=-1;
+
+	//hash_map<const char*, double, hash<const char*> > m_dnLookup;
+	//hash_map<const char*, double, hash<const char*> > m_dsLookup;
 	// This implementation is not thread-safe.
 	if ( !m_setup )	{
-		m_setup = true;
-		for ( int i=0; i<128; i++) {
-			for ( int j=0; j<128; j++ )	{
+		//int num_records = 0;
+		// DAD: setting m_setup to false generates good behavior, while m_setup = true
+		// yields incorrect behavior.  Happens whether optimizations are on or not.
+		m_setup = false; //true;
+		m_dnLookup.clear();
+		m_dnLookup.resize(64*64);
+		m_dsLookup.clear();
+		m_dsLookup.resize(64*64);
+		for ( int i=0; i<64; i++) {
+			for ( int j=0; j<64; j++ )	{
 				Codon c1 = codonAAPairs[i].first;
 				Codon c2 = codonAAPairs[j].first;
 				calcDnDsPrivate( dn, ds, c1, c2 );
-				const char* key = c1.append(c2).c_str();
+				const char* key = (c1+c2).c_str();
 				m_dnLookup[key] = dn;
 				m_dsLookup[key] = ds;
-				//m_dnTable[i][j] = dn;
-				//m_dsTable[i][j] = ds;
-//				 CodonUtil::printCodon( cout, i );
-//				 cout << " ";
-//				 CodonUtil::printCodon( cout, j );
-//				 cout << " " << dn << " " << ds << endl;
+				//num_records++;
+				//cout << "in:  " << key << " " << c1 << " " << c2 << " " << dn << " " << ds << " " << num_records << " " << m_dnLookup.size() << endl;
+				//key = (c2+c1).c_str();
+				//dn = m_dnLookup[key];
+				//ds = m_dsLookup[key];
+				//cout << "opp: " << key << " " << c1 << " " << c2 << " " << dn << " " << ds << endl;
 			}
 		}
 	}
 
-	//dn = m_dnTable[codon1][codon2];
-	//ds = m_dsTable[codon1][codon2];
-	const char* key = codon1.append(codon2).c_str();
-	hash_map<const char*, double, hash<const char*> >::const_iterator it = m_dnLookup.find(key);
+	const char* key = (codon1+codon2).c_str();
+	StringDoubleMap::const_iterator it = m_dnLookup.find(key);
 	if (it != m_dnLookup.end()) {
 		dn = (*it).second;
+	}
+	else {
+		//cout << "n ent: " << m_dnLookup.count(key) << endl;
+		if (false) {
+			it = m_dnLookup.begin();
+			int k =0;
+			for (; it != m_dnLookup.end(); ++it, k++ ) {
+				const pair<const char*, double>& xx = *it;
+				cout << k << " " << xx.first << " " << xx.second << endl;
+			}
+		}
+		//cout << "dn fail: " << codon1 << " " << codon2 << " " << key << " " << m_dnLookup.size() << " " << (*(m_dnLookup.begin())).first << endl;
 	}
 	it = m_dsLookup.find(key);
 	if (it != m_dsLookup.end()) {
 		ds = (*it).second;
 	}
+	else {
+		//cout << "ds fail: " << codon1 << " " << codon2 << " " << key << " " << m_dsLookup.size() << endl;
+	}
+	return pair<double,double>(dn,ds);
 }
 
 
-void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, Codon codon1, Codon codon2 ) {
+void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, Codon test_codon1, Codon test_codon2 ) {
+	// Turn into RNA codons
+	Codon codon1 = test_codon1.transcribe();
+	Codon codon2 = test_codon2.transcribe();
 	dn = 0; // the number of nonsynonymous substitutions between the two codons
 	ds = 0; // the number of synonymous substitutions between the two codons
 
-	//Codon c1 = codon1, c2 = codon2; // holds the two codons as arrays of single letters
 	int subst_positions[3]; // holds the positions at which the two codons differ
 	int differences = 0; // number of positions at which the two codons differ
 	Codon tmpc; // temporary codon (for paths)
@@ -748,8 +786,12 @@ void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, Codon codon1, Cod
 }
 
 
-pair<double, double> GeneticCodeUtil::calcDnDsWeightedPrivate( Codon codon1, Codon codon2, double rho )
+pair<double, double> GeneticCodeUtil::calcDnDsWeightedPrivate(Codon test_codon1, Codon test_codon2, double rho )
 {
+	// Turn into RNA codons
+	Codon codon1 = test_codon1.transcribe();
+	Codon codon2 = test_codon2.transcribe();
+
 	#ifndef NDEBUG
 	// check that function is called correctly
 	//int cala, calb, calc, cbla, cblb, cblc;
@@ -780,8 +822,11 @@ pair<double, double> GeneticCodeUtil::calcDnDsWeightedPrivate( Codon codon1, Cod
 }
 
 
-pair<double, double> GeneticCodeUtil::calcDnDsWeighted( Codon codon1, Codon codon2, double rho )
+pair<double, double> GeneticCodeUtil::calcDnDsWeighted(Codon test_codon1, Codon test_codon2, double rho )
 {
+	// Turn into RNA codons
+	Codon codon1 = test_codon1.transcribe();
+	Codon codon2 = test_codon2.transcribe();
 	double dn = 0; // the number of nonsynonymous substitutions between the two codons
 	double ds = 0; // the number of synonymous substitutions between the two codons
 

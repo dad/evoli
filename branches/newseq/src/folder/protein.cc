@@ -25,6 +25,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "genetic-code.hh"
 #include <sstream>
 
+
+Codon Codon::transcribe() const {
+	Codon res = *this;
+	for (int i=0; i<3; i++) {
+		if (res[i] == 'T')
+			res[i] = 'U';
+	}
+	return res;
+}
+
 Protein::Protein(unsigned int length) : Sequence(length, 'A') {
 }
 

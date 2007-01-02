@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "protein.hh"
 #include "genetic-code.hh"
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 struct TEST_CLASS( genetic_code_basic ) {
@@ -149,6 +150,23 @@ struct TEST_CLASS( genetic_code_basic ) {
 		//cout << endl << c1 << " " << syn_sites << endl;
 		TEST_ASSERT(syn_sites == 3.0/3.0);
 	}
+	void TEST_FUNCTION( dn_ds_unweighted1 ) {
+		Codon c1("CGU");
+		Codon c2("CGC");
+		pair<double, double> dnds = GeneticCodeUtil::calcDnDs(c1, c2);
+		stringstream ss;
+		ss << "dn: " << dnds.first << " ds: " << dnds.second;
+		TEST_ASSERT_M(dnds.first == 0 && dnds.second == 1, ss.str());
+	}
+	void TEST_FUNCTION( dn_ds_unweighted2 ) {
+		Codon c1("AUG");
+		Codon c2("ACG");
+		pair<double, double> dnds = GeneticCodeUtil::calcDnDs(c1, c2);
+		stringstream ss;
+		ss << "dn: " << dnds.first << " ds: " << dnds.second;
+		TEST_ASSERT_M(dnds.first == 1 && dnds.second == 0, ss.str());
+	}
+
 
 
 };

@@ -99,17 +99,15 @@ public:
 		assert( g1.length() == g2.length() );
 		int e = g1.codonLength();
 		dn = ds =0;
-		double tmp_dn, tmp_ds;
-
 		for ( int i=0; i<e; i++ )
 		{
-			GeneticCodeUtil::calcDnDs( tmp_dn, tmp_ds, g1.getCodon(i), g2.getCodon(i) );
+			pair<double,double> dnds = GeneticCodeUtil::calcDnDs( g1.getCodon(i), g2.getCodon(i) );
 			//			 CodonUtil::printCodon( cout, g1[i] );
 			//			 cout << " ";
 			//			 CodonUtil::printCodon( cout, g2[i] );
 			//			 cout << " " << tmp_dn << " " << tmp_ds << endl;
-			dn += tmp_dn;
-			ds += tmp_ds;
+			dn += dnds.first;
+			ds += dnds.second;
 		}
 	}
 
@@ -129,20 +127,20 @@ public:
 
 		for ( int i=0; i<e; i++ )
 		{
-			GeneticCodeUtil::calcDnDs( tmp_dn, tmp_ds, g1.getCodon(i), g2.getCodon(i) );
+			pair<double,double> dnds = GeneticCodeUtil::calcDnDs( g1.getCodon(i), g2.getCodon(i) );
 			//			 CodonUtil::printCodon( cout, g1[i] );
 			//			 cout << " ";
 			//			 CodonUtil::printCodon( cout, g2[i] );
 			//			 cout << " " << tmp_dn << " " << tmp_ds << endl;
 			if ( surface[i] )
 			{
-				dnSurf += tmp_dn;
-				dsSurf += tmp_ds;
+				dnSurf += dnds.first;
+				dsSurf += dnds.second;
 			}
 			else
 			{
-				dnCore += tmp_dn;
-				dsCore += tmp_ds;
+				dnCore += dnds.first;
+				dsCore += dnds.second;
 			}
 		}
 	}

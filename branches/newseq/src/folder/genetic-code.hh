@@ -45,13 +45,12 @@ class GeneticCodeUtil
 {
 public:
 	typedef hash_map<const Codon, char, hash_codon > CodonMap;
+	typedef hash_map<const char*, double, hash<const char*> > StringDoubleMap;
 private:
 	// All this is needed for the function calc DnDs.
 	static bool m_setup;
-	static hash_map<const char*, double, hash<const char*> > GeneticCodeUtil::m_dnLookup;
-	static hash_map<const char*, double, hash<const char*> > GeneticCodeUtil::m_dsLookup;
-	static double m_dnTable[64][64];
-	static double m_dsTable[64][64];
+	static StringDoubleMap m_dnLookup;
+	static StringDoubleMap m_dsLookup;
 	static void calcDnDsPrivate( double &dn, double &ds, Codon codon1, Codon codon2 );
 	static pair<double, double> calcDnDsWeightedPrivate( Codon codon1, Codon codon2, double rho );
 
@@ -187,8 +186,12 @@ public:
 	 * (ds) substitutions between codon1 and codon2. If the two codons differ
 	 * by more than one base, all possible paths are weighted equally.
 	 * Stop codons are not excluded from the analysis.
+	 \warning This function has not been fully debugged, and may contain mistakes (though none are known). Use at your own peril.
+	 \param codon1 The originating codon.
+	 \param codon2 The destination codon.
+	 \return A pair containing dn and ds (in this order).
 	 **/
-	static void calcDnDs( double &dn, double &ds, Codon codon1, Codon codon2 );
+	static pair<double, double> calcDnDs( Codon codon1, Codon codon2 );
 
 	/**
 	Calculates the number of changes in nonsynonymous (dn) and synonymous
