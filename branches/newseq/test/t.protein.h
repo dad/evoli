@@ -63,6 +63,20 @@ struct TEST_CLASS( protein_gene_basic )
 		TEST_ASSERT( p == p2 );
 		return;
 	}
+	void TEST_FUNCTION( randomize_codons )
+	{
+		CodingDNA g = CodingDNA::createRandomNoStops(gene_length);
+		for (int i=0; i<100; i++) {
+			//cout << g << endl;
+			Protein p = g.translate();
+			//cout << p << endl;
+			Protein p2 = GeneUtil::randomizeCodons(g).translate();
+			//cout << p2 << endl;
+			TEST_ASSERT_M( p == p2, p + "\n" + p2 );
+		}
+		return;
+	}
+
 	void TEST_FUNCTION( gene_string_gene )
 	{
 		CodingDNA g = CodingDNA::createRandom(gene_length);

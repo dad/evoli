@@ -6,4 +6,6 @@
 * to reach the above goal, remove function analyzeDnDs(); (Claus)
 * make function ErrorproneTranslation::getCodonCosts() not return a pointer
   to an internal data structure. (?)
-
+* convert calcOutcomes(...) and countOutcomes(...) to return a data structure 
+  rather than modifying a large set of incoming references (Allan)
+* refactor files to adhere to one-class-one-file paradigm (Allan)

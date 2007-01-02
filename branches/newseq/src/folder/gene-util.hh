@@ -243,12 +243,7 @@ public:
 		CodingDNA result(g);
 		if ( g.encodesFullLength() ) {
 			Protein p = g.translate();
-			for ( unsigned int i=0; i<p.length(); i++ ) {
-				int num_alts = GeneticCodeUtil::residueToAllCodonsTable[p[i]][0];
-				// Now choose from alternatives at random
-				int randbin = Random::rint( num_alts );
-				result[i] = GeneticCodeUtil::residueToAllCodonsTable[p[i]][randbin+1];
-			}
+			result = reverseTranslate(p);
 		}
 		return result;
 	}
@@ -263,7 +258,7 @@ public:
 		// DAD: strange...size of the GeneticCodeUtil hash_map RNACodonToAA is 139, not 64!  Figure this out.
 		hash_map<const Codon, char, hash_codon> gc(GeneticCodeUtil::codonAAPairs, GeneticCodeUtil::codonAAPairs+64);
 		// DAD: probably only want to do this once!
-		hash_map<char, vector<Codon>, hash<char> > AAToRNACodons;
+		hash_map<char, vector<Codon>, hash<char> > AAToDNACodons;
 		hash_map<const Codon, char, hash_codon>::iterator map_it = gc.begin();
 		int i = 0;
 		for (; map_it != gc.end(); map_it++) {
@@ -272,16 +267,16 @@ public:
 			Codon codon = p.first;
 			//cout << ++i << " " << key << " " << codon << endl;
 			
-			hash_map<char, vector<Codon>, hash<char> >::iterator found_it = AAToRNACodons.find(key);
-			if (found_it == AAToRNACodons.end()) {
+			hash_map<char, vector<Codon>, hash<char> >::iterator found_it = AAToDNACodons.find(key);
+			if (found_it == AAToDNACodons.end()) {
 				// Insert a new vector
-				AAToRNACodons[key] = vector<Codon>();
-				AAToRNACodons[key].push_back(codon);
+				AAToDNACodons[key] = vector<Codon>();
+				AAToDNACodons[key].push_back(codon);
 			}
 			else {
 				// Append next codon
-				AAToRNACodons[key].push_back(codon);
-				//cout << key << " " << codon << " " << AAToRNACodons[key].size() << endl;
+				AAToDNACodons[key].push_back(codon);
+				//cout << key << " " << codon << " " << AAToDNACodons[key].size() << endl;
 			}
 		}
 		CodingDNA g(prot.length()*3);
@@ -292,7 +287,7 @@ public:
 			char aa = *it;
 			//cout << which_codon << " " << aa << endl;
 			//continue;
-			vector<Codon>& v = AAToRNACodons[aa];
+			vector<Codon>& v = AAToDNACodons[aa];
 			int rint = Random::rint(v.size());
 			//cout << which_codon << tab << aa << tab << rint << tab << v.size() << tab << flush;
 			Codon codon = v[rint];
