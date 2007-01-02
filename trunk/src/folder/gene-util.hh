@@ -293,16 +293,18 @@ public:
 		bool found = false;
 		double min_free_energy_for_starting = max(300.0, free_energy_cutoff);
 
+		int nfolded = b.getNumFolded();
 		// find sequence that encodes the desired structure
+		int q=0;
 		do {
 			g = Gene::createRandomNoStops( length );
-			//cout << g << endl;
 			Protein p = g.translate();
-			//cout << p << endl;
 			fdata = auto_ptr<FoldInfo>( b.fold(p) );
 			found = (fdata->getStructure() == struct_id && fdata->getDeltaG() <= min_free_energy_for_starting);
 			//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
+			//cout << q++ << " " << g << " " << p << " " << fdata->getStructure() << " " << fdata->getDeltaG() << endl;
 		} while ( !found );
+		//cout << "nf: " << (b.getNumFolded() - nfolded) << endl;
 
 		int fail_count = 0;
 		int total_fail_count = 0;

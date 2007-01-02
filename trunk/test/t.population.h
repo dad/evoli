@@ -46,6 +46,9 @@ struct TEST_CLASS( population )
 		Gene g( "AAAAAAAAGAGUCCUACCACCCUUGACCUCAUGUCCUGUGCAGAUAAU" );
 		
 		pop.init( g, &fe, &mut );
+		//cout << g << endl;
+		//cout << g.translate() << endl;
+		//cout << fe.getFitness( g ) << endl;
 		// without evolution, mean fitness should equal the fitness
 		// of the incoming gene, which should be 0.691722
 		TEST_ASSERT( fabs(fe.getFitness( g )-0.691722) < 1e-4 );
@@ -111,13 +114,13 @@ struct TEST_CLASS( population )
 
 		analyzer.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 
-		std::cout << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
+		//std::cout << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
 
 		TEST_ASSERT( fabs( ave_dn - 7) < 1e-4 );
-		TEST_ASSERT( fabs( ave_ds - 1) < 1e-4 );
-		TEST_ASSERT( fabs( ave_N - 37.7667) < 1e-4 );
-		TEST_ASSERT( fabs( ave_S - 10.2333) < 1e-4 );
-		TEST_ASSERT( fabs( ave_f - 0.998525) < 1e-4 );
+		TEST_ASSERT( fabs( ave_ds - 4) < 1e-4 );
+		TEST_ASSERT( fabs( ave_N - 36.7556) < 1e-4 );
+		TEST_ASSERT( fabs( ave_S - 11.2444) < 1e-4 );
+		TEST_ASSERT( fabs( ave_f - 0.992876) < 1e-4 );
 		TEST_ASSERT( fabs( ave_fop - 0) < 1e-10 );
 	}
 

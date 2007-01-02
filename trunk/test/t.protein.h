@@ -105,7 +105,10 @@ struct TEST_CLASS( protein_gene_basic )
 		CompactLatticeFolder folder(side_length);
 		double max_dg = -1;
 		int sid = 574;
+		Random::seed(11);
+		int nfolded = folder.getNumFolded();
 		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		//cout << "num folded: " << (folder.getNumFolded() - nfolded) << endl;
 		Protein p = g.translate();
 		auto_ptr<FoldInfo> fi( folder.fold(p) );
 		TEST_ASSERT( fi->getDeltaG() <= max_dg );

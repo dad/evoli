@@ -47,29 +47,27 @@ int main( int ac, char **av)
 {
 	cout << "# Starting performance test" << endl;
 	time_t overall_time = time(NULL);
-	Random::seed(11);
+	Random::seed(13);
 	cout << "# Initializing folder" << endl;
 	time_t start_time = time(NULL);
 	// initialize the protein folder
 	int side_length = 5;
-	CompactLatticeFolder* folder = new CompactLatticeFolder(5);
+	CompactLatticeFolder folder(side_length);
 	time_t duration = time(NULL) - start_time;
 	cout << "# Folder initialization: " << duration << " seconds" << endl;
 	cout << "# Initializing fitness evaluator" << endl;
 	start_time = time(NULL);
 	// Choose the FitnessEvaluator based on input parameters (p.eval_type).
-	ErrorproneTranslation* ept = new ErrorproneTranslation( folder, 25, 599, -5, 100, 6, 0.0114, 59.0, 104.5 );
+	ErrorproneTranslation ept( &folder, side_length*side_length, 599, -5, 100, 6, 0.0114, 59.0, 104.5 );
 	cout << "# FE initialization: " << (time(NULL)-start_time) << " seconds" << endl;
 	
 	cout << "# Running evolution" << endl;
 	start_time = time(NULL);
-	evolutionExperiment( *ept );
+	evolutionExperiment( ept );
 	cout << "# Evolution: " << (time(NULL)-start_time) << " seconds" << endl;
 	
 	cout << "# Performance test took " << (time(NULL)-overall_time) << " seconds" << endl;
-	cout << "# Folded " << folder->getNumFolded() << " proteins" << endl;
-	delete ept;
-	delete folder;
+	cout << "# Folded " << folder.getNumFolded() << " proteins" << endl;
 
 	return 0;
 }
@@ -114,6 +112,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, vector<bool>& is_optimal,
 	Folder& folder = *(fe->getFolder());
 	// Find a sequence.
 	Gene g = GeneUtil::getSequenceForStructure(folder, 75, -5, 599);
+	cout << "nf: " <<  folder.getNumFolded() << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, &mut );
 	GenebankAnalyzer<Gene> analyzer(pop.getGenebank());
@@ -124,10 +123,12 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, vector<bool>& is_optimal,
 		for ( int j=0; j<loop_length; j++ ) {
 			pop.evolve();
 		}
+		cout << "nf ev: " << folder.getNumFolded() << endl;
 		analyzer.prepareCoalescenceCalcs(pop.begin(), pop.end(), pop.getNumGenerations());
 		if ( analyzer.calcCoalescenceTime() > 2000 )
 			break;
 	}
+	cout << "# Evolved for " << pop.getNumGenerations() << " generations" << endl;
 
 	return analyzer.analyzeDnDs( 1000, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 }
