@@ -224,6 +224,7 @@ int GeneticCodeUtil::codonToIndex(Codon codon) {
 		}
 	}
 	// Codon was not found.  Error.
+	assert( false ); // exiting the program is probably the best strategy here
 	return -1;
 }
 
