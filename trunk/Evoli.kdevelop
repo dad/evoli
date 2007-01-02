@@ -23,7 +23,7 @@
       <mainprogram>test/runtest</mainprogram>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
-      <programargs/>
+      <programargs></programargs>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
@@ -63,7 +63,7 @@
   </kdevautoproject>
   <kdevdebugger>
     <general>
-      <dbgshell>libtool</dbgshell>
+      <dbgshell></dbgshell>
       <programargs></programargs>
       <gdbpath></gdbpath>
       <configGdbScript></configGdbScript>
@@ -165,12 +165,28 @@
       <inlineGet>true</inlineGet>
       <inlineSet>true</inlineSet>
     </creategettersetter>
+    <references/>
   </kdevcppsupport>
   <kdevfileview>
-    <groups/>
+    <groups>
+      <hidenonprojectfiles>false</hidenonprojectfiles>
+      <hidenonlocation>false</hidenonlocation>
+    </groups>
+    <tree>
+      <showvcsfields>false</showvcsfields>
+      <hidenonprojectfiles>false</hidenonprojectfiles>
+      <hidepatterns>*.o,*.lo,CVS</hidepatterns>
+    </tree>
   </kdevfileview>
   <ctagspart>
     <customArguments/>
     <customTagfilePath/>
   </ctagspart>
+  <kdevdocumentation>
+    <projectdoc>
+      <docsystem></docsystem>
+      <docurl></docurl>
+      <usermanualurl></usermanualurl>
+    </projectdoc>
+  </kdevdocumentation>
 </kdevelop>

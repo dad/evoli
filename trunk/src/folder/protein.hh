@@ -24,103 +24,117 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 #include <vector>
 #include <string>
+#include <cassert>
 #include "sequence.hh"
-#include "genetic-code.hh"
+//#include "genetic-code.hh"
 
 using namespace std;
+
+class Codon : public Sequence {
+public:
+	Codon() : Sequence("AAA") {}
+	Codon(const Sequence& s, unsigned int start) : Sequence(s, start, 3) {
+	}
+	Codon(const string&s) : Sequence(s) {}
+	Codon(const char*s) : Sequence(s) {}
+
+	/**
+	 * Transcribes DNA pseudo-codon into RNA codon.
+	 * @return A Codon, with instances of T in the original Codon replaced by U.
+	 **/
+	Codon transcribe() const;
+};
 
 typedef pair<int, int> Contact;
 
 /** \brief A class holding a protein sequence.
 */
 class Protein : public Sequence {
-private:
-	Protein();
 protected:
 public:
-	Protein(const int length);
-	Protein(const Protein& p);
-	Protein(const string& s);
+	Protein(unsigned int length);
+	Protein(unsigned int length, char val);
+	Protein(const string& s) : Sequence(s) {}
 	~Protein() {}
-
-	/**
-	Calculates the Hamming distance to another protein. Assumes that 
-	the two proteins are of equal lengths.
-	@return The hamming distance to the protein given as argument.
-	*/
-	int distance(const Protein& p) const;
 
 	/**
 	Converts the protein sequence into a string useful for output etc.
 	@return A string object containing the protein sequence, using the single-letter amino-acid alphabet.
 	*/
-	string toString() const;
+	string toString() const { return *this; }
 
 	/**
 	Creates a random protein.
 	@param length Length of the desired protein, in residues
 	@return The random protein.
 	*/
-	static Protein createRandom(const int length);
+	static Protein createRandom(unsigned int length);
 
 };
 
 class Translator;
+class CodingDNA;
+typedef CodingDNA CodingRNA;
 
 /** \brief A class holding a protein-coding DNA sequence.
-
-\warning The current implementation is based on codons, not individual
-nucleotides. As a consequence, the iterators inherited from \ref Sequence iterate over codons, not nucleotides. In the future, we should add a nucleotide_iterator or something similar to iterate over individual nucleotides.
 */
-class Gene : public Sequence {
+class CodingDNA : public Sequence {
 private:
 protected:
 public:
-	Gene();
-	Gene(const int length);
-	Gene(const Gene& g);
-	Gene(const string& s);
-	~Gene() {}
-
-	/**
-	@return The length of the DNA sequence in nucleotides.
-	*/
-	virtual uint length(void) const { return 3*m_sequence.size(); }
+	CodingDNA();
+	CodingDNA(const CodingDNA& g);
+	CodingDNA(const string& s) : Sequence(s) {}
+	CodingDNA(unsigned int length);
+	CodingDNA(unsigned int length, char val);
+	~CodingDNA() {}
 
 	/**
 	@return The length of the DNA sequence in codons.
 	*/
-	virtual uint codonLength(void) const { return m_sequence.size(); }
+	virtual uint codonLength(void) const { return size()/3; }
 
 	/**
-	Translates the DNA sequence into a protein sequence using the given \ref Translator object. Useful for non-standard genetic codes, error-prone translation, etc.
-	\warning The function doesn't test whether the protein is actually translatable, and will return an invalid protein if translation fails. Always check with \ref encodesFullLength() first whether translation is safe.
+	Translates the DNA sequence into a protein sequence using the
+	given \ref Translator object. Useful for non-standard genetic
+	codes, error-prone translation, etc.  
+	
+	\warning The function doesn't test whether the protein is actually
+	translatable, and will return an invalid protein if translation
+	fails. Always check with \ref encodesFullLength() first whether
+	translation is safe.
+
 	@param t \ref Translator object specifying the details of translation.
 	@return The protein sequence.
 	*/
 	Protein translate(const Translator& t) const;
 
 	/**
-	Translates the DNA sequence into a protein sequence using the standard genetic code.
-	\warning The function doesn't test whether the protein is actually translatable, and will return an invalid protein if translation fails. Always check with \ref encodesFullLength() first whether translation is safe.
-	@return The protein sequence.
+	Translates the DNA sequence into a protein sequence using the
+	standard genetic code.  
+
+	\warning The function doesn't test whether the protein is actually
+	translatable, and will return an invalid protein if translation
+	fails. Always check with \ref encodesFullLength() first whether
+	translation is safe.
+
+	@return	The protein sequence.
 	*/
 	Protein translate(void) const;
 
 	/**
-	Creates a random gene. The resulting gene may contain stop codons.
+	Creates a random coding sequence. The resulting gene may contain stop codons.
 	@param length Length of the desired gene, in nucleotides.
 	@return The random gene.
 	*/
-	static Gene createRandom(const int length);
+	static CodingDNA createRandom(unsigned int length);
 
 	/**
 	As @ref createRandom, but now stop codons are avoided.
 	@param length Length of the desired gene, in nucleotides.
 	@return The random gene.
 	*/
-	static Gene createRandomNoStops(const int length);
-	bool mutate(const double prob);
+	static CodingDNA createRandomNoStops(unsigned int length);
 
 	/**
 	Tests whether the DNA sequence contains any stop codons.
@@ -129,45 +143,29 @@ public:
 	bool encodesFullLength(void) const;
 
 	/**
-	Accessor function, returns the nucleotide at a given position.
-	@param index The position in the DNA sequence; counting starts from zero.
-	@return The resulting nucleotide, i.e., 'A', 'C', 'G', or 'U'.
-	*/
-	char getBase(const uint index) const;
+	 * Retrieves the specified codon.
+	 * @return A sequence
+	 **/
+	Codon getCodon(unsigned int codon_index) const {
+		assert(codon_index*3 < length()-2);
+		return Codon(*this, 3*codon_index);
+	}
 
 	/**
-	Converts the DNA sequence into a string useful for output etc.
-	@return A string object containing the DNA sequence, using the single-letter nucleotide abbreviations.
-	*/
-	string toString() const;
+	 * Replaces the specified codon.
+	 * @return A sequence
+	 **/
+	void setCodon(unsigned int codon_index, const Codon& codon);
 
+	/**
+	 * Transcribes DNA into RNA.
+	 * @return A CodingRNA, with instances of T in the original CodingDNA replaced by U.
+	 **/
+	CodingRNA transcribe() const;
 };
 
-
-/**
- * Printing a Gene.
- **/
-inline ostream & operator<<( ostream &s, const Gene &g ) {
-	s << g.toString();
-	return s;
-}
-
-/**
- * Printing a Protein.
- **/
-inline ostream & operator<<( ostream &s, const Protein &p ) {
-	for ( Protein::const_iterator it=p.begin(); it != p.end(); it++) {
-		s << GeneticCodeUtil::residueLetters[*it+1]; // << "  ";
-	}
-	return s;
-}
-
-inline istream & operator>>( istream &s, Gene & g ) {
-	string str;
-	s >> str;
-	g = Gene(str);
-	return s;
-}
+// DAD: Just for now
+typedef CodingDNA Gene;
 
 
 #endif //PROTEIN_HH

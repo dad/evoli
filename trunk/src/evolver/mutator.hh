@@ -47,7 +47,7 @@ public:
 	 * Mutates a gene with the pre-specified probability.
 	 * @return Whether any mutations occurred.
 	 **/
-	virtual bool mutate(Gene& gene);
+	virtual bool mutate(CodingDNA& gene);
 };
 
 /**
@@ -72,7 +72,7 @@ public:
 	 * Mutates a gene with the pre-specified probabilities.
 	 * @return Whether any mutations occurred.
 	 **/
-	virtual bool mutate(Gene& gene);
+	virtual bool mutate(CodingDNA& gene);
 };
 
 #endif // MUTATOR_HH

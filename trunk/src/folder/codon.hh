@@ -121,6 +121,25 @@ public:
 	}
 
 	/**
+	* Tests whether a mutations from base 1 to base 2 is a transition (A<->G, C<->U/T) or not.
+	**/
+	static bool isTransition( char l1, char l2 ) {
+		if ( l1 == 'A' && l2 == 'G' )
+			return true;
+		if ( l1 == 'C' && l2 == 'U' )
+			return true;
+		if ( l1 == 'C' && l2 == 'T' )
+			return true;
+		if ( l1 == 'G' && l2 == 'A' )
+			return true;
+		if ( l1 == 'U' && l2 == 'C' )
+			return true;
+		if ( l1 == 'T' && l2 == 'C' )
+			return true;
+		return false;
+	}
+
+	/**
 	* Tests whether codon co can be turned into codon ct in one nucleotide change.
 	**/
 	static bool isPointMutant( int co, int ct ) {

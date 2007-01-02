@@ -24,9 +24,155 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <vector>
 #include <ostream>
 
+const char GeneticCodeUtil::STOP = '*';
+const char GeneticCodeUtil::INVALID_AA = '@';
+const char GeneticCodeUtil::INVALID_NT = '@';
+const int GeneticCodeUtil::INVALID_INDEX = -2;
+const char* GeneticCodeUtil::AMINO_ACIDS = "ACDEFGHIKLMNPQRSTVWY";
+const char* GeneticCodeUtil::RNA_NUCLEOTIDES = "ACGU";
+const char* GeneticCodeUtil::DNA_NUCLEOTIDES = "ACGT";
+const char* GeneticCodeUtil::ALL_NUCLEOTIDES = "ACGTU";
 
+// The genetic code
+const pair<const Codon,char> GeneticCodeUtil::codonAAPairs[128] =  {
+	pair<const Codon,char>(Codon("AAA"), 'K'),
+	pair<const Codon,char>(Codon("AAC"), 'N'),
+	pair<const Codon,char>(Codon("AAG"), 'K'),
+	pair<const Codon,char>(Codon("AAU"), 'N'),
+	pair<const Codon,char>(Codon("ACA"), 'T'),
+	pair<const Codon,char>(Codon("ACC"), 'T'),
+	pair<const Codon,char>(Codon("ACG"), 'T'),
+	pair<const Codon,char>(Codon("ACU"), 'T'),
+	pair<const Codon,char>(Codon("AGA"), 'R'),
+	pair<const Codon,char>(Codon("AGC"), 'S'),
+	pair<const Codon,char>(Codon("AGG"), 'R'),
+	pair<const Codon,char>(Codon("AGU"), 'S'),
+	pair<const Codon,char>(Codon("AUA"), 'I'),
+	pair<const Codon,char>(Codon("AUC"), 'I'),
+	pair<const Codon,char>(Codon("AUG"), 'M'),
+	pair<const Codon,char>(Codon("AUU"), 'I'),
+	pair<const Codon,char>(Codon("CAA"), 'Q'),
+	pair<const Codon,char>(Codon("CAC"), 'H'),
+	pair<const Codon,char>(Codon("CAG"), 'Q'),
+	pair<const Codon,char>(Codon("CAU"), 'H'),
+	pair<const Codon,char>(Codon("CCA"), 'P'),
+	pair<const Codon,char>(Codon("CCC"), 'P'),
+	pair<const Codon,char>(Codon("CCG"), 'P'),
+	pair<const Codon,char>(Codon("CCU"), 'P'),
+	pair<const Codon,char>(Codon("CGA"), 'R'),
+	pair<const Codon,char>(Codon("CGC"), 'R'),
+	pair<const Codon,char>(Codon("CGG"), 'R'),
+	pair<const Codon,char>(Codon("CGU"), 'R'),
+	pair<const Codon,char>(Codon("CUA"), 'L'),
+	pair<const Codon,char>(Codon("CUC"), 'L'),
+	pair<const Codon,char>(Codon("CUG"), 'L'),
+	pair<const Codon,char>(Codon("CUU"), 'L'),
+	pair<const Codon,char>(Codon("GAA"), 'E'),
+	pair<const Codon,char>(Codon("GAC"), 'D'),
+	pair<const Codon,char>(Codon("GAG"), 'E'),
+	pair<const Codon,char>(Codon("GAU"), 'D'),
+	pair<const Codon,char>(Codon("GCA"), 'A'),
+	pair<const Codon,char>(Codon("GCC"), 'A'),
+	pair<const Codon,char>(Codon("GCG"), 'A'),
+	pair<const Codon,char>(Codon("GCU"), 'A'),
+	pair<const Codon,char>(Codon("GGA"), 'G'),
+	pair<const Codon,char>(Codon("GGC"), 'G'),
+	pair<const Codon,char>(Codon("GGG"), 'G'),
+	pair<const Codon,char>(Codon("GGU"), 'G'),
+	pair<const Codon,char>(Codon("GUA"), 'V'),
+	pair<const Codon,char>(Codon("GUC"), 'V'),
+	pair<const Codon,char>(Codon("GUG"), 'V'),
+	pair<const Codon,char>(Codon("GUU"), 'V'),
+	pair<const Codon,char>(Codon("UAA"), GeneticCodeUtil::STOP),
+	pair<const Codon,char>(Codon("UAC"), 'Y'),
+	pair<const Codon,char>(Codon("UAG"), GeneticCodeUtil::STOP),
+	pair<const Codon,char>(Codon("UAU"), 'Y'),
+	pair<const Codon,char>(Codon("UCA"), 'S'),
+	pair<const Codon,char>(Codon("UCC"), 'S'),
+	pair<const Codon,char>(Codon("UCG"), 'S'),
+	pair<const Codon,char>(Codon("UCU"), 'S'),
+	pair<const Codon,char>(Codon("UGA"), GeneticCodeUtil::STOP),
+	pair<const Codon,char>(Codon("UGC"), 'C'),
+	pair<const Codon,char>(Codon("UGG"), 'W'),
+	pair<const Codon,char>(Codon("UGU"), 'C'),
+	pair<const Codon,char>(Codon("UUA"), 'L'),
+	pair<const Codon,char>(Codon("UUC"), 'F'),
+	pair<const Codon,char>(Codon("UUG"), 'L'),
+	pair<const Codon,char>(Codon("UUU"), 'F'),
+	// DNA pseudo-codons
+	pair<const Codon,char>(Codon("AAA"), 'K'),
+	pair<const Codon,char>(Codon("AAC"), 'N'),
+	pair<const Codon,char>(Codon("AAG"), 'K'),
+	pair<const Codon,char>(Codon("AAT"), 'N'),
+	pair<const Codon,char>(Codon("ACA"), 'T'),
+	pair<const Codon,char>(Codon("ACC"), 'T'),
+	pair<const Codon,char>(Codon("ACG"), 'T'),
+	pair<const Codon,char>(Codon("ACT"), 'T'),
+	pair<const Codon,char>(Codon("AGA"), 'R'),
+	pair<const Codon,char>(Codon("AGC"), 'S'),
+	pair<const Codon,char>(Codon("AGG"), 'R'),
+	pair<const Codon,char>(Codon("AGT"), 'S'),
+	pair<const Codon,char>(Codon("ATA"), 'I'),
+	pair<const Codon,char>(Codon("ATC"), 'I'),
+	pair<const Codon,char>(Codon("ATG"), 'M'),
+	pair<const Codon,char>(Codon("ATT"), 'I'),
+	pair<const Codon,char>(Codon("CAA"), 'Q'),
+	pair<const Codon,char>(Codon("CAC"), 'H'),
+	pair<const Codon,char>(Codon("CAG"), 'Q'),
+	pair<const Codon,char>(Codon("CAT"), 'H'),
+	pair<const Codon,char>(Codon("CCA"), 'P'),
+	pair<const Codon,char>(Codon("CCC"), 'P'),
+	pair<const Codon,char>(Codon("CCG"), 'P'),
+	pair<const Codon,char>(Codon("CCT"), 'P'),
+	pair<const Codon,char>(Codon("CGA"), 'R'),
+	pair<const Codon,char>(Codon("CGC"), 'R'),
+	pair<const Codon,char>(Codon("CGG"), 'R'),
+	pair<const Codon,char>(Codon("CGT"), 'R'),
+	pair<const Codon,char>(Codon("CTA"), 'L'),
+	pair<const Codon,char>(Codon("CTC"), 'L'),
+	pair<const Codon,char>(Codon("CTG"), 'L'),
+	pair<const Codon,char>(Codon("CTT"), 'L'),
+	pair<const Codon,char>(Codon("GAA"), 'E'),
+	pair<const Codon,char>(Codon("GAC"), 'D'),
+	pair<const Codon,char>(Codon("GAG"), 'E'),
+	pair<const Codon,char>(Codon("GAT"), 'D'),
+	pair<const Codon,char>(Codon("GCA"), 'A'),
+	pair<const Codon,char>(Codon("GCC"), 'A'),
+	pair<const Codon,char>(Codon("GCG"), 'A'),
+	pair<const Codon,char>(Codon("GCT"), 'A'),
+	pair<const Codon,char>(Codon("GGA"), 'G'),
+	pair<const Codon,char>(Codon("GGC"), 'G'),
+	pair<const Codon,char>(Codon("GGG"), 'G'),
+	pair<const Codon,char>(Codon("GGT"), 'G'),
+	pair<const Codon,char>(Codon("GTA"), 'V'),
+	pair<const Codon,char>(Codon("GTC"), 'V'),
+	pair<const Codon,char>(Codon("GTG"), 'V'),
+	pair<const Codon,char>(Codon("GTT"), 'V'),
+	pair<const Codon,char>(Codon("TAA"), GeneticCodeUtil::STOP),
+	pair<const Codon,char>(Codon("TAC"), 'Y'),
+	pair<const Codon,char>(Codon("TAG"), GeneticCodeUtil::STOP),
+	pair<const Codon,char>(Codon("TAT"), 'Y'),
+	pair<const Codon,char>(Codon("TCA"), 'S'),
+	pair<const Codon,char>(Codon("TCC"), 'S'),
+	pair<const Codon,char>(Codon("TCG"), 'S'),
+	pair<const Codon,char>(Codon("TCT"), 'S'),
+	pair<const Codon,char>(Codon("TGA"), GeneticCodeUtil::STOP),
+	pair<const Codon,char>(Codon("TGC"), 'C'),
+	pair<const Codon,char>(Codon("TGG"), 'W'),
+	pair<const Codon,char>(Codon("TGT"), 'C'),
+	pair<const Codon,char>(Codon("TTA"), 'L'),
+	pair<const Codon,char>(Codon("TTC"), 'F'),
+	pair<const Codon,char>(Codon("TTG"), 'L'),
+	pair<const Codon,char>(Codon("TTT"), 'F')
+};
 
-pair<const char, int> letterResidues[21] =
+const GeneticCodeUtil::CodonMap GeneticCodeUtil::RNACodonToAA(GeneticCodeUtil::codonAAPairs, GeneticCodeUtil::codonAAPairs+64);
+const GeneticCodeUtil::CodonMap GeneticCodeUtil::DNACodonToAA(GeneticCodeUtil::codonAAPairs+64, GeneticCodeUtil::codonAAPairs+128);
+const GeneticCodeUtil::CodonMap GeneticCodeUtil::codonToAA(GeneticCodeUtil::codonAAPairs, GeneticCodeUtil::codonAAPairs+128);
+
+// Reverse mapping, from AA to vector<Codon>, would be nice, but for some reason doesn't work properly.
+
+const pair<const char, int> GeneticCodeUtil::aaLetterIndices[21] =
 {
 	pair<char, int>('*', -1),
 	pair<char, int>('C', 0),
@@ -52,127 +198,44 @@ pair<const char, int> letterResidues[21] =
 
 };
 
-map<const char, int, less<const char> > GeneticCodeUtil::letter_to_residue_map(letterResidues, letterResidues+sizeof(letterResidues)/sizeof(letterResidues[0]));
+const map<const char, int, less<const char> > GeneticCodeUtil::aminoAcidLetterToIndexMap(aaLetterIndices, aaLetterIndices+sizeof(aaLetterIndices)/sizeof(aaLetterIndices[0]));
 
-// this is the mapping from integer to residue that we use
-const char *GeneticCodeUtil::residues[20] =
-{
-	"CYS", //  0 Cysteine       C
-	"MET", //  1 Methionine     M
-	"PHE", //  2 Phenylalanine  F
-	"ILE", //  3 Isoleucine     I
-	"LEU", //  4 Leucine	L
-	"VAL", //  5 Valine	 V
-	"TRP", //  6 Tryptophan     W
-	"TYR", //  7 Tyrosine       Y
-	"ALA", //  8 Alanine	A
-	"GLY", //  9 Glycine	G
-	"THR", // 10 Threonine      T
-	"SER", // 11 Serine	 S
-	"GLN", // 12 Glutamine      Q
-	"ASN", // 13 Asparagine     N
-	"GLU", // 14 Glutamic Acid  E
-	"ASP", // 15 Aspartic Acid  D
-	"HIS", // 16 Histidine      H
-	"ARG", // 17 Arginine       R
-	"LYS", // 18 Lysine	 K
-	"PRO"  // 19 Proline	P
-};
+int GeneticCodeUtil::aminoAcidLetterToIndex(char aa) {
+	map<const char, int, less<const char> >::const_iterator it = aminoAcidLetterToIndexMap.find(aa);
+	if (it != aminoAcidLetterToIndexMap.end()) {
+		return (*it).second;
+	}
+	else {
+		assert(false);
+		return INVALID_INDEX;
+	}
+}
 
-const char *GeneticCodeUtil::residueLetters[21] =
-{
-	"*", // -1 STOP			*
-	"C", //  0 Cysteine       C
-	"M", //  1 Methionine     M
-	"F", //  2 Phenylalanine  F
-	"I", //  3 Isoleucine     I
-	"L", //  4 Leucine	L
-	"V", //  5 Valine	 V
-	"W", //  6 Tryptophan     W
-	"Y", //  7 Tyrosine       Y
-	"A", //  8 Alanine	A
-	"G", //  9 Glycine	G
-	"T", // 10 Threonine      T
-	"S", // 11 Serine	 S
-	"Q", // 12 Glutamine      Q
-	"N", // 13 Asparagine     N
-	"E", // 14 Glutamic Acid  E
-	"D", // 15 Aspartic Acid  D
-	"H", // 16 Histidine      H
-	"R", // 17 Arginine       R
-	"K", // 18 Lysine	 K
-	"P"  // 19 Proline	P
-};
+char GeneticCodeUtil::indexToAminoAcidLetter(int index) {
+	assert( index>=-1 && index <=19 );
+	return aaLetterIndices[index+1].first;
+}
 
-// The genetic code
-const int GeneticCodeUtil::geneticCode[64] =
-{
-	18, // AAA -> LYS 0
-	13, // AAC -> ASN 1
-	18, // AAG -> LYS 2
-	13, // AAU -> ASN 3
-	10, // ACA -> THR 4
-	10, // ACC -> THR 5
-	10, // ACG -> THR 6
-	10, // ACU -> THR 7
-	17, // AGA -> ARG 8
-	11, // AGC -> SER 9
-	17, // AGG -> ARG 10
-	11, // AGU -> SER 11
-	3,  // AUA -> ILE 12
-	3,  // AUC -> ILE 13
-	1,  // AUG -> MET 14
-	3,  // AUU -> ILE 15
-	12, // CAA -> GLN 16
-	16, // CAC -> HIS 17
-	12, // CAG -> GLN 18
-	16, // CAU -> HIS 19
-	19, // CCA -> PRO 20
-	19, // CCC -> PRO 21
-	19, // CCG -> PRO 22
-	19, // CCU -> PRO 23
-	17, // CGA -> ARG 24
-	17, // CGC -> ARG 25
-	17, // CGG -> ARG 26
-	17, // CGU -> ARG 27
-	4,  // CUA -> LEU 28
-	4,  // CUC -> LEU 29
-	4,  // CUG -> LEU 30
-	4,  // CUU -> LEU 31
-	14, // GAA -> GLU 32
-	15, // GAC -> ASP 33
-	14, // GAG -> GLU 34
-	15, // GAU -> ASP 35
-	8,  // GCA -> ALA 36
-	8,  // GCC -> ALA 37
-	8,  // GCG -> ALA 38
-	8,  // GCU -> ALA 39
-	9,  // GGA -> GLY 40
-	9,  // GGC -> GLY 41
-	9,  // GGG -> GLY 42
-	9,  // GGU -> GLY 43
-	5,  // GUA -> VAL 44
-	5,  // GUC -> VAL 45
-	5,  // GUG -> VAL 46
-	5,  // GUU -> VAL 47
-	-1, // UAA -> STOP48
-	7,  // UAC -> TYR 49
-	-1, // UAG -> STOP50
-	7,  // UAU -> TYR 51
-	11, // UCA -> SER 52
-	11, // UCC -> SER 53
-	11, // UCG -> SER 54
-	11, // UCU -> SER 55
-	-1, // UGA -> STOP56
-	0,  // UGC -> CYS 57
-	6,  // UGG -> TRP 58
-	0,  // UGU -> CYS 59
-	4,  // UUA -> LEU 60
-	2,  // UUC -> PHE 61
-	4,  // UUG -> LEU 62
-	2   // UUU -> PHE 63
-};
+int GeneticCodeUtil::codonToIndex(Codon codon) {
+	// DAD: currently (potentially) PAINFULLY slow.
+	int index = INVALID_INDEX;
+	for (index=0; index<128; index++) {
+		Codon c = codonAAPairs[index].first;
+		if (c == codon) {
+			break;
+		}
+	}
+	assert( index >= 0 );
+	if ( index>63 )
+		index -= 64;
+	assert( index < 64 );
+	return index;
+}
 
+Codon GeneticCodeUtil::indexToCodon(int index) {
+	assert (index >= 0 && index < 64);
+	return codonAAPairs[index].first;
+}
 
 
 const int GeneticCodeUtil::residueToAllCodonsTable[20][7] =
@@ -219,31 +282,6 @@ const int GeneticCodeUtil::residueToAllCodonsTable[20][7] =
 	{ 4, 20, 21, 22, 23, -1, -1 }
 };
 
-
-const int GeneticCodeUtil::residueToCodonTable[21] =
-{
-	48, // UAA -> STOP 49 * 0
-	57,  // UGC -> CYS 58 C 1
-	14,  // AUG -> MET 15 M 2
-	61,  // UUC -> PHE 62 F 3
-	12,  // AUA -> ILE 13 I 4
-	31,  // CUU -> LEU 32 L 5
-	47,  // GUU -> VAL 48 V 6
-	58,  // UGG -> TRP 59 W 7
-	49,  // UAC -> TYR 50 Y 8
-	39,  // GCU -> ALA 40 A 9
-	40,  // GGA -> GLY 41 G 10
-	4,   // ACA -> THR 5  T 11
-	9,   // AGC -> SER 10 S 12
-	16,  // CAA -> GLN 17 Q 13
-	1,   // AAC -> ASN 2  N 14
-	32,  // GAA -> GLU 33 E 15
-	33,  // GAC -> ASP 34 D 16
-	17,  // CAC -> HIS 18 H 17
-	8,   // AGA -> ARG 9  R 18
-	0,   // AAA -> LYS 1  K 19
-	23,  // CCU -> PRO 24 P 20
-};
 
 const int GeneticCodeUtil::singleSubstsTranslErrors[64][20] =
 {
@@ -377,50 +415,43 @@ const int GeneticCodeUtil::singleSubstsTranslErrors[64][20] =
 	{ 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-void GeneticCodeUtil::printResidue( ostream &s, int codon )
-{
-	assert( codon < 64 );
-
-	int r = geneticCode[codon];
-	if ( r < 0 )
-		s << "STOP";
+char GeneticCodeUtil::geneticCode(const Codon codon) {
+	CodonMap::const_iterator it = codonToAA.find(codon);
+	if (it != codonToAA.end())
+		return (*it).second;
 	else
-		s << residues[r];
+		return INVALID_AA;
 }
 
-char GeneticCodeUtil::residueLetter( int codon )
+void GeneticCodeUtil::printResidue( ostream &s, Codon codon )
 {
-	assert( codon < 64 );
-
-	int r = geneticCode[codon];
-	return *residueLetters[r+1];
+	s << geneticCode(codon);
 }
 
+char GeneticCodeUtil::residueLetter( Codon codon )
+{
+	return geneticCode(codon);
+}
 
+/*
 void GeneticCodeUtil::printGeneticCode( ostream &s )
 {
 	s << "Genetic code, sorted according to frequency:" << endl;
 	vector<int> counts;
 	counts.resize(20);
 
-	for ( int i=0; i<64; i++ )
-	{
+	for ( int i=0; i<64; i++ ) {
 		int p = geneticCode[i];
 		if ( p>=0 )
 			counts[p]+=1;
 	}
-		for ( int k=7; k>0; k-- )
-	{
-		for ( int p=0; p<20; p++ )
-		{
-			if ( counts[p] == k )
-			{
+	for ( int k=7; k>0; k-- ) {
+		for ( int p=0; p<20; p++ ) {
+			if ( counts[p] == k ) {
 				s << residues[p] << ": ";
-				for ( int i=0; i<64; i++ )
-				{
+				for ( int i=0; i<64; i++ ) {
 					int q = geneticCode[i];
-					if ( q == p )
-					{
+					if ( q == p ) {
 						s << " ";
 						CodonUtil::printCodon( s, i );
 					}
@@ -431,208 +462,210 @@ void GeneticCodeUtil::printGeneticCode( ostream &s )
 	}
 	s << "Stop:";
 	for ( int i=0; i<64; i++ )
-		if ( geneticCode[i] < 0 )
-		{
+		if ( geneticCode[i] < 0 ) {
 			s << " ";
 			CodonUtil::printCodon( s, i );
 		}
 	s << endl;
 }
+*/
 
-
-double GeneticCodeUtil::calcSynonymousSites( int codon, int sites )
-{
-	int l1, l2, l3, ltmp;
+int synHelper(Codon& codon, Codon& varcodon, unsigned int ntpos) {
+	const char* nts = GeneticCodeUtil::RNA_NUCLEOTIDES;
 	int numSyn = 0;
+	for ( int i=0; i<4; i++ ) {
+		// Don't consider non-mutations
+		if (codon[ntpos] == nts[i])
+			continue;
+		varcodon[ntpos] = nts[i];
+		if ( GeneticCodeUtil::geneticCode(codon) == GeneticCodeUtil::geneticCode(varcodon))
+			numSyn += 1;
+		// restore nucleotide
+		varcodon[ntpos] = codon[ntpos];
+	}
+	return numSyn;
+}
 
-	CodonUtil::codonToLetters( l1, l2, l3, codon );
+double GeneticCodeUtil::calcSynonymousSites( Codon test_codon, int sites )
+{
+	// Turn into an RNA codon
+	Codon codon = test_codon.transcribe();
+	int numSyn = 0;
+	Codon varcodon(codon);
+
 	if ( ( sites & 4 ) != 0 )
-	{
-		for ( int i=1; i<4; i++ )
-		{
-			ltmp = (l1+i) & 3;
-			if ( geneticCode[codon] == geneticCode[CodonUtil::lettersToCodon( ltmp, l2, l3 )] )
-				numSyn += 1;
-		}
-	}
-
+		numSyn += synHelper(codon, varcodon, 0);
+				
 	if ( ( sites & 2 ) != 0 )
-	{
-		for ( int i=1; i<4; i++ )
-		{
-			ltmp = (l2+i) & 3;
-			if ( geneticCode[codon] == geneticCode[CodonUtil::lettersToCodon( l1, ltmp, l3 )] )
-				numSyn += 1;
-		}
-	}
+		numSyn += synHelper(codon, varcodon, 1);
+				
 	if ( ( sites & 1 ) != 0 )
-	{
-		for ( int i=1; i<4; i++ )
-		{
-			ltmp = (l3+i) & 3;
-			if ( geneticCode[codon] == geneticCode[CodonUtil::lettersToCodon( l1, l2, ltmp )] )
-				numSyn += 1;
-		}
-	}
+		numSyn += synHelper(codon, varcodon, 2);
 
 	return (double) numSyn / 3.;
 }
 
 
-double GeneticCodeUtil::calcSynMutationOpportunity( int codon, double rho )
+double GeneticCodeUtil::calcSynMutationOpportunity( Codon test_codon, double rho )
 {
-	int l1, l2, l3, ltmp;
 	double S = 0;
 	double wti = 2*rho; // weight for transitions, have to multiply by two because there are two times as many transversions
 	double wtv = 1; // weight for transversions
+	const char* nts = GeneticCodeUtil::RNA_NUCLEOTIDES;
+	// Turn into an RNA codon
+	Codon codon = test_codon.transcribe();
 
-	CodonUtil::codonToLetters( l1, l2, l3, codon );
-	int res = geneticCode[codon];
+	Codon varcodon(codon);
 
-	for ( int i=1; i<4; i++ )
-	{
-		ltmp = (l1+i) & 3;
-		if ( res == geneticCode[CodonUtil::lettersToCodon( ltmp, l2, l3 )] )
-		{
-			if ( CodonUtil::isTransition( l1, ltmp ) )
-				S += wti;
-			else
-				S += wtv;
-		}
+	char res = geneticCode(codon);
+	if (res == INVALID_AA) {
+		// Return an invalid number.  Need to specify semantics of this function.
+		return -1.0;
 	}
-	for ( int i=1; i<4; i++ )
-	{
-		ltmp = (l2+i) & 3;
-		if ( res == geneticCode[CodonUtil::lettersToCodon( l1, ltmp, l3 )] )
-		{
-			if ( CodonUtil::isTransition( l2, ltmp ) )
-				S += wti;
-			else
-				S += wtv;
-		}
-	}
-	for ( int i=1; i<4; i++ )
-	{
-		ltmp = (l3+i) & 3;
-		if ( res == geneticCode[CodonUtil::lettersToCodon( l1, l2, ltmp )] )
-		{
-			if ( CodonUtil::isTransition( l3, ltmp ) )
-				S += wti;
-			else
-				S += wtv;
+
+	// For each codon position...
+	for ( unsigned int ntpos=0; ntpos<3; ntpos++) {
+		// For each alternative nucleotide...
+		for ( int i=0; i<4; i++ ) {
+			char new_nt = nts[i];
+			// Don't consider "mutations" to the current nucleotide
+			if (new_nt == codon[ntpos])
+				continue;
+			// Replace the nucleotide
+			varcodon[ntpos] = new_nt;
+			// If synonymous...
+			if ( res == geneticCode(varcodon)) {
+				// Accumulate weights depending on whether mutation is transition or transversion
+				if ( CodonUtil::isTransition( codon[ntpos], varcodon[ntpos] ) )
+					S += wti;
+				else
+					S += wtv;
+			}
+			// Restore the old nucleotide before continuing
+			varcodon[ntpos] = codon[ntpos];
 		}
 	}
 	return S/(2.+2*rho);
 }
 
-double GeneticCodeUtil::calcNonsynMutationOpportunity( int codon, double rho )
+double GeneticCodeUtil::calcNonsynMutationOpportunity( Codon test_codon, double rho )
 {
-	int l1, l2, l3, ltmp;
 	double N = 0;
 	double wti = 2*rho; // weight for transitions, have to multiply by two because there are two times as many transversions
-	double wtv = 1.; // weight for transversions
+	double wtv = 1; // weight for transversions
+	const char* nts = GeneticCodeUtil::RNA_NUCLEOTIDES;
+	// Turn into an RNA codon
+	Codon codon = test_codon.transcribe();
 
-	CodonUtil::codonToLetters( l1, l2, l3, codon );
-	int res = geneticCode[codon];
-	int tmpres;
+	Codon varcodon(codon);
 
-	for ( int i=1; i<4; i++ )
-	{
-		ltmp = (l1+i) & 3;
-		tmpres = geneticCode[CodonUtil::lettersToCodon( ltmp, l2, l3 )];
-		if ( tmpres >= 0 && res != tmpres )
-		{
-			if ( CodonUtil::isTransition( l1, ltmp ) )
-				N += wti; // transitions occur rho times more frequent
-			else
-				N += wtv;
-		}
+	char res = geneticCode(codon);
+	if (res == INVALID_AA) {
+		// Return an invalid number.  Need to specify semantics of this function.
+		return -1.0;
 	}
-	for ( int i=1; i<4; i++ )
-	{
-		ltmp = (l2+i) & 3;
-		tmpres = geneticCode[CodonUtil::lettersToCodon( l1, ltmp, l3 )];
-		if ( tmpres >= 0 && res != tmpres )
-		{
-			if ( CodonUtil::isTransition( l2, ltmp ) )
-				N += wti; // transitions occur rho times more frequent
-			else
-				N += wtv;
-		}
-	}
-	for ( int i=1; i<4; i++ )
-	{
-		ltmp = (l3+i) & 3;
-		tmpres = geneticCode[CodonUtil::lettersToCodon( l1, l2, ltmp )];
-		if ( tmpres >= 0 && res != tmpres )
-		{
-			if ( CodonUtil::isTransition( l3, ltmp ) )
-				N += wti; // transitions occur rho times more frequent
-			else
-				N += wtv;
+
+	// For each codon position...
+	for ( unsigned int ntpos=0; ntpos<3; ntpos++) {
+		// For each alternative nucleotide...
+		for ( int i=0; i<4; i++ ) {
+			char new_nt = nts[i];
+			// Don't consider "mutations" to the current nucleotide
+			if (new_nt == codon[ntpos])
+				continue;
+			// Replace the nucleotide
+			varcodon[ntpos] = new_nt;
+			// If nonsynonymous...
+			if ( res != geneticCode(varcodon)) {
+				// Accumulate weights depending on whether mutation is transition or transversion
+				if ( CodonUtil::isTransition( codon[ntpos], varcodon[ntpos] ) )
+					N += wti;
+				else
+					N += wtv;
+			}
+			// Restore the old nucleotide before continuing
+			varcodon[ntpos] = codon[ntpos];
 		}
 	}
 	return N/(2.+2*rho);
 }
 
-
 bool GeneticCodeUtil::m_setup=false;
+GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dnLookup;
+GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dsLookup;
 double GeneticCodeUtil::m_dnTable[64][64];
 double GeneticCodeUtil::m_dsTable[64][64];
 
-
-void GeneticCodeUtil::calcDnDs( double &dn, double &ds, int codon1, int codon2 )
-{
-	if ( !m_setup )
-	{
-		m_setup = true;
-		for ( int i=0; i<64; i++ )
-			for ( int j=0; j<64; j++ )
-			{
-				calcDnDsPrivate( dn, ds, i, j );
-				m_dnTable[i][j] = dn;
-				m_dsTable[i][j] = ds;
-//				 CodonUtil::printCodon( cout, i );
-//				 cout << " ";
-//				 CodonUtil::printCodon( cout, j );
-//				 cout << " " << dn << " " << ds << endl;
-			}
+pair<double, double> GeneticCodeUtil::calcDnDs( Codon test_codon1, Codon test_codon2 ) {
+	// Short-circuit if trivial...
+	if (test_codon1 == test_codon2) {
+		return pair<double,double>(0.,0.);
 	}
+	// Turn into RNA codons
+	Codon codon1 = test_codon1.transcribe();
+	Codon codon2 = test_codon2.transcribe();
+	double dn=-1, ds=-1;
 
-	dn = m_dnTable[codon1][codon2];
-	ds = m_dsTable[codon1][codon2];
+	// This implementation is not thread-safe.
+	if ( !m_setup )	{
+		//int num_records = 0;
+		m_setup = true;
+		//m_dnLookup.clear();
+		//m_dnLookup.resize(64*64);
+		//m_dsLookup.clear();
+		//m_dsLookup.resize(64*64);
+		for ( int i=0; i<64; i++) {
+			for ( int j=0; j<64; j++ )	{
+				Codon c1 = codonAAPairs[i].first;
+				Codon c2 = codonAAPairs[j].first;
+				int c1index = codonToIndex(c1);
+				int c2index = codonToIndex(c2);
+				calcDnDsPrivate( dn, ds, c1, c2 );
+				//const char* key = (c1+c2).c_str();
+				m_dnTable[c1index][c2index] = dn;
+				m_dsTable[c1index][c2index] = ds;
+				//cout << c1index << " " << c2index << " " << dn << " " << ds << endl;
+			}
+		}
+	}
+	
+	int c1index = codonToIndex(codon1);
+	int c2index = codonToIndex(codon2);
+	assert(c1index >= 0 && c1index < 64);
+	assert(c2index >= 0 && c2index < 64);
+	dn = m_dnTable[c1index][c2index];
+	ds = m_dsTable[c1index][c2index];
+	return pair<double,double>(dn,ds);
 }
 
 
-void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, int codon1, int codon2 )
-{
+void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, Codon test_codon1, Codon test_codon2 ) {
+	// Turn into RNA codons
+	Codon codon1 = test_codon1.transcribe();
+	Codon codon2 = test_codon2.transcribe();
 	dn = 0; // the number of nonsynonymous substitutions between the two codons
 	ds = 0; // the number of synonymous substitutions between the two codons
 
-	int c1[3], c2[3]; // holds the two codons as arrays of single letters
 	int subst_positions[3]; // holds the positions at which the two codons differ
 	int differences = 0; // number of positions at which the two codons differ
-	int tmpc[3]; // temporary codon (for paths)
-	int res1, res2, tmpres1, tmpres2;
+	Codon tmpc; // temporary codon (for paths)
+	char res1, res2, tmpres1, tmpres2;
 
-	res1 = geneticCode[codon1];
-	res2 = geneticCode[codon2];
-
-	CodonUtil::codonToLetters( c1[0], c1[1], c1[2], codon1 );
-	CodonUtil::codonToLetters( c2[0], c2[1], c2[2], codon2 );
+	res1 = geneticCode(codon1);
+	res2 = geneticCode(codon2);
 
 	// first, count total number of differences. Record them in subst_positions
-	if ( c1[0] != c2[0] )
+	if ( codon1[0] != codon2[0] )
 	{
 		subst_positions[differences] = 0;
 		differences += 1;
 	}
-	if ( c1[1] != c2[1] )
+	if ( codon1[1] != codon2[1] )
 	{
 		subst_positions[differences] = 1;
 		differences += 1;
 	}
-	if ( c1[2] != c2[2] )
+	if ( codon1[2] != codon2[2] )
 	{
 		subst_positions[differences] = 2;
 		differences += 1;
@@ -645,18 +678,18 @@ void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, int codon1, int c
 	{ // this case is simple
 		if ( res1 == res2 )
 			ds = 1;
-		else dn = 1;
+		else
+			dn = 1;
 		return;
 	}
 
 	if ( differences == 2 )
 	{ // there are only two possible cases here, still simple
 		// path 1
-		for ( int i=0; i<3; i++ ) // copy the initial codon
-			tmpc[i] = c1[i];
+		tmpc = codon1; // copy the initial codon
 		// subst 1
-		tmpc[subst_positions[0]] = c2[subst_positions[0]];
-		tmpres1 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
+		tmpc[subst_positions[0]] = codon2[subst_positions[0]];
+		tmpres1 = geneticCode(tmpc); //[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
 		if ( res1 == tmpres1 )
 			ds += 1;
 		else
@@ -669,12 +702,11 @@ void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, int codon1, int c
 			dn += 1;
 
 		// path 2
-		for ( int i=0; i<3; i++ ) // copy the initial codon
-			tmpc[i] = c1[i];
+		tmpc = codon1; // copy the initial codon
 
 		// subst 1
-		tmpc[subst_positions[1]] = c2[subst_positions[1]];
-		tmpres1 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
+		tmpc[subst_positions[1]] = codon2[subst_positions[1]];
+		tmpres1 = geneticCode(tmpc); 
 		if ( res1 == tmpres1 )
 			ds += 1;
 		else
@@ -691,145 +723,43 @@ void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, int codon1, int c
 	}
 
 	// finally, if all letters are different, we have 6 different cases
+	// these are the 6 orderings of 3 mutations (3!).
 	// now, we don't need the array subst_positions any more, because
 	// we have to do all possible substitutions anyway
-	// path 1
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[0] = c2[0];
-	tmpres1 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( res1 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 2
-	tmpc[1] = c2[1];
-	tmpres2 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( tmpres2 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 3 leads to codon 2
-	if ( tmpres2 == res2 )
-		ds += 1;
-	else
-		dn += 1;
 
-	// path 2
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[0] = c2[0];
-	tmpres1 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( res1 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 2
-	tmpc[2] = c2[2];
-	tmpres2 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( tmpres2 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 3 leads to codon 2
-	if ( tmpres2 == res2 )
-		ds += 1;
-	else
-		dn += 1;
-
-	// path 3
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[1] = c2[1];
-	tmpres1 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( res1 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 2
-	tmpc[0] = c2[0];
-	tmpres2 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( tmpres2 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 3 leads to codon 2
-	if ( tmpres2 == res2 )
-		ds += 1;
-	else
-		dn += 1;
-
-	// path 4
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[1] = c2[1];
-	tmpres1 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( res1 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 2
-	tmpc[2] = c2[2];
-	tmpres2 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( tmpres2 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 3 leads to codon 2
-	if ( tmpres2 == res2 )
-		ds += 1;
-	else
-		dn += 1;
-
-	// path 5
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[2] = c2[2];
-	tmpres1 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( res1 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 2
-	tmpc[0] = c2[0];
-	tmpres2 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( tmpres2 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 3 leads to codon 2
-	if ( tmpres2 == res2 )
-		ds += 1;
-	else
-		dn += 1;
-
-	// path 6
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[2] = c2[2];
-	tmpres1 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( res1 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 2
-	tmpc[1] = c2[1];
-	tmpres2 = geneticCode[ CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] ) ];
-	if ( tmpres2 == tmpres1 )
-		ds += 1;
-	else
-		dn += 1;
-	// subst 3 leads to codon 2
-	if ( tmpres2 == res2 )
-		ds += 1;
-	else
-		dn += 1;
+	// Set up all possible paths for first two mutations
+	vector<pair<int,int> > mutation_paths(6);
+	mutation_paths.push_back(pair<int,int>(0,1));
+	mutation_paths.push_back(pair<int,int>(1,0));
+	mutation_paths.push_back(pair<int,int>(1,2));
+	mutation_paths.push_back(pair<int,int>(2,1));
+	mutation_paths.push_back(pair<int,int>(0,2));
+	mutation_paths.push_back(pair<int,int>(2,0));
+	
+	vector<pair<int,int> >::const_iterator mutit = mutation_paths.begin();
+	for (; mutit != mutation_paths.end(); mutit++) {
+		pair<int,int> mut = *mutit;
+		tmpc = codon1; // copy the initial codon
+		// subst 1
+		tmpc[mut.first] = codon2[mut.first];
+		tmpres1 = geneticCode(tmpc);
+		if ( res1 == tmpres1 )
+			ds += 1;
+		else
+			dn += 1;
+		// subst 2
+		tmpc[mut.second] = codon2[mut.second];
+		tmpres2 = geneticCode(tmpc);
+		if ( tmpres2 == tmpres1 )
+			ds += 1;
+		else
+			dn += 1;
+		// subst 3 always leads to codon 2
+		if ( tmpres2 == res2 )
+			ds += 1;
+		else
+			dn += 1;
+	}
 
 	ds /= 6.;
 	dn /= 6.;
@@ -838,27 +768,31 @@ void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, int codon1, int c
 }
 
 
-pair<double, double> GeneticCodeUtil::calcDnDsWeightedPrivate( int codon1, int codon2, double rho )
+pair<double, double> GeneticCodeUtil::calcDnDsWeightedPrivate(Codon test_codon1, Codon test_codon2, double rho )
 {
+	// Turn into RNA codons
+	Codon codon1 = test_codon1.transcribe();
+	Codon codon2 = test_codon2.transcribe();
+
 	#ifndef NDEBUG
 	// check that function is called correctly
-	int cala, calb, calc, cbla, cblb, cblc;
-	CodonUtil::codonToLetters( cala, calb, calc, codon1 );
-	CodonUtil::codonToLetters( cbla, cblb, cblc, codon2 );
-	// we expect exatly one base difference
-	assert( ( cala != cbla && calb == cblb && calc == cblc ) ||
-			( cala == cbla && calb != cblb && calc == cblc ) ||
-			( cala == cbla && calb == cblb && calc != cblc ) );
+	//int cala, calb, calc, cbla, cblb, cblc;
+	//CodonUtil::codonToLetters( cala, calb, calc, codon1 );
+	//CodonUtil::codonToLetters( cbla, cblb, cblc, codon2 );
+	// we expect exactly one base difference
+	assert( ( codon1[0] != codon2[0] && codon1[1] == codon2[1] && codon1[2] == codon2[2] ) ||
+			( codon1[0] == codon2[0] && codon1[1] != codon2[1] && codon1[2] == codon2[2] ) ||
+			( codon1[0] == codon2[0] && codon1[1] == codon2[1] && codon1[2] != codon2[2] ) );
 	#endif
 
 	double S = calcSynMutationOpportunity( codon1, rho );
 	double N = calcNonsynMutationOpportunity( codon1, rho );
 	double dn = 0., ds = 0.;
 
-	int res1 = geneticCode[ codon1 ];
-	int res2 = geneticCode[ codon2 ];
+	char res1 = geneticCode( codon1 );
+	char res2 = geneticCode( codon2 );
 	// we set distances involving stop codons to zero, in order to not count them
-	if ( res1<0 || res2<0 )
+	if ( res1 == GeneticCodeUtil::STOP || res2 == GeneticCodeUtil::STOP )
 		return pair<double, double>( 0., 0. );
 
 	// is the mutation synonymous or not?
@@ -870,36 +804,38 @@ pair<double, double> GeneticCodeUtil::calcDnDsWeightedPrivate( int codon1, int c
 }
 
 
-pair<double, double> GeneticCodeUtil::calcDnDsWeighted( int codon1, int codon2, double rho )
+pair<double, double> GeneticCodeUtil::calcDnDsWeighted(Codon test_codon1, Codon test_codon2, double rho )
 {
+	// Turn into RNA codons
+	Codon codon1 = test_codon1.transcribe();
+	Codon codon2 = test_codon2.transcribe();
 	double dn = 0; // the number of nonsynonymous substitutions between the two codons
 	double ds = 0; // the number of synonymous substitutions between the two codons
 
-	int c1[3], c2[3]; // holds the two codons as arrays of single letters
+	//int c1[3], c2[3]; // holds the two codons as arrays of single letters
 	int subst_positions[3]; // holds the positions at which the two codons differ
 	int differences = 0; // number of positions at which the two codons differ
-	int tmpc[3]; // temporary codon (for paths)
-	int tmpcodon1, tmpcodon2; // temporary codon
+	Codon tmpc, tmpc2; // temporary codon (for paths)
 	int res1, res2, tmpres1, tmpres2;
 
-	res1 = geneticCode[codon1];
-	res2 = geneticCode[codon2];
+	res1 = geneticCode(codon1);
+	res2 = geneticCode(codon2);
 
-	CodonUtil::codonToLetters( c1[0], c1[1], c1[2], codon1 );
-	CodonUtil::codonToLetters( c2[0], c2[1], c2[2], codon2 );
+	//CodonUtil::codonToLetters( c1[0], c1[1], c1[2], codon1 );
+	//CodonUtil::codonToLetters( c2[0], c2[1], c2[2], codon2 );
 
 	// first, count total number of differences. Record them in subst_positions
-	if ( c1[0] != c2[0] )
+	if ( codon1[0] != codon2[0] )
 	{
 		subst_positions[differences] = 0;
 		differences += 1;
 	}
-	if ( c1[1] != c2[1] )
+	if ( codon1[1] != codon2[1] )
 	{
 		subst_positions[differences] = 1;
 		differences += 1;
 	}
-	if ( c1[2] != c2[2] )
+	if ( codon1[2] != codon2[2] )
 	{
 		subst_positions[differences] = 2;
 		differences += 1;
@@ -918,33 +854,28 @@ pair<double, double> GeneticCodeUtil::calcDnDsWeighted( int codon1, int codon2, 
 	if ( differences == 2 )
 	{ // there are only two possible cases here, still simple
 		// path 1
-		for ( int i=0; i<3; i++ ) // copy the initial codon
-			tmpc[i] = c1[i];
+		tmpc = codon1; // initialize codon.
 		// subst 1
-		tmpc[subst_positions[0]] = c2[subst_positions[0]];
-		tmpcodon1 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-		p = calcDnDsWeightedPrivate( codon1, tmpcodon1, rho );
+		tmpc[subst_positions[0]] = codon2[subst_positions[0]];
+		p = calcDnDsWeightedPrivate( codon1, tmpc, rho );
 		dn = p.first;
 		ds = p.second;
 
 		// subst 2 leads to codon 2
-		p = calcDnDsWeightedPrivate( tmpcodon1, codon2, rho );
+		p = calcDnDsWeightedPrivate( tmpc, codon2, rho );
 		dn += p.first;
 		ds += p.second;
 
 		// path 2
-		for ( int i=0; i<3; i++ ) // copy the initial codon
-			tmpc[i] = c1[i];
-
+		tmpc = codon1; // copy the initial codon
 		// subst 1
-		tmpc[subst_positions[1]] = c2[subst_positions[1]];
-		tmpcodon1 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-		p = calcDnDsWeightedPrivate( codon1, tmpcodon1, rho );
+		tmpc[subst_positions[1]] = codon2[subst_positions[1]];
+		p = calcDnDsWeightedPrivate( codon1, tmpc, rho );
 		dn += p.first;
 		ds += p.second;
 
 		// subst 2 leads to codon 2
-		p = calcDnDsWeightedPrivate( tmpcodon1, codon2, rho );
+		p = calcDnDsWeightedPrivate( tmpc, codon2, rho );
 		dn += p.first;
 		ds += p.second;
 
@@ -955,139 +886,39 @@ pair<double, double> GeneticCodeUtil::calcDnDsWeighted( int codon1, int codon2, 
 	}
 
 	// finally, if all letters are different, we have 6 different cases
+	// these are the 6 orderings of 3 mutations (3!).
 	// now, we don't need the array subst_positions any more, because
 	// we have to do all possible substitutions anyway
-	// path 1
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[0] = c2[0];
-	tmpcodon1 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( codon1, tmpcodon1, rho );
-	dn = p.first;
-	ds = p.second;
 
-	// subst 2
-	tmpc[1] = c2[1];
-	tmpcodon2 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( tmpcodon1, tmpcodon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 3 leads to codon 2
-	p = calcDnDsWeightedPrivate( tmpcodon2, codon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// path 2
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[0] = c2[0];
-	tmpcodon1 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( codon1, tmpcodon1, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 2
-	tmpc[2] = c2[2];
-	tmpcodon2 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( tmpcodon1, tmpcodon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 3 leads to codon 2
-	p = calcDnDsWeightedPrivate( tmpcodon2, codon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// path 3
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[1] = c2[1];
-	tmpcodon1 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( codon1, tmpcodon1, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 2
-	tmpc[2] = c2[2];
-	tmpcodon2 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( tmpcodon1, tmpcodon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 3 leads to codon 2
-	p = calcDnDsWeightedPrivate( tmpcodon2, codon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// path 4
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[1] = c2[1];
-	tmpcodon1 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( codon1, tmpcodon1, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 2
-	tmpc[0] = c2[0];
-	tmpcodon2 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( tmpcodon1, tmpcodon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 3 leads to codon 2
-	p = calcDnDsWeightedPrivate( tmpcodon2, codon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// path 5
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[2] = c2[2];
-	tmpcodon1 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( codon1, tmpcodon1, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 2
-	tmpc[0] = c2[0];
-	tmpcodon2 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( tmpcodon1, tmpcodon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 3 leads to codon 2
-	p = calcDnDsWeightedPrivate( tmpcodon2, codon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// path 6
-	for ( int i=0; i<3; i++ ) // copy the initial codon
-		tmpc[i] = c1[i];
-	// subst 1
-	tmpc[2] = c2[2];
-	tmpcodon1 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( codon1, tmpcodon1, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 2
-	tmpc[1] = c2[1];
-	tmpcodon2 = CodonUtil::lettersToCodon( tmpc[0], tmpc[1], tmpc[2] );
-	p = calcDnDsWeightedPrivate( tmpcodon1, tmpcodon2, rho );
-	dn += p.first;
-	ds += p.second;
-
-	// subst 3 leads to codon 2
-	p = calcDnDsWeightedPrivate( tmpcodon2, codon2, rho );
-	dn += p.first;
-	ds += p.second;
+	// Set up all possible paths for first two mutations
+	vector<pair<int,int> > mutation_paths(6);
+	mutation_paths.push_back(pair<int,int>(0,1));
+	mutation_paths.push_back(pair<int,int>(1,0));
+	mutation_paths.push_back(pair<int,int>(1,2));
+	mutation_paths.push_back(pair<int,int>(2,1));
+	mutation_paths.push_back(pair<int,int>(0,2));
+	mutation_paths.push_back(pair<int,int>(2,0));
+	
+	vector<pair<int,int> >::const_iterator mutit = mutation_paths.begin();
+	for (; mutit != mutation_paths.end(); mutit++) {
+		pair<int,int> mut = *mutit;
+		tmpc = codon1; // copy the initial codon
+		// subst 1
+		tmpc[mut.first] = codon2[mut.first];
+		p = calcDnDsWeightedPrivate( codon1, tmpc, rho );
+		dn = p.first;
+		ds = p.second;
+		// subst 2
+		tmpc2 = tmpc;
+		tmpc2[mut.second] = codon2[mut.second];
+		p = calcDnDsWeightedPrivate( tmpc, tmpc2, rho );
+		dn += p.first;
+		ds += p.second;
+		// subst 3 always leads to codon 2
+		p = calcDnDsWeightedPrivate( tmpc2, codon2, rho );
+		dn += p.first;
+		ds += p.second;
+	}
 
 	ds /= 6.;
 	dn /= 6.;

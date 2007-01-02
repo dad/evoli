@@ -128,9 +128,13 @@ public:
 template <typename Organism>
 class Genebank
 {
+public:
+	typedef map<int, GenebankEntry<Organism> * > EntryMap;
+	//typedef EntryMap::iterator EntryMapIterator;
+	//typedef EntryMap::const_iterator const_EntryMapIterator;
 private:
 	int m_maxId;
-	map<int, GenebankEntry<Organism>*> m_organismMap;
+	EntryMap m_organismMap;
 
 
 	Genebank( const Genebank & );
@@ -394,7 +398,7 @@ template <typename Organism>
 void Genebank<Organism>::clear()
 {
 	m_maxId = 0;
-	typename map<int, GenebankEntry<Organism> * >::iterator it = m_organismMap.begin();
+	typename EntryMap::iterator it = m_organismMap.begin();
 	for ( ; it!=m_organismMap.end(); it++ )
 		delete (*it).second;
 		m_organismMap.clear();
@@ -478,7 +482,7 @@ void Genebank<Organism>::print( ostream &s ) const
 	s << "#--- Genebank ---\n#<Id> <parentId> <Count> <birth time> <coalescent> <fitness> <organism>" << endl;
 
 	const char* tab = "\t";
-	typename map<int, GenebankEntry<Organism>*>::const_iterator it = m_organismMap.begin();
+	typename EntryMap::const_iterator it = m_organismMap.begin();
 	for ( ; it!=m_organismMap.end(); it++ )
         {
 			int parentId;
@@ -608,29 +612,26 @@ void Population<Organism, FitnessEvaluator, Mutator>::evolve()
 	iterator g = begin(); //iterator over the population
 	iterator e = end();
 	double *bin = m_selectionBins;
-	for ( ; g != e; g++)
-        {
-			fitnessSum += (*g)->getFitness();
-			(*bin) = fitnessSum; bin++;
-        }
+	for ( ; g != e; g++) {
+		fitnessSum += (*g)->getFitness();
+		(*bin) = fitnessSum; bin++;
+	}
 	// now normalize the bins
 	for (int i=0; i<m_N; i++)
 		m_selectionBins[i] /= fitnessSum;
 
 
 	// now do the selection/mutation step
-	for ( int i=0; i<m_N; i++ )
-        {
-			index = Random::randintFromDistr( m_selectionBins, m_N );
-			m_pop[outBuffer][i] =  createOffspring( m_pop[m_buffer][index] );
-        }
+	for ( int i=0; i<m_N; i++ ) {
+		index = Random::randintFromDistr( m_selectionBins, m_N );
+		m_pop[outBuffer][i] =  createOffspring( m_pop[m_buffer][index] );
+	}
 
 	// un-register the organisms of the old generation
-	for (int i=0; i<m_N; i++)
-        {
-			m_genebank.removeOrganism( m_pop[m_buffer][i] );
-			m_pop[m_buffer][i] = 0; // make sure we don't have dangling pointers
-        }
+	for (int i=0; i<m_N; i++) {
+		m_genebank.removeOrganism( m_pop[m_buffer][i] );
+		m_pop[m_buffer][i] = 0; // make sure we don't have dangling pointers
+	}
 
 	m_buffer = outBuffer;
 }
@@ -764,7 +765,7 @@ bool GenebankAnalyzer<Organism>::analyzeDnDs( int window_size, double &ave_dn, d
 
 	// now go backwards and record all the changes
 	int last_b_time = b_time;
-	while ( 1 ) {
+	while ( true ) {
 		e2 = e->getParent();
 		if ( e2 == 0 ) // we have reached the final ancestor, so we are done
 			break;
@@ -775,11 +776,12 @@ bool GenebankAnalyzer<Organism>::analyzeDnDs( int window_size, double &ave_dn, d
 		syn_sites = GeneUtil::calcSynonymousSites( e2->getOrganism() );
 		nsyn_sites = sites - syn_sites;
 		double dn, ds;
-		GeneUtil::calcDnDs( dn, ds, e2->getOrganism(), e->getOrganism() );
+		
+		pair<double,double> dnds = GeneUtil::calcDnDs( e2->getOrganism(), e->getOrganism() );
 		
 		// and record
-		dn_vect[last_b_time] = dn;
-		ds_vect[last_b_time]= ds;
+		dn_vect[last_b_time] = dnds.first;
+		ds_vect[last_b_time]= dnds.second;
 		nsyn_sites_vect[b_time] = nsyn_sites;
 		syn_sites_vect[b_time] = syn_sites;
 		fitness_vect[b_time] = f;

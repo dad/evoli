@@ -83,12 +83,8 @@ void evolutionExperiment( ErrorproneTranslation& fe)
 
 	int count = 0;
 	int reps = 1;
-	for ( int i=0; i<reps; i++ )
-	{
-		stringstream repfname;
-
-		if ( runAndAnalyzeReplica( &fe, is_optimal, dn, ds, N, S, f, fop ) )
-		{
+	for ( int i=0; i<reps; i++ ) {
+		if ( runAndAnalyzeReplica( &fe, is_optimal, dn, ds, N, S, f, fop ) ) {
 			count += 1;
 			dn_s1 += dn; dn_s2 += dn*dn;
 			ds_s1 += ds; ds_s2 += ds*ds;
@@ -106,16 +102,16 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, vector<bool>& is_optimal,
 		     double &ave_fop )
 {
 	// initialize the population
-	Population<Gene, ErrorproneTranslation, SimpleMutator> pop( 1000 );
+	Population<CodingDNA, ErrorproneTranslation, SimpleMutator> pop( 1000 );
 	SimpleMutator mut(0.00001);
 
 	Folder& folder = *(fe->getFolder());
 	// Find a sequence.
-	Gene g = GeneUtil::getSequenceForStructure(folder, 75, -5, 599);
+	CodingDNA g = GeneUtil::getSequenceForStructure(folder, 75, -5, 599);
 	cout << "nf: " <<  folder.getNumFolded() << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, &mut );
-	GenebankAnalyzer<Gene> analyzer(pop.getGenebank());
+	GenebankAnalyzer<CodingDNA> analyzer(pop.getGenebank());
 
 	int loop_length = 100;
 	int n_folded = 0;

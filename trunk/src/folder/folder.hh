@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <cstring>
 #include <iostream>
 #include "sequence.hh"
+#include "genetic-code.hh" // this is possibly a bad dependence
 
 using namespace std;
 typedef int StructureID;
@@ -51,13 +52,13 @@ At a minimum, a \ref FoldInfo object contains the \ref StructureID of the minimu
 */
 class FoldInfo {
 protected:
-	double m_DeltaG;
+	double m_free_energy;
 	StructureID m_structure_id; ///< \ref StructureID of the minimum free energy structure of the folded protein sequence.
 public:
-	FoldInfo() : m_DeltaG( 0.0 ),
+	FoldInfo() : m_free_energy( 0.0 ),
 		m_structure_id( static_cast<StructureID>( -1 ) ) { ; }
 		
-	FoldInfo(double fe, StructureID sid) : m_DeltaG( fe ),
+	FoldInfo(double fe, StructureID sid) : m_free_energy( fe ),
 		m_structure_id( sid ) { ; }
 
 	virtual ~FoldInfo() {}
@@ -66,7 +67,7 @@ public:
 	\return The \ref StructureID of the minimum free energy structure of the folded protein sequence.
 	*/
 	StructureID getStructure() const { return m_structure_id; }
-	double getDeltaG() const { return m_DeltaG; }
+	double getDeltaG() const { return m_free_energy; }
 };
 
 /**
@@ -75,6 +76,22 @@ public:
 class Folder {
 private:
 protected:
+	/**
+	 * Turn amino acid characters into indices to enable fast lookup during folding.
+	 *
+	 * @return Whether all indices were valid (>= 0).
+	 **/
+	bool getAminoAcidIndices(const Sequence& s, vector<int>& aa_indices) const
+	{
+		int index = 0;
+		for (int i=0; i<s.size() && index >= 0; i++) {
+			index = GeneticCodeUtil::aminoAcidLetterToIndex(s[i]);
+			aa_indices[i] = index;
+		}
+		return index >= 0;
+	}
+
+
 public:
 	virtual ~Folder() {}
 	/**
@@ -118,6 +135,7 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 };
 
 #endif // FOLDER_HH
+
 
 
 

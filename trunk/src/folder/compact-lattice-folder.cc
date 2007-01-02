@@ -766,6 +766,7 @@ void CompactLatticeFolder::enumerateStructures()
 //	 cout << "#Total number of potentially interacting pairs: " << count << endl;
 }
 
+
 /**
  * Fold the sequence and return information about the result (structure, free energy).
  */
@@ -778,9 +779,19 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 	int minIndex = 0;
 	double Z = 0;
 	double G;
+	vector<int> aa_indices(s.size());
 
-	for ( int i=0; i<m_num_structures; i++ )
-	{
+	bool valid = getAminoAcidIndices(s, aa_indices);
+	if (!valid) {
+		return new FoldInfo(9999, -1);
+	}
+	/*cout << "ack " << s << endl;
+	for (int j=0; j<s.length(); j++) {
+		cout << aa_indices[j] << ' ';
+	}
+	cout << endl;
+	*/
+	for ( int i=0; i<m_num_structures; i++ ) {
 		double E = 0;
 
 		// calculate binding energy of this fold
@@ -788,7 +799,10 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 		vector<pair<int,int> >::const_iterator it=pair_list.begin();
 		for ( ; it!=pair_list.end(); it++ )
 		{
-			double deltaE = contactEnergy(s[(*it).first-1], s[(*it).second-1]);
+			//cout << (*it).first << " " << (*it).second << endl;
+			assert((*it).first >0 && (*it).first <= aa_indices.size());
+			assert((*it).second >0 && (*it).second <= aa_indices.size());
+			double deltaE = contactEnergy(aa_indices[(*it).first-1], aa_indices[(*it).second-1]);
 			E += deltaE;
 		}
 		// check if binding energy is lower than any previously calculated one
@@ -799,10 +813,8 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 		}
 		// add energy to partition sum
 		Z +=  exp(-E/kT);
-
 	}
-
-
+	//cout << "arg" << endl;
 	// calculate free energy of folding
 	G = minE + kT * log( Z - exp(-minE/kT) );
 
@@ -909,11 +921,11 @@ void CompactLatticeFolder::printContactEnergyTable( ostream &s ) const
 	s << "Contact energies:" << endl;
 	s << "      ";
 	for ( int i=0; i<20; i++ )
-		s << GeneticCodeUtil::residues[i] << "   ";
+		s << GeneticCodeUtil::indexToAminoAcidLetter(i) << "   ";
 	s << endl;
 	for ( int i=0; i<20; i++ )
 	{
-		s << GeneticCodeUtil::residues[i] << " ";
+		s << GeneticCodeUtil::indexToAminoAcidLetter(i) << " ";
 		for ( int j=0; j<20; j++ )
 		{
 			s.width(5);
