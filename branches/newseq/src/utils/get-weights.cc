@@ -144,7 +144,7 @@ StructureID getStructureID( Folder *b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
 		auto_ptr<FoldInfo> fi( b->fold(p) );
-		cout << fi->getStructure() << " " << fi->getFreeEnergy() << flush << endl;
+		cout << fi->getStructure() << " " << fi->getDeltaG() << flush << endl;
 		return fi->getStructure();
 	}
 	else

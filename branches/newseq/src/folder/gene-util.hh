@@ -153,7 +153,7 @@ public:
 	static double calcNeutrality( const Folder &b, Protein p, double cutoff )
 	{
 		auto_ptr<FoldInfo> fold_data( b.fold(p) );
-		if ( fold_data->getFreeEnergy() > cutoff )
+		if ( fold_data->getDeltaG() > cutoff )
 			return 0;
 		int structure_id = fold_data->getStructure();
 
@@ -169,7 +169,7 @@ public:
 				p[i] = newaa;
 				// sequence folds into correct structure with low free energy?
 				fold_data = auto_ptr<FoldInfo>( b.fold(p) );
-				if (fold_data->getStructure() == structure_id && fold_data->getFreeEnergy() < cutoff) {
+				if (fold_data->getStructure() == structure_id && fold_data->getDeltaG() < cutoff) {
 					count += 1;
 				}
 			}
@@ -325,9 +325,9 @@ public:
 			//cout << g << endl;
 			Protein p = g.translate();
 			fdata = auto_ptr<FoldInfo>( b.fold(p) );
-			found = (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= min_free_energy_for_starting);
-			//cout << fdata->getStructure() << "\t" << fdata->getFreeEnergy() << "\t" << g << endl;
-			//cout << q++ << " " << g << " " << p << " " << fdata->getStructure() << " " << fdata->getFreeEnergy() << endl;
+			found = (fdata->getStructure() == struct_id && fdata->getDeltaG() <= min_free_energy_for_starting);
+			//cout << fdata->getStructure() << "\t" << fdata->getDeltaG() << "\t" << g << endl;
+			//cout << q++ << " " << g << " " << p << " " << fdata->getStructure() << " " << fdata->getDeltaG() << endl;
 		} while ( !found );
 		//cout << "nf: " << (b.getNumFolded() - nfolded) << endl;
 
@@ -335,7 +335,7 @@ public:
 
 		int fail_count = 0;
 		int total_fail_count = 0;
-		G = fdata->getFreeEnergy();
+		G = fdata->getDeltaG();
 
 		// optimize the sequence for stability
 		do {
@@ -352,11 +352,11 @@ public:
 			else {
 				Protein p = g2.translate();
 				fdata = auto_ptr<FoldInfo>( b.fold(p) );
-				//cout << fdata->getStructure() << "\t" << fdata->getFreeEnergy() << "\t" << g << endl;
-				if (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= G-0.001) {
+				//cout << fdata->getStructure() << "\t" << fdata->getDeltaG() << "\t" << g << endl;
+				if (fdata->getStructure() == struct_id && fdata->getDeltaG() <= G-0.001) {
 					// we found an improved sequence. grab it, and reset failure count
 					g = g2;
-					G = fdata->getFreeEnergy();
+					G = fdata->getDeltaG();
 					fail_count = 0;
 					//cout << G << endl;
 				}
@@ -369,9 +369,9 @@ public:
 					g = CodingDNA::createRandomNoStops( length );
 					Protein p = g.translate();
 					fdata = auto_ptr<FoldInfo>( b.fold(p) );
-					found = (fdata->getStructure() == struct_id && fdata->getFreeEnergy() <= min_free_energy_for_starting);
+					found = (fdata->getStructure() == struct_id && fdata->getDeltaG() <= min_free_energy_for_starting);
 				} while ( !found );
-				G = fdata->getFreeEnergy();
+				G = fdata->getDeltaG();
 				fail_count = 0;
 				total_fail_count = 0;
 			}
@@ -401,13 +401,13 @@ public:
 			Protein p = g.translate();
 			//cout << p << endl;
 			fdata = auto_ptr<FoldInfo>( b.fold(p) );
-			found = (fdata->getFreeEnergy() <= min_free_energy_for_starting);
+			found = (fdata->getDeltaG() <= min_free_energy_for_starting);
 			//cout << fdata.first << "\t" << fdata.second << "\t" << g << endl;
 		} while ( !found );
 
 		int fail_count = 0;
 		int total_fail_count = 0;
-		G = fdata->getFreeEnergy();
+		G = fdata->getDeltaG();
 
 		// optimize the sequence for stability
 		do {
@@ -425,10 +425,10 @@ public:
 				Protein p = g2.translate();
 				fdata = auto_ptr<FoldInfo>( b.fold(p) );
 				//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
-				if (fdata->getFreeEnergy() <= G-0.001) {
+				if (fdata->getDeltaG() <= G-0.001) {
 					// we found an improved sequence. grab it, and reset failure count
 					g = g2;
-					G = fdata->getFreeEnergy();
+					G = fdata->getDeltaG();
 					fail_count = 0;
 					//cout << G << endl;
 				}
@@ -441,9 +441,9 @@ public:
 					g = CodingDNA::createRandomNoStops( length );
 					Protein p = g.translate();
 					fdata = auto_ptr<FoldInfo>( b.fold(p) );
-					found = (fdata->getFreeEnergy() <= min_free_energy_for_starting);
+					found = (fdata->getDeltaG() <= min_free_energy_for_starting);
 				} while ( !found );
-				G = fdata->getFreeEnergy();
+				G = fdata->getDeltaG();
 				fail_count = 0;
 				total_fail_count = 0;
 			}

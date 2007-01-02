@@ -67,7 +67,7 @@ public:
 	\return The \ref StructureID of the minimum free energy structure of the folded protein sequence.
 	*/
 	StructureID getStructure() const { return m_structure_id; }
-	double getFreeEnergy() const { return m_free_energy; }
+	double getDeltaG() const { return m_free_energy; }
 };
 
 /**

@@ -95,7 +95,7 @@ if ( folder.good() )
 	// we store the result from the fold() function in an auto_ptr,
 	// so that we don't have to worry about memory management
 	auto_ptr<FoldInfo> fi( folder.fold( p ) );
-	cout << fi->getStructure() << " " << fi->getFreeEnergy() << endl;
+	cout << fi->getStructure() << " " << fi->getDeltaG() << endl;
 }
 \endcode
 

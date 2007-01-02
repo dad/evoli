@@ -39,7 +39,7 @@ struct TEST_CLASS( folder_basic )
 		CompactLatticeFolder folder(side_length);
 		Protein p("CSVMQGGKTVFQMPIIERVMQAYNI"); //Gene::createRandomNoStops(gene_length);
 		auto_ptr<FoldInfo> fi( folder.fold(p) );
-		TEST_ASSERT( fabs(fi->getFreeEnergy()-0.564) < 1e-2 );
+		TEST_ASSERT( fabs(fi->getDeltaG()-0.564) < 1e-2 );
 		TEST_ASSERT( fi->getStructure() == (StructureID)225 );
 		return;
 	}
@@ -58,7 +58,7 @@ struct TEST_CLASS( folder_basic )
 			Protein p = g.translate();
 			auto_ptr<FoldInfo> fi( folder.fold(p) );
 			TEST_ASSERT(fi->getStructure()>-1);
-			//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
+			//cout << "folded:" << tab << fi.getStructure() << tab << fi.getDeltaG() << endl;
 		}
 		// Clean up
 		return;
@@ -74,9 +74,9 @@ struct TEST_CLASS( folder_basic )
 			return;
 		Protein p("PRPEEEKKKREREEKRRKEDKLERIRDLPRKILKMIVEPKRRKKGETEDDDEKESKRREEMEKFKREFFTICIKLLECEEEMARRREKRREEEDIDSLRELMKDCRRFIDDPRRVEQQSQRLDFRSRRKLEDEKDDEDKRKPDFLFEFEMCEEDMRRRPLDRVKDICRVCCEMDEEEEIREEEEFFRPEEEDMKLKSFRESFKDVRRCILRKFEKSRREKSAEFLRHEIPMFSSEDEEDRKKKDRRRQRPMMRHFMKRIKEKEEERKKREFKEQEEPKPKSFKWKTEEEMEELGEQEKRV");
 		auto_ptr<FoldInfo> fi( folder.fold(p) );
-		//cout << endl << fi->getFreeEnergy() << " " << fi->getStructure() << endl;
+		//cout << endl << fi->getDeltaG() << " " << fi->getStructure() << endl;
 		//cout << p << endl;
-		TEST_ASSERT( fabs(fi->getFreeEnergy()-0.00732496)<1e-4 );
+		TEST_ASSERT( fabs(fi->getDeltaG()-0.00732496)<1e-4 );
 		TEST_ASSERT( fi->getStructure() == (StructureID)0 );
 	}
 
@@ -130,7 +130,7 @@ struct TEST_CLASS( folder_basic )
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
 		TEST_ASSERT(fi->getStructure()==34);
 		//cout << "Williams:" << endl;
-		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
+		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getDeltaG() << endl;
 		// Clean up
 	}
 

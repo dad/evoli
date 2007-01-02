@@ -149,7 +149,7 @@ struct TEST_CLASS( protein_gene_basic )
 		Protein p = g.translate();
 		//cout << "xx" << p << endl;
 		auto_ptr<FoldInfo> fi( folder.fold(p) );
-		TEST_ASSERT( fi->getFreeEnergy() <= max_dg );
+		TEST_ASSERT( fi->getDeltaG() <= max_dg );
 		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
 		return;
 	}

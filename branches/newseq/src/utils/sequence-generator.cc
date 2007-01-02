@@ -82,7 +82,7 @@ void getSequence( Folder &b, const Parameters &p, ostream &s )
 	Gene g = GeneUtil::getSequence(b, 3*p.protein_length, p.free_energy_cutoff);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
-	s << g << " " << fdata->getFreeEnergy() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
+	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
 	  << " " << (b.getNumFolded()-nfolded) << endl;
 }
 
@@ -93,7 +93,7 @@ void getSequenceTargeted( Folder &b, const Parameters &p, const int struct_id, o
 	Gene g = GeneUtil::getSequenceForStructure(b, 3*p.protein_length, p.free_energy_cutoff, struct_id);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
-	s << g << " " << fdata->getFreeEnergy() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
+	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
 	  << " " << (b.getNumFolded()-nfolded) << endl;
 }
 

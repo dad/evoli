@@ -56,7 +56,7 @@ double ProteinFreeEnergyFitness::getFitness( const CodingDNA &g ) {
 double ProteinFreeEnergyFitness::getFitness( const Protein &p ) {
 	double kT = 0.6;
 	auto_ptr<FoldInfo> fi( m_protein_folder->fold(p) );
-	double dG = fi->getFreeEnergy();
+	double dG = fi->getDeltaG();
 	double x = exp(-dG/kT);
 	return x/(1.0+x);
 }
@@ -84,7 +84,7 @@ double ProteinStructureFitness::getFitness( const Gene &g ) {
 
 double ProteinStructureFitness::getFitness( const Protein &p ) {
 	auto_ptr<FoldInfo> pf( m_protein_folder->fold(p) );
-	if ( pf->getFreeEnergy() > m_max_free_energy )
+	if ( pf->getDeltaG() > m_max_free_energy )
 		return 0;
 
 	if ( pf->getStructure() != m_protein_structure_ID )
@@ -236,7 +236,7 @@ bool ErrorproneTranslation::sequenceFolds(Protein& p)
 	// test if residue sequence folds into correct structure and has correct free energy
 	auto_ptr<FoldInfo> fold_data( m_protein_folder->fold(p) );
 	
-	if ( fold_data->getFreeEnergy() > m_max_free_energy )
+	if ( fold_data->getDeltaG() > m_max_free_energy )
 		return false;  // free energy above cutoff
 
 	if ( fold_data->getStructure() != m_protein_structure_ID )
@@ -662,7 +662,7 @@ void ErrorproneTranslation::stabilityOutcomes( const Gene &g, const int num_to_f
 		if (numErrors>0 && !truncated) {
 			auto_ptr<FoldInfo> fold_data( m_protein_folder->fold(p) );
 			if (fold_data->getStructure() == m_protein_structure_ID) {
-				ddgs.push_back(fold_data->getFreeEnergy());
+				ddgs.push_back(fold_data->getDeltaG());
 				i++;
 			}
 		}

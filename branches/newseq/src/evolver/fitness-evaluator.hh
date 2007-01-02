@@ -66,7 +66,7 @@ public:
 	virtual ~ProteinStructureFitness();
 
 	void setFreeEnergyCutoff(double cutoff) { m_max_free_energy = cutoff; }
-	double getFreeEnergyCutoff() const { return m_max_free_energy; }
+	double getDeltaGCutoff() const { return m_max_free_energy; }
 
 	double getFitness( const CodingDNA& g );
 	double getFitness( const Protein& p );

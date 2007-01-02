@@ -98,7 +98,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe, Polymerase& 
 			if (folded) {
 				Protein p = g.translate();
 				auto_ptr<FoldInfo> fold_data( folder.fold(p) );
-				dG = fold_data->getFreeEnergy();
+				dG = fold_data->getDeltaG();
 			}
 			double facc, frob, ftrunc, ffold;
 			fe.calcOutcomes( g, facc, frob, ftrunc, ffold);
