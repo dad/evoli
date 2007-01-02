@@ -1,5 +1,6 @@
 #include "mutator.hh"
 #include "codon.hh"
+#include "genetic-code.hh"
 
 
 ////////////////////
@@ -15,17 +16,16 @@ SimpleMutator::~SimpleMutator() {
 
 bool SimpleMutator::mutate(CodingDNA& seq) {
 	bool changed = false;
-	string nts("ACGT");
-	CodingDNA::iterator it = seq.begin();
 	for (int i=0; i<seq.length(); i++) {
+		char old_nt = seq[i];
 		if (Random::runif() < m_mutation_rate) {
-			char nt = nts[Random::rint( 4 )];
-			seq[i] = nt;
+			do {
+				seq[i] = GeneticCodeUtil::DNA_NUCLEOTIDES[Random::rint( 4 )];
+			} while (seq[i] == old_nt);
 			changed = true;
 		}
 	}
 	return changed;
-	
 }
 
 ////////////////////
@@ -49,12 +49,12 @@ Polymerase::~Polymerase() {
 bool Polymerase::mutate(CodingDNA& seq) {
 	// DAD: implement mutation matrix
 	bool changed = false;
-	string nts("ACGT");
-	CodingDNA::iterator it = seq.begin();
 	for (int i=0; i<seq.length(); i++) {
+		char old_nt = seq[i];
 		if (Random::runif() < m_mutation_rate) {
-			char nt = nts[Random::rint( 4 )];
-			seq[i] = nt;
+			do {
+				seq[i] = GeneticCodeUtil::DNA_NUCLEOTIDES[Random::rint( 4 )];
+			} while (seq[i] == old_nt);
 			changed = true;
 		}
 	}

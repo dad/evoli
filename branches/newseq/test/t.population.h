@@ -111,7 +111,7 @@ struct TEST_CLASS( population )
 
 		analyzer.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 
-		//std::cout << endl << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
+		std::cout << endl << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
 
 		TEST_ASSERT( fabs( ave_dn - 12) < 1e-4 );
 		TEST_ASSERT( fabs( ave_ds - 2) < 1e-4 );

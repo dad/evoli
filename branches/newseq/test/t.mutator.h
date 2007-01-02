@@ -19,8 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 */
 
 
-#ifndef _T_FITNESSEVALUATOR_H__
-#define _T_FITNESSEVALUATOR_H__
+#ifndef _T_MUTATOR_H__
+#define _T_MUTATOR_H__
 #include "cutee.h"
 #include "decoy-contact-folder.hh"
 #include "compact-lattice-folder.hh"
@@ -31,30 +31,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <fstream>
 #include <cmath>
 
-struct TEST_CLASS( fitness_evaluator_basic )
+struct TEST_CLASS( mutator_basic )
 {
-	const static int side_length = 5;
-	const static int gene_length = side_length*side_length*3;
-
-	void TEST_FUNCTION( create_EPT_without_weights )
-	{
-		CompactLatticeFolder folder(side_length);
-		ErrorproneTranslation ept(&folder, gene_length/3, 599, -2.0, 1.0, 6.0, 0.85);
-		CodingDNA test_gene = CodingDNA::createRandomNoStops(gene_length);
-		Protein p = test_gene.translate();
-		auto_ptr<FoldInfo> fi(folder.fold(p));
-		double fitness = ept.getFitness(test_gene);
-		TEST_ASSERT(fitness >= 0 && fitness <= 1);
+	void TEST_FUNCTION( is_mutated ) {
+		CodingDNA g = CodingDNA::createRandomNoStops(75);
+		SimpleMutator mut(0.01);
+		for (int i=0; i<100; i++) {
+			CodingDNA g2 = g;
+			bool changed = mut.mutate(g2);
+			TEST_ASSERT( changed == (g2 != g) );
+		}
 	}
-	
-	void TEST_FUNCTION( create_EPT )
-	{
-		CompactLatticeFolder folder(side_length);
-		ErrorproneTranslation ept(&folder, gene_length/3, 599, -5, 1, 6, 0.1, 0.1, 0.1 );
-		TEST_ASSERT(true);
-	}
-
-
 };
 
-#endif
+#endif // _T_MUTATOR_H__
