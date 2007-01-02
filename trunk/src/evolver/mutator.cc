@@ -16,22 +16,6 @@ SimpleMutator::SimpleMutator(double mutation_rate) {
 SimpleMutator::~SimpleMutator() {
 }
 
-/*
-bool SimpleMutator::mutate(CodingDNA& seq) {
-	bool changed = false;
-	for (int i=0; i<seq.length(); i++) {
-		char old_nt = seq[i];
-		if (Random::runif() < m_mutation_rate) {
-			do {
-				seq[i] = GeneticCodeUtil::DNA_NUCLEOTIDES[Random::rint( 4 )];
-			} while (seq[i] == old_nt);
-			changed = true;
-		}
-	}
-	return changed;
-}
-*/
-
 bool SimpleMutator::mutate(CodingDNA& seq) {
 	bool changed = false;
 	const char* mutA = "CGT";
