@@ -81,7 +81,8 @@ struct TEST_CLASS( population )
 		ProteinFreeEnergyFitness fe( &b );
 		Population<Gene, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
 		SimpleMutator mut(U);
-		Gene g = Gene::createRandom( length*3 );
+		Gene g( "GGGAAGUGCGUCCAGCAGAGUUGGGUAUGGGAGGGAUCUAAGUUAAAG" );
+		//Gene g = Gene::createRandom( length*3 );
 		bool randomOK = true;
 		TEST_ASSERT( randomOK = ( g == Gene( "GGGAAGUGCGUCCAGCAGAGUUGGGUAUGGGAGGGAUCUAAGUUAAAG" ) ) );
 		//std::cout << g << std::endl;
@@ -110,7 +111,7 @@ struct TEST_CLASS( population )
 
 		analyzer.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 
-		//std::cout << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
+		std::cout << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;
 
 		TEST_ASSERT( fabs( ave_dn - 7) < 1e-4 );
 		TEST_ASSERT( fabs( ave_ds - 1) < 1e-4 );
