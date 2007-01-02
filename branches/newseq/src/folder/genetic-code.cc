@@ -217,15 +217,18 @@ char GeneticCodeUtil::indexToAminoAcidLetter(int index) {
 
 int GeneticCodeUtil::codonToIndex(Codon codon) {
 	// DAD: currently (potentially) PAINFULLY slow.
-	for (int i=0; i<128; i++) {
-		Codon c = codonAAPairs[i].first;
+	int index = -1;
+	for (index=0; index<128; index++) {
+		Codon c = codonAAPairs[index].first;
 		if (c == codon) {
-			return i;
+			break;
 		}
 	}
-	// Codon was not found.  Error.
-	assert( false ); // exiting the program is probably the best strategy here
-	return -1;
+	assert( index >= 0 );
+	if ( index>63 )
+		index -= 64;
+	assert( index < 64 );
+	return index;
 }
 
 Codon GeneticCodeUtil::indexToCodon(int index) {

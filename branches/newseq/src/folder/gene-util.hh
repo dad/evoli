@@ -192,6 +192,7 @@ public:
 			char aa = GeneticCodeUtil::geneticCode(c);
 			if ( !(aa == methionine || aa == tryptophan)) {
 				tot += 1;
+				cout << index << endl;
 				if (is_optimal[index]) {
 					count += 1;
 				}
