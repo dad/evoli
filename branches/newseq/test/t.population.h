@@ -84,7 +84,8 @@ struct TEST_CLASS( population )
 		Population<CodingDNA, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
 		SimpleMutator mut(U);
 		//cout << endl << length*3 << endl;
-		CodingDNA g = CodingDNA::createRandom( length*3 );
+		//CodingDNA g = CodingDNA::createRandom( length*3 );
+		CodingDNA g( "GGGAAGTGCGTCCAGCAGAGTTGGGTATGGGAGGGATCTAAGTTAAAG" );
 		//cout << g << endl;
 		CodingDNA q( "GACGTTACGCGGCACAAGGTGAAGCGAGAACTCCCGGAATTAGCAGTT" );
 		//cout << q << endl;
