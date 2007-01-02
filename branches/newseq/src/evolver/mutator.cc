@@ -2,6 +2,8 @@
 #include "codon.hh"
 #include "genetic-code.hh"
 
+#include <iostream>
+using namespace std;
 
 ////////////////////
 // SimpleMutator methods
@@ -14,6 +16,7 @@ SimpleMutator::SimpleMutator(double mutation_rate) {
 SimpleMutator::~SimpleMutator() {
 }
 
+/*
 bool SimpleMutator::mutate(CodingDNA& seq) {
 	bool changed = false;
 	for (int i=0; i<seq.length(); i++) {
@@ -27,6 +30,37 @@ bool SimpleMutator::mutate(CodingDNA& seq) {
 	}
 	return changed;
 }
+*/
+
+bool SimpleMutator::mutate(CodingDNA& seq) {
+	bool changed = false;
+	const char* mutA = "CGT";
+	const char* mutC = "GTA";
+	const char* mutG = "TAC";
+	const char* mutT = "ACG";
+	for (int i=0; i<seq.length(); i++) {
+		char old_nt = seq[i];
+		if (Random::runif() < m_mutation_rate) {
+			changed = true;
+			int j = Random::rint( 3 );
+			switch( seq[i] ){
+			case 'A':
+				seq[i] = mutA[j]; break;
+			case 'C':
+				seq[i] = mutC[j]; break;
+			case 'G':
+				seq[i] = mutG[j]; break;
+			case 'T':
+				seq[i] = mutT[j]; break;
+			default:
+				assert( false ); // should never get here
+			}
+		}
+	}
+	return changed;
+}
+
+
 
 ////////////////////
 // Polymerase methods
