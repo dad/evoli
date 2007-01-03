@@ -590,7 +590,6 @@ double GeneticCodeUtil::calcNonsynMutationOpportunity( Codon test_codon, double 
 	return N/(2.+2*rho);
 }
 
-bool GeneticCodeUtil::m_setup=false;
 GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dnLookup;
 GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dsLookup;
 double GeneticCodeUtil::m_dnTable[64][64];
@@ -607,9 +606,10 @@ pair<double, double> GeneticCodeUtil::calcDnDs( Codon test_codon1, Codon test_co
 	double dn=-1, ds=-1;
 
 	// This implementation is not thread-safe.
-	if ( !m_setup )	{
+	static bool setup=false;
+	if ( !setup )	{
 		//int num_records = 0;
-		m_setup = true;
+		setup = true;
 		//m_dnLookup.clear();
 		//m_dnLookup.resize(64*64);
 		//m_dsLookup.clear();

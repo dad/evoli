@@ -48,7 +48,6 @@ public:
 	typedef hash_map<const char*, double, hash<const char*> > StringDoubleMap;
 private:
 	// All this is needed for the function calc DnDs.
-	static bool m_setup;
 	static StringDoubleMap m_dnLookup;
 	static StringDoubleMap m_dsLookup;
 	static double m_dnTable[][64];
