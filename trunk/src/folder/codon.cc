@@ -80,7 +80,7 @@ Codon Codon::indexToCodon( int index, bool RNA )
 	char codon[4];
 	codon[0] = intToBase( (index >> 4) & 3, RNA );
 	codon[1] = intToBase( (index >> 2) & 3, RNA );
-	codon[2] = intToBase( index & 3 );
+	codon[2] = intToBase( index & 3, RNA );
 	codon[3] = 0;
 	return Codon( codon );
 }
