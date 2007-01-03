@@ -6,4 +6,4 @@ INCLUDES = -I$(top_srcdir)/src/tools/
 
 lib_LIBRARIES = libfolder.a
 
-libfolder_a_SOURCES = genetic-code.cc translator.cc protein.cc compact-lattice-folder.cc decoy-contact-folder.cc protein-contact-energies.cc
+libfolder_a_SOURCES = genetic-code.cc translator.cc protein.cc codon.cc compact-lattice-folder.cc decoy-contact-folder.cc protein-contact-energies.cc

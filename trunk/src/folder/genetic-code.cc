@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 
 #include "genetic-code.hh"
-#include "codon.hh"
 #include <vector>
 #include <ostream>
 
@@ -237,6 +236,24 @@ Codon GeneticCodeUtil::indexToCodon(int index) {
 	return codonAAPairs[index].first;
 }
 
+/**
+ * Tests whether a mutations from base 1 to base 2 is a transition (A<->G, C<->U/T) or not.
+ **/
+bool GeneticCodeUtil::isTransition( char l1, char l2 ) {
+  if ( l1 == 'A' && l2 == 'G' )
+	return true;
+  if ( l1 == 'C' && l2 == 'U' )
+	return true;
+  if ( l1 == 'C' && l2 == 'T' )
+	return true;
+  if ( l1 == 'G' && l2 == 'A' )
+	return true;
+  if ( l1 == 'U' && l2 == 'C' )
+	return true;
+  if ( l1 == 'T' && l2 == 'C' )
+	return true;
+  return false;
+}
 
 const int GeneticCodeUtil::residueToAllCodonsTable[20][7] =
 { // first number is number of codons, then followed by actual codons, and finished off with -1.
@@ -536,7 +553,7 @@ double GeneticCodeUtil::calcSynMutationOpportunity( Codon test_codon, double rho
 			// If synonymous...
 			if ( res == geneticCode(varcodon)) {
 				// Accumulate weights depending on whether mutation is transition or transversion
-				if ( CodonUtil::isTransition( codon[ntpos], varcodon[ntpos] ) )
+				if ( isTransition( codon[ntpos], varcodon[ntpos] ) )
 					S += wti;
 				else
 					S += wtv;
@@ -578,7 +595,7 @@ double GeneticCodeUtil::calcNonsynMutationOpportunity( Codon test_codon, double 
 			// If nonsynonymous...
 			if ( res != geneticCode(varcodon)) {
 				// Accumulate weights depending on whether mutation is transition or transversion
-				if ( CodonUtil::isTransition( codon[ntpos], varcodon[ntpos] ) )
+				if ( isTransition( codon[ntpos], varcodon[ntpos] ) )
 					N += wti;
 				else
 					N += wtv;

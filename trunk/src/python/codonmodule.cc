@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "genetic-code.hh"
 #include "codon.hh"
 
-
 static PyObject *CodonErrorObject;
 
 /* ----------------------------------------------------- */
@@ -105,10 +104,7 @@ codon_calcDnDs(PyObject *self /* Not used */, PyObject *args)
 	
 	Codon c1(codon1);
 	Codon c2(codon2);
-	//int c1 = CodonUtil::lettersToCodon( codon1[0], codon1[1], codon1[2] );
-	//int c2 = CodonUtil::lettersToCodon( codon2[0], codon2[1], codon2[2] );
 
-	//double dn, ds;
 	// calculate dn and ds and store in variables
 	pair<double,double> dnds = GeneticCodeUtil::calcDnDs( c1, c2 );
 
@@ -141,7 +137,6 @@ codon_calcNS(PyObject *self /* Not used */, PyObject *args)
 	}
 
 	Codon c1(codon1);
-	//int c1 = CodonUtil::lettersToCodon( codon1[0], codon1[1], codon1[2] );
 
 	// calculate N and S
 	double S = GeneticCodeUtil::calcSynonymousSites( c1 );
@@ -177,7 +172,6 @@ codon_calcNSMutatOpport(PyObject *self /* Not used */, PyObject *args)
 	}
 	
 	Codon c1(codon1);
-	//int c1 = CodonUtil::lettersToCodon( codon1[0], codon1[1], codon1[2] );
 
 	// calculate N and S
 	double S = GeneticCodeUtil::calcSynMutationOpportunity( c1, rho );
@@ -216,8 +210,6 @@ codon_calcDnDsMutatOpport(PyObject *self /* Not used */, PyObject *args)
 	
 	Codon c1(codon1);
 	Codon c2(codon2);
-	//int c1 = CodonUtil::lettersToCodon( codon1[0], codon1[1], codon1[2] );
-	//int c2 = CodonUtil::lettersToCodon( codon2[0], codon2[1], codon2[2] );
 
 	// calculate dn and ds and store in variables
 	pair<double, double> p = GeneticCodeUtil::calcDnDsWeighted( c1, c2, rho );

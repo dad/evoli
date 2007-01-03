@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #define GENETIC_CODE_HH
 
 #include "protein.hh"
+#include "codon.hh"
 #include <iostream>
 #include <map>
 // uncomment next line for older versions of gcc
@@ -117,6 +118,14 @@ public:
 	 **/
 	static Codon indexToCodon(int index);
 
+  /**
+   * Is this nucleotide change a transition?
+   * @param nt1 The first nucleotide
+   * @param nt2 The second nucleotide
+   * @return Whether the change from nt1 to nt2 is a transition.
+   **/
+  static bool isTransition( char nt1, char nt2 );
+  
 	/**
 	 * Mapping from amino acids to codons
 	 **/ 

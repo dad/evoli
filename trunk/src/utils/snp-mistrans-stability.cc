@@ -27,11 +27,12 @@ public:
 	int random_seed;
 	string genotype_file_name;
 	int num_to_fold;
+	string output_file_name;
 	bool valid;
 
 
 	Parameters( int ac, char **av ) {
-		if ( ac != 11 )	{
+		if ( ac != 12 )	{
 			valid = false;
 			return;
 		}
@@ -49,6 +50,7 @@ public:
 		random_seed = atoi( av[i++] );
 		genotype_file_name = av[i++];
 		num_to_fold = atoi( av[i++] );
+		output_file_name = av[i++];
 
 		valid = true;
 	}
@@ -69,6 +71,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	s << "#   transl. error weight: " << p.error_weight << endl;
 	s << "#   random seed: " << p.random_seed << endl;
 	s << "#   genotype file: " << p.genotype_file_name << endl;
+	s << "#   output file: " << p.output_file_name << endl;
 	s << "#" << endl;
 	return s;
 }
@@ -136,9 +139,14 @@ void evolStabExperiment(Parameters& p) {
 	}
 	fin.close();
 
-	cout << "orf\ttr\trep\tns\ttrial\ts\tddg\tdg" << endl;
+	ofstream fout(p.output_file_name.c_str());
+
+	fout << "orf\ttr\trep\tns\ttrial\ts\tddg\tdg" << endl;
 	for (vector<RunRecord>::iterator it = runResults.begin(); it != runResults.end(); it++)	{
 		RunRecord& rec = *it;
+		if (rec.cost <0.4) {
+			continue;
+		}
 		fe->setMisfoldingCost(rec.cost);
 		Protein prot = rec.gene.translate();
 		auto_ptr<FoldInfo> fi(folder.fold(prot));
@@ -147,10 +155,11 @@ void evolStabExperiment(Parameters& p) {
 		stabilities.reserve(p.num_to_fold);
 		fe->stabilityOutcomes(rec.gene, p.num_to_fold, stabilities);
 		for (int i=0; i<p.num_to_fold; i++) {
-			cout << rec.orf << tab << rec.cost << tab << rec.rep << tab << rec.ns << tab << i << tab 
+			fout << rec.orf << tab << rec.cost << tab << rec.rep << tab << rec.ns << tab << i << tab
 				 << rec.s << tab << (stabilities[i]-dG) << tab << stabilities[i] << endl;
 		}
 	}
+	fout.close();
 }
 
 

@@ -1,7 +1,7 @@
 /*
-This file is part of the evoli project.
-Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
-Allan Drummond <dadrummond@gmail.com>
+This file is part of the E.voli project.  Copyright (C) 2004, 2005,
+2006, 2007 Claus Wilke <cwilke@mail.utexas.edu>, Allan Drummond
+<drummond@alumni.princeton.edu>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,24 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <string>
 #include <cassert>
 #include "sequence.hh"
-//#include "genetic-code.hh"
+#include "codon.hh"
 
 using namespace std;
-
-class Codon : public Sequence {
-public:
-	Codon() : Sequence("AAA") {}
-	Codon(const Sequence& s, unsigned int start) : Sequence(s, start, 3) {
-	}
-	Codon(const string&s) : Sequence(s) {}
-	Codon(const char*s) : Sequence(s) {}
-
-	/**
-	 * Transcribes DNA pseudo-codon into RNA codon.
-	 * @return A Codon, with instances of T in the original Codon replaced by U.
-	 **/
-	Codon transcribe() const;
-};
 
 typedef pair<int, int> Contact;
 
@@ -87,7 +72,7 @@ public:
 	CodingDNA(const string& s) : Sequence(s) {}
 	CodingDNA(unsigned int length);
 	CodingDNA(unsigned int length, char val);
-	~CodingDNA() {}
+	virtual ~CodingDNA() {}
 
 	/**
 	@return The length of the DNA sequence in codons.

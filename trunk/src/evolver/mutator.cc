@@ -1,6 +1,7 @@
 #include "mutator.hh"
 #include "codon.hh"
 #include "genetic-code.hh"
+#include "random.hh"
 
 #include <iostream>
 using namespace std;

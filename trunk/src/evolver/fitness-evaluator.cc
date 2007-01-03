@@ -215,15 +215,6 @@ void ErrorproneTranslation::buildWeightMatrix() {
 			tot = p.first;
 		}
 	}
-
-	//    print the result for good measure
-//	 for ( int c=0; c<64; c++ )
-//	 {
-//		 CodonUtil::printCodon( cout, c );
-//		 for ( int a=0; a<=20; a++ )
-//			 cout << " " << m_weight_matrix[c][a];
-//		 cout << endl;
-//	 }
 }
 
 ErrorproneTranslation::~ErrorproneTranslation()
@@ -262,19 +253,19 @@ double ErrorproneTranslation::calcWeight( int co, int ct )
 
 	if (from_codon.distance(to_codon) == 1) {
 		if (from_codon[0] != to_codon[0]) {
-			if ( CodonUtil::isTransition( from_codon[0], to_codon[0] ) )
+			if ( GeneticCodeUtil::isTransition( from_codon[0], to_codon[0] ) )
 				return 1.*stop_factor;
 			else
 				return 0.5*stop_factor;
 		}
 		if (from_codon[1] != to_codon[1]) {
-			if ( CodonUtil::isTransition( from_codon[1], to_codon[1] ) )
+			if ( GeneticCodeUtil::isTransition( from_codon[1], to_codon[1] ) )
 				return 0.5*stop_factor;
 			else
 				return 0.1*stop_factor;
 		}
 		if (from_codon[2] != to_codon[2]) {
-			if ( CodonUtil::isTransition( from_codon[2], to_codon[2] ) )
+			if ( GeneticCodeUtil::isTransition( from_codon[2], to_codon[2] ) )
 				return 1.*stop_factor;
 			else
 				return 1.*stop_factor;

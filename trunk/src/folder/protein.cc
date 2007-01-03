@@ -1,7 +1,7 @@
 /*
 This file is part of the E.voli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
-Allan Drummond <dadrummond@gmail.com>
+Allan Drummond <drummond@alumni.princeton.edu>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,17 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "translator.hh"
 #include "codon.hh"
 #include "genetic-code.hh"
+#include "random.hh"
 #include <sstream>
 
-
-Codon Codon::transcribe() const {
-	Codon res = *this;
-	for (int i=0; i<3; i++) {
-		if (res[i] == 'T')
-			res[i] = 'U';
-	}
-	return res;
-}
 
 Protein::Protein(unsigned int length) : Sequence(length, 'A') {
 }
@@ -66,10 +58,9 @@ CodingDNA::CodingDNA(unsigned int length, char val) : Sequence(length, val) {
 
 CodingDNA CodingDNA::createRandom(unsigned int length ) {
 	CodingDNA g( length, 'A' );
-	string nts("ATGC");
 
 	for (unsigned int j=0; j<length; j++) {
-		char nt = nts[Random::rint( 4 )];
+		char nt = GeneticCodeUtil::DNA_NUCLEOTIDES[Random::rint( 4 )];
 		g[j] = nt;
 	}
 	return g;

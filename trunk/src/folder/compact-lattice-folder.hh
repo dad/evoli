@@ -214,7 +214,7 @@ public:
 	@return True if the folder is in good working order, False otherwise.
 	 **/
 	virtual bool good() const { return m_structures.size() > 0; }
-	
+
 	/**
 	 * Folds a protein. See Folder::fold() for details.
 	 *
@@ -228,7 +228,7 @@ public:
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
-	 **/ 
+	 **/
 	virtual double getEnergy(const Sequence& s, StructureID sid) const;
 
 	void printContactEnergyTable( ostream &s ) const;
@@ -245,7 +245,12 @@ public:
 	\return A pointer to the corresponding LatticeStructure.
 	*/
 	LatticeStructure* getStructure( StructureID sid ) const {
-		return m_structures[sid];
+		if (sid >= 0 && sid < m_num_structures) {
+			return m_structures[sid];
+		}
+		else {
+			return NULL;
+		}
 	}
 
 	/**
@@ -253,6 +258,12 @@ public:
 	*/
 	uint getNumFolded() const {
 		return m_num_folded;
+	}
+	/**
+	 @return The number of structures into which sequences can fold.
+	 **/
+	uint getNumStructures() const {
+		return m_num_structures;
 	}
 };
 
