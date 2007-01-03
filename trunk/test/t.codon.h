@@ -33,6 +33,11 @@ struct TEST_CLASS( codon_basic ) {
 		Codon rna = dna.transcribe();
 		TEST_ASSERT(rna == Codon("AUG"));
 	}
+	void TEST_FUNCTION( index_test1 ) {
+	  Codon rna("GUG");
+	  int codon_index = Codon::codonToIndex(rna);
+	  TEST_ASSERT(codon_index == 46);
+	}
 };
 
 #endif // _T_CODON_H__

@@ -1,7 +1,6 @@
 * move tools.hh from directory folder into directory tools (Claus)
 * place the logic of when a protein is stably folded into folder classes (Claus)
 * refactor GenebankAnalyzer: separate organisms-specific code from generic code. (?)
-* introduce a test suite for Codon object. (?)
 * make function ErrorproneTranslation::getCodonCosts() not return a pointer
   to an internal data structure. (?)
 * convert calcOutcomes(...) and countOutcomes(...) to return a data structure 
