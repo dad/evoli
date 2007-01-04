@@ -19,43 +19,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 */
 
 
-#ifndef PROTEIN_HH
-#define PROTEIN_HH
+#ifndef NUCLEOTIDE_SEQUENCE_HH
+#define NUCLEOTIDE_SEQUENCE_HH
 
 #include <vector>
 #include <string>
 #include <cassert>
 #include "sequence.hh"
-#include "codon.hh"
 
 using namespace std;
 
-typedef pair<int, int> Contact;
-
-/** \brief A class holding a protein sequence.
+/** \brief A class holding a protein-coding DNA sequence.
 */
-class Protein : public Sequence {
-protected:
+class NucleotideSequence : public Sequence {
 public:
-	Protein(unsigned int length);
-	Protein(unsigned int length, char val);
-	Protein(const string& s) : Sequence(s) {}
-	~Protein() {}
+	NucleotideSequence(const string& s) : Sequence(s) {}
+	NucleotideSequence(unsigned int length) : Sequence (length) {}
+	NucleotideSequence(unsigned int length, char val) : Sequence (length, val) {}
 
 	/**
-	Converts the protein sequence into a string useful for output etc.
-	@return A string object containing the protein sequence, using the single-letter amino-acid alphabet.
-	*/
-	string toString() const { return *this; }
-
-	/**
-	Creates a random protein.
-	@param length Length of the desired protein, in residues
-	@return The random protein.
-	*/
-	static Protein createRandom(unsigned int length);
+	 *
+	 **/
+	double getGCFraction() const {
+		int n_gc = 0;
+		const Sequence& s = *this;
+		for (int i=0; i<size(); i++) {
+			if (s[i] == 'G' || s[i] == 'C') {
+				n_gc++;
+			}
+		}
+		return n_gc/double(length());
+	}
 
 };
 
-
-#endif //PROTEIN_HH
+#endif // NUCLEOTIDE_SEQUENCE_HH

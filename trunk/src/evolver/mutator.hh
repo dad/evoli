@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #define MUTATOR_HH
 
 #include "tools.hh"
-#include "protein.hh"
+#include "coding-sequence.hh"
 
 using namespace std;
 
@@ -35,7 +35,7 @@ private:
 	double m_mutation_rate;
 public:
 	SimpleMutator(double mutation_rate);
-	~SimpleMutator();
+	virtual ~SimpleMutator();
 
 	/**
 	 * Returns the mutation rate.
@@ -60,7 +60,7 @@ private:
 public:
 	Polymerase(double mutation_rate);
 	Polymerase(double mutation_rate, vector<vector<double> >& mutation_matrix);
-	~Polymerase();
+	virtual ~Polymerase();
 
 	/**
 	 * Returns the mutation rate.

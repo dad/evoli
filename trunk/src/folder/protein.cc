@@ -44,16 +44,16 @@ Protein Protein::createRandom(unsigned int length) {
 }
 
 
-CodingDNA::CodingDNA() : Sequence(0, 'A') {
+CodingDNA::CodingDNA() : NucleotideSequence(0, 'A') {
 }
 
-CodingDNA::CodingDNA(const CodingDNA& dna) : Sequence(dna) {
+CodingDNA::CodingDNA(const CodingDNA& dna) : NucleotideSequence(dna) {
 }
 
-CodingDNA::CodingDNA(unsigned int length) : Sequence(length, 'A') {
+CodingDNA::CodingDNA(unsigned int length) : NucleotideSequence(length, 'A') {
 }
 
-CodingDNA::CodingDNA(unsigned int length, char val) : Sequence(length, val) {
+CodingDNA::CodingDNA(unsigned int length, char val) : NucleotideSequence(length, val) {
 }
 
 CodingDNA CodingDNA::createRandom(unsigned int length ) {

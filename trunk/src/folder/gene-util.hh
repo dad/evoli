@@ -54,7 +54,7 @@ public:
 	{
 		CodingRNA rna = g.transcribe();
 		double s = 0;
-		for (int i=0; i<rna.codonLength(); i++) {
+		for (unsigned int i=0; i<rna.codonLength(); i++) {
 			s += GeneticCodeUtil::calcSynonymousSites( rna.getCodon(i) );
 		}
 		return s;
@@ -124,15 +124,10 @@ public:
 		assert( g1.codonLength() == surface.size() );
 		int e = g1.codonLength();
 		dnSurf = dnCore = dsSurf = dsCore = 0;
-		double tmp_dn, tmp_ds;
 
 		for ( int i=0; i<e; i++ )
 		{
 			pair<double,double> dnds = GeneticCodeUtil::calcDnDs( g1.getCodon(i), g2.getCodon(i) );
-			//			 CodonUtil::printCodon( cout, g1[i] );
-			//			 cout << " ";
-			//			 CodonUtil::printCodon( cout, g2[i] );
-			//			 cout << " " << tmp_dn << " " << tmp_ds << endl;
 			if ( surface[i] )
 			{
 				dnSurf += dnds.first;
@@ -187,9 +182,9 @@ public:
 		char methionine = 'M';
 		char tryptophan = 'W';
 
-		for (int i=0; i<g.codonLength(); i++) {
+		for (unsigned int i=0; i<g.codonLength(); i++) {
 			Codon c = g.getCodon(i);
-			int index = GeneticCodeUtil::codonToIndex(c);
+			unsigned int index = GeneticCodeUtil::codonToIndex(c);
 			assert( index >= 0 && index < is_optimal.size() );
 			//assert(is_optimal.size() == 64);
 			char aa = GeneticCodeUtil::geneticCode(c);
@@ -265,7 +260,7 @@ public:
 		// DAD: probably only want to do this once!
 		hash_map<char, vector<Codon>, hash<char> > AAToDNACodons;
 		hash_map<const Codon, char, hash_codon>::iterator map_it = gc.begin();
-		int i = 0;
+		//int i = 0;
 		for (; map_it != gc.end(); map_it++) {
 			pair<const Codon, char> p = *map_it;
 			char key = p.second;
@@ -317,9 +312,9 @@ public:
 		bool found = false;
 		double min_free_energy_for_starting = max(300.0, free_energy_cutoff);
 
-		int nfolded = b.getNumFolded();
+		//int nfolded = b.getNumFolded();
 		// find sequence that encodes the desired structure
-		int q=0;
+		//int q=0;
 		do {
 			g = CodingDNA::createRandomNoStops( length );
 			//cout << g << endl;

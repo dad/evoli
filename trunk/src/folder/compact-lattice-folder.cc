@@ -779,7 +779,7 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 	int minIndex = 0;
 	double Z = 0;
 	double G;
-	vector<int> aa_indices(s.size());
+	vector<unsigned int> aa_indices(s.size());
 
 	bool valid = getAminoAcidIndices(s, aa_indices);
 	if (!valid) {

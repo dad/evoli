@@ -165,8 +165,6 @@ const pair<const Codon,char> GeneticCodeUtil::codonAAPairs[128] =  {
 	pair<const Codon,char>(Codon("TTT"), 'F')
 };
 
-const GeneticCodeUtil::CodonMap GeneticCodeUtil::RNACodonToAA(GeneticCodeUtil::codonAAPairs, GeneticCodeUtil::codonAAPairs+64);
-const GeneticCodeUtil::CodonMap GeneticCodeUtil::DNACodonToAA(GeneticCodeUtil::codonAAPairs+64, GeneticCodeUtil::codonAAPairs+128);
 const GeneticCodeUtil::CodonMap GeneticCodeUtil::codonToAA(GeneticCodeUtil::codonAAPairs, GeneticCodeUtil::codonAAPairs+128);
 
 // Reverse mapping, from AA to vector<Codon>, would be nice, but for some reason doesn't work properly.
@@ -217,29 +215,10 @@ char GeneticCodeUtil::indexToAminoAcidLetter(int index) {
 
 int GeneticCodeUtil::codonToIndex(Codon codon) {
 	return Codon::codonToIndex( codon );
-/*
-	// DAD: currently (potentially) PAINFULLY slow.
-	int index = INVALID_INDEX;
-	for (index=0; index<128; index++) {
-		Codon c = codonAAPairs[index].first;
-		if (c == codon) {
-			break;
-		}
-	}
-	assert( index >= 0 );
-	if ( index>63 )
-		index -= 64;
-	assert( index < 64 );
-	return index;
-*/
 }
 
 Codon GeneticCodeUtil::indexToCodon(int index) {
 	return Codon::indexToCodon( index );
-/*
-	assert (index >= 0 && index < 64);
-	return codonAAPairs[index].first;
-*/
 }
 
 /**
@@ -613,8 +592,6 @@ double GeneticCodeUtil::calcNonsynMutationOpportunity( Codon test_codon, double 
 	return N/(2.+2*rho);
 }
 
-GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dnLookup;
-GeneticCodeUtil::StringDoubleMap GeneticCodeUtil::m_dsLookup;
 double GeneticCodeUtil::m_dnTable[64][64];
 double GeneticCodeUtil::m_dsTable[64][64];
 
@@ -633,10 +610,6 @@ pair<double, double> GeneticCodeUtil::calcDnDs( Codon test_codon1, Codon test_co
 	if ( !setup )	{
 		//int num_records = 0;
 		setup = true;
-		//m_dnLookup.clear();
-		//m_dnLookup.resize(64*64);
-		//m_dsLookup.clear();
-		//m_dsLookup.resize(64*64);
 		for ( int i=0; i<64; i++) {
 			for ( int j=0; j<64; j++ )	{
 				Codon c1 = codonAAPairs[i].first;

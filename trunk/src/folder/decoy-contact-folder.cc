@@ -111,7 +111,7 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Sequence& s) const {
 	double sumG = 0.0;
 	double sumsqG = 0.0;
 
-	vector<int> aa_indices(s.size());
+	vector<unsigned int> aa_indices(s.size());
 	bool valid = getAminoAcidIndices(s, aa_indices);
 	if (!valid) {
 		return new DecoyFoldInfo(9999, -1, 9999, 9999, 9999);

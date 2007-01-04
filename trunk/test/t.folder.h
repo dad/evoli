@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "cutee.h"
 #include "decoy-contact-folder.hh"
 #include "compact-lattice-folder.hh"
+#include "coding-sequence.hh"
 #include "protein.hh"
 #include <fstream>
 #include <cmath>
@@ -54,7 +55,7 @@ struct TEST_CLASS( folder_basic )
 			return;
 		int num_to_fold = 1;
 		for (int j=0; j<num_to_fold; j++) {
-			Gene g = Gene::createRandomNoStops(protein_length*3);
+			CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
 			Protein p = g.translate();
 			auto_ptr<FoldInfo> fi( folder.fold(p) );
 			TEST_ASSERT(fi->getStructure()>-1);
