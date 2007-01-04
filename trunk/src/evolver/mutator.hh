@@ -44,10 +44,10 @@ public:
 	double getMutationRate() { return m_mutation_rate; }
 	
 	/**
-	 * Mutates a gene with the pre-specified probability.
+	 * Mutates a nucleotide sequence with a pre-specified probability.
 	 * @return Whether any mutations occurred.
 	 **/
-	virtual bool mutate(CodingDNA& gene);
+	virtual bool mutate(NucleotideSequence& dna);
 };
 
 /**
@@ -69,10 +69,10 @@ public:
 	double getMutationRate() { return m_mutation_rate; }
 
 	/**
-	 * Mutates a gene with the pre-specified probabilities.
+	 * Mutates a nucleotide sequence with the pre-specified probabilities.
 	 * @return Whether any mutations occurred.
 	 **/
-	virtual bool mutate(CodingDNA& gene);
+	virtual bool mutate(NucleotideSequence& dna);
 };
 
 #endif // MUTATOR_HH

@@ -1,5 +1,4 @@
 #include "mutator.hh"
-#include "codon.hh"
 #include "genetic-code.hh"
 #include "random.hh"
 
@@ -17,7 +16,7 @@ SimpleMutator::SimpleMutator(double mutation_rate) {
 SimpleMutator::~SimpleMutator() {
 }
 
-bool SimpleMutator::mutate(CodingDNA& seq) {
+bool SimpleMutator::mutate(NucleotideSequence& seq) {
 	bool changed = false;
 	const char* mutA = "CGT";
 	const char* mutC = "GTA";
@@ -65,7 +64,7 @@ Polymerase::Polymerase(double mutation_rate, vector<vector<double> >& mutation_m
 Polymerase::~Polymerase() {
 }
 
-bool Polymerase::mutate(CodingDNA& seq) {
+bool Polymerase::mutate(NucleotideSequence& seq) {
 	// DAD: implement mutation matrix
 	bool changed = false;
 	for (int i=0; i<seq.length(); i++) {
