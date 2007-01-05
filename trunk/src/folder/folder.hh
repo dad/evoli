@@ -127,11 +127,11 @@ protected:
 	 *
 	 * @return Whether all indices were valid (>= 0).
 	 **/
-	bool getAminoAcidIndices(const Sequence& s, vector<unsigned int>& aa_indices) const
+	bool getAminoAcidIndices(const Protein& p, vector<unsigned int>& aa_indices) const
 	{
-		unsigned int index = 0;
-		for (unsigned int i=0; i<s.size() && index >= 0; i++) {
-			index = GeneticCodeUtil::aminoAcidLetterToIndex(s[i]);
+		int index = 0;
+		for (unsigned int i=0; i<p.size() && index >= 0; i++) {
+			index = GeneticCodeUtil::aminoAcidLetterToIndex(p[i]);
 			aa_indices[i] = index;
 		}
 		return index >= 0;
