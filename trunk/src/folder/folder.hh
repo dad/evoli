@@ -52,13 +52,13 @@ At a minimum, a \ref FoldInfo object contains the \ref StructureID of the minimu
 */
 class FoldInfo {
 protected:
-	double m_free_energy;
+	double m_deltag;
 	StructureID m_structure_id; ///< \ref StructureID of the minimum free energy structure of the folded protein sequence.
 public:
-	FoldInfo() : m_free_energy( 0.0 ),
+	FoldInfo() : m_deltag( 0.0 ),
 		m_structure_id( static_cast<StructureID>( -1 ) ) { ; }
 		
-	FoldInfo(double fe, StructureID sid) : m_free_energy( fe ),
+	FoldInfo(double dg, StructureID sid) : m_deltag( dg ),
 		m_structure_id( sid ) { ; }
 
 	virtual ~FoldInfo() {}
@@ -67,13 +67,59 @@ public:
 	\return The \ref StructureID of the minimum free energy structure of the folded protein sequence.
 	*/
 	StructureID getStructure() const { return m_structure_id; }
-	double getDeltaG() const { return m_free_energy; }
+	double getDeltaG() const { return m_deltag; }
 };
 
 /**
-\brief Abstract basis class for a class that can fold a protein sequence into a (three-dimensional) structure.
-*/
+ * \brief Abstract base class for a class that can fold a sequence into a structure.
+ **/
 class Folder {
+public:
+	Folder() {}
+	virtual ~Folder() {}
+	/**
+	Fold sequence and return folding information in a \ref FoldInfo
+	object. Note that the function fold() returns a pointer to a \ref FoldInfo
+	object, not an instance of this object. The ownership of this object is
+	transferred to the function issuing the call. It is strongly recommended
+	to store this pointer in an auto-pointer, as in this example:
+	\code
+// assume the variable f holds a Folder object:
+auto_ptr<FoldInfo> fi( f.fold( s ) ); // fold sequence s
+StructureID sid = fi->getStructure(); // assign structure ID to variable sid
+	\endcode
+	\warning Do not write code of the form f.fold()->getStructure(),
+	as this statement would result in a memory leak (\ref FoldInfo object
+	is not deleted).
+	@param s The sequence to fold.
+	@return A pointer to a \ref FoldInfo object containing all
+	the folding information.
+	*/
+	virtual FoldInfo* fold(const Sequence& s) const = 0;
+	
+	/**
+	 * @param s The sequence whose energy is sought.
+	 * @param sid The structure ID of the target conformation.
+	 * @return The energy of a sequence in the target conformation.
+	 **/ 
+	virtual double getEnergy(const Sequence& s, StructureID sid) const = 0;
+	
+	/**
+	\brief This function assesses whether the folder has been properly initialized.
+	@return True if the folder is in good working order, False otherwise.
+	 **/
+	virtual bool good() const = 0;
+
+	/**
+	@return The number of sequences that have been folded so far with this Folder instance.
+	*/
+	virtual uint getNumFolded() const = 0;
+};
+
+/**
+\brief Abstract base class for a class that can fold a protein sequence into a structure.
+*/
+class ProteinFolder : public Folder {
 private:
 protected:
 	/**
@@ -93,7 +139,23 @@ protected:
 
 
 public:
-	virtual ~Folder() {}
+	virtual ~ProteinFolder() {}
+
+	/**
+	Fold sequence and return folding information in a \ref FoldInfo
+	object.
+
+	This function attempts to interpret the sequence (type @ref Sequence) as a protein sequence
+	(type @ref Protein).  Sequences which cannot be so interpreted, such as RNA sequences, will produce errors.
+	@param s The sequence to fold.
+	@return A pointer to a \ref FoldInfo object containing all the folding information.
+	*/
+	virtual FoldInfo* fold(const Sequence& s) const {
+		const Protein p(s);
+		return fold(p);
+	}
+
+
 	/**
 	Fold sequence and return folding information in a \ref FoldInfo
 	object. Note that the function fold() returns a pointer to a \ref FoldInfo
@@ -108,18 +170,28 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 	\warning Do not write code of the form f.fold()->getStructure(),
 	as this statement would result in a memory leak (\ref FoldInfo object
 	is not deleted).
-	@param s The protein sequence to fold.
+	@param p The protein sequence to fold.
 	@return A pointer to a \ref FoldInfo object containing all
 	the folding information.
 	*/
-	virtual FoldInfo* fold(const Sequence& s) const = 0;
+	virtual FoldInfo* fold(const Protein& p) const = 0;
 	
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.
+	 * @return The energy of the given sequence, interpreted as a protein, in the target conformation.
+	 **/ 
+	virtual double getEnergy(const Sequence& s, StructureID sid) const {
+		const Protein p(s);
+		return getEnergy(p, sid);
+	}
+	
+	/**
+	 * @param s The protein sequence whose energy is sought.
+	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
 	 **/ 
-	virtual double getEnergy(const Sequence& s, StructureID sid) const = 0;
+	virtual double getEnergy(const Protein& s, StructureID sid) const = 0;
 	
 	/**
 	\brief This function assesses whether the folder has been properly initialized.

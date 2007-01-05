@@ -36,6 +36,7 @@ public:
 	NucleotideSequence(const string& s) : Sequence(s) {}
 	NucleotideSequence(unsigned int length) : Sequence (length) {}
 	NucleotideSequence(unsigned int length, char val) : Sequence (length, val) {}
+	NucleotideSequence(const NucleotideSequence& s, unsigned int start, unsigned int length) : Sequence(s,start,length) {}
 
 	/**
 	 *
@@ -43,7 +44,7 @@ public:
 	double getGCFraction() const {
 		int n_gc = 0;
 		const Sequence& s = *this;
-		for (int i=0; i<size(); i++) {
+		for (unsigned int i=0; i<size(); i++) {
 			if (s[i] == 'G' || s[i] == 'C') {
 				n_gc++;
 			}

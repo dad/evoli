@@ -40,9 +40,9 @@ public:
 	Sequence(const Sequence& s) : string(s) {}
 	Sequence(unsigned int length, char val) : string(length, val) {}
 	Sequence(unsigned int length) : string(length, 'A') {}
-	Sequence(const Sequence& s, unsigned int start, unsigned int length) : string(s.substr(start,length)) {
-		//cout << endl << "wakka: " << start << " " << length << " " << *this << endl;
-	}
+	Sequence(const Sequence& s, unsigned int start, unsigned int length) : string(s.substr(start,length)) {}
+
+	virtual ~Sequence() {}
 	
 	/**
 	 * Convert this sequence to a string representation.

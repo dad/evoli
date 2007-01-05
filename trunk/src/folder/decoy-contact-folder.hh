@@ -49,8 +49,8 @@ public:
 	}
 	virtual ~DecoyFoldInfo() {}
 
-	double getUnfoldedFreeEnergyMean() const { return m_mean_G; }
-	double getUnfoldedFreeEnergyVariance() const { return m_var_G; }
+	double getUnfoldedDeltaGMean() const { return m_mean_G; }
+	double getUnfoldedDeltaGVariance() const { return m_var_G; }
 	double getMinEnergy() const { return m_min_G; }
 };
 
@@ -63,6 +63,7 @@ protected:
 	vector<Contact> m_contacts;
 public:
 	DecoyContactStructure() {}
+	virtual ~DecoyContactStructure() {}
 
 	/**
 	 * Read from a file.
@@ -102,7 +103,7 @@ if ( folder.good() )
  **/
 
 
-class DecoyContactFolder : public Folder {
+class DecoyContactFolder : public ProteinFolder {
 private:
 	DecoyContactFolder(); ///< Prohibited constructor.
 	DecoyContactFolder( const DecoyContactFolder & ); ///< Prohibited constructor.
@@ -156,14 +157,14 @@ public:
 	 * @param s The sequence to be folded.
 	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
-	virtual DecoyFoldInfo* fold(const Sequence& s) const;
+	virtual DecoyFoldInfo* fold(const Protein& p) const;
 
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
 	 **/ 
-	double getEnergy(const Sequence& s, StructureID sid) const;
+	double getEnergy(const Protein& s, StructureID sid) const;
 
 	/**
 	@return The number of proteins that have been folded so far with this Folder instance.

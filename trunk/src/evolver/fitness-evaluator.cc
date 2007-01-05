@@ -73,7 +73,7 @@ ProteinStructureFitness::ProteinStructureFitness( Folder *protein_folder, int pr
 ProteinStructureFitness::~ProteinStructureFitness() {
 }
 
-double ProteinStructureFitness::getFitness( const Gene &g ) {
+double ProteinStructureFitness::getFitness( const CodingDNA &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
 		return getFitness(p);
@@ -423,7 +423,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 		Codon from_codon = g.getCodon(randpos);
 		Codon to_codon = from_codon;
 		do {
-			to_codon = GeneticCodeUtil::indexToCodon(Random::rint(64));
+			to_codon = Codon::indexToCodon(Random::rint(64));
 		} while (to_codon == from_codon);
 
 		g.setCodon(randpos,to_codon);
@@ -436,7 +436,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 				for ( unsigned int i=0; i<g.codonLength(); i++ ) {
 					double last_event_prob = 0.0;
 					Codon ci = g.getCodon(i);
-					int codon_index = GeneticCodeUtil::codonToIndex(ci);
+					int codon_index = Codon::codonToIndex(ci);
 					// Compute probability of synonymous error
 					double p_synonymous = 0.0;
 					for (unsigned int outcome=0; outcome<m_cum_weight_matrix[codon_index].size(); outcome++) {

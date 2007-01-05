@@ -170,6 +170,21 @@ public:
 	ErrorproneTranslation(Folder *protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate );
 
 	/**
+	 * \brief Create new ErrorproneTranslation object from a preexisting object.
+	 **/
+	ErrorproneTranslation(const ErrorproneTranslation& ept) {
+		m_protein_folder = ept.m_protein_folder;
+		m_protein_length = ept.m_protein_length;
+		m_protein_structure_ID = ept.m_protein_structure_ID;
+		m_max_free_energy = ept.m_max_free_energy;
+		m_ca_cost = ept.m_ca_cost;
+		m_error_rate = ept.m_error_rate;
+		m_accuracy_weight = ept.m_accuracy_weight;
+		m_error_weight = ept.m_error_weight;
+		buildWeightMatrix();
+	}
+
+	/**
 	 * \brief Destroy this ErrorproneTranslation object.
 	 **/
 	virtual ~ErrorproneTranslation();

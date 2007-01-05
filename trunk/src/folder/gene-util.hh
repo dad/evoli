@@ -301,7 +301,7 @@ public:
 	/**
 	 * Finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 	 */
-	static CodingDNA getSequenceForStructure( const Folder &b, unsigned int length, double free_energy_cutoff, const int struct_id )
+	static CodingDNA getSequenceForStructure( const Folder &b, unsigned int length, double deltag_cutoff, const int struct_id )
 	{
 		// find a random sequence with folding energy smaller than cutoff
 		double G;
@@ -310,7 +310,7 @@ public:
 		double mutation_rate = 1.0/length;
 		SimpleMutator mut(mutation_rate);
 		bool found = false;
-		double min_free_energy_for_starting = max(300.0, free_energy_cutoff);
+		double min_free_energy_for_starting = max(300.0, deltag_cutoff);
 
 		//int nfolded = b.getNumFolded();
 		// find sequence that encodes the desired structure
@@ -370,7 +370,7 @@ public:
 				fail_count = 0;
 				total_fail_count = 0;
 			}
-		} while( G > free_energy_cutoff );
+		} while( G > deltag_cutoff );
 
 		return g;
 	}

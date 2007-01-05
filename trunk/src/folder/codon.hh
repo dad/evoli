@@ -22,15 +22,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #ifndef _CODON_HH__
 #define _CODON_HH__
 
-#include "sequence.hh"
+#include "nucleotide-sequence.hh"
 
 #include <iostream>
 #include <cassert>
 
 using namespace std;
 
-class Codon : public Sequence {
-private:
+class Codon : public NucleotideSequence {
+
+public:
+	/**
+	Default constructor. Constructs a codon of all A's.
+	**/
+	Codon() : NucleotideSequence("AAA") {}
+	/**
+	Extracts a codon from a sequence at a given position.
+	@param s The sequence from which the codon is extracted.
+	@param start The position in the sequence from where the codon should be extracted.
+	*/
+	Codon(const NucleotideSequence& s, unsigned int start) : NucleotideSequence(s, start, 3) {
+	}
+
+	/**
+	Builds a codon from a C++ string of length 3.
+	*/
+	Codon(const string&s) : NucleotideSequence(s) {
+		assert( size() == 3 );
+	}
+
+	/**
+	Builds a codon from a C string of length 3.
+	*/
+	Codon(const char*s) : NucleotideSequence(s) {
+		assert( size() == 3 );
+	}
+
+	/**
+	Builds a codon from an index, as explained in \ref codonToIndex().
+	*/
+	Codon( int index, bool RNA = true ) : NucleotideSequence( "AAA" ) {
+		*this = indexToCodon( index, RNA );
+	}
+
 	/**
 	* Translates a base (A, C, G, U/T) into its numeric code (0, 1, 2, 3).
 	**/
@@ -42,40 +76,6 @@ private:
 	* @return The correct base. 
 	**/
 	static char intToBase( int c, bool RNA=true );
-
-public:
-	/**
-	Default constructor. Constructs a codon of all A's.
-	**/
-	Codon() : Sequence("AAA") {}
-	/**
-	Extracts a codon from a sequence at a given position.
-	@param s The sequence from which the codon is extracted.
-	@param start The position in the sequence from where the codon should be extracted.
-	*/
-	Codon(const Sequence& s, unsigned int start) : Sequence(s, start, 3) {
-	}
-
-	/**
-	Builds a codon from a C++ string of length 3.
-	*/
-	Codon(const string&s) : Sequence(s) {
-		assert( size() == 3 );
-	}
-
-	/**
-	Builds a codon from a C string of length 3.
-	*/
-	Codon(const char*s) : Sequence(s) {
-		assert( size() == 3 );
-	}
-
-	/**
-	Builds a codon from an index, as explained in \ref codonToIndex().
-	*/
-	Codon( int index, bool RNA = true ) : Sequence( "AAA" ) {
-		*this = indexToCodon( index, RNA );
-	}
 
 	/**
 	* Retrieve an integer index for a codon.

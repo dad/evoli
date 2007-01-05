@@ -162,7 +162,7 @@ struct ltstr {
 };
 
 
-class CompactLatticeFolder : public Folder {
+class CompactLatticeFolder : public ProteinFolder {
 private:
 	// some useful typedefs
 	typedef hash_map<const char*, int, hash<const char*>, eqstr> StructureMap;
@@ -221,15 +221,15 @@ public:
 	 * @param s The sequence to be folded.
 	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
-	virtual FoldInfo* fold( const Sequence& s ) const;
-	bool isFoldedBelowThreshold( const Sequence&s, const int structID, double cutoff) const;
-	void getMinMaxPartitionContributions(const Sequence& s, const int ci, double& cmin, double& cmax) const;
+	virtual FoldInfo* fold( const Protein& p ) const;
+	bool isFoldedBelowThreshold( const Protein&s, const int structID, double cutoff) const;
+	void getMinMaxPartitionContributions(const Protein& s, const int ci, double& cmin, double& cmax) const;
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
 	 **/
-	virtual double getEnergy(const Sequence& s, StructureID sid) const;
+	virtual double getEnergy(const Protein& s, StructureID sid) const;
 
 	void printContactEnergyTable( ostream &s ) const;
 	void printStructure( int id, ostream& os, const char* prefix ) const;
