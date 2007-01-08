@@ -556,8 +556,8 @@ void SelfAvoidingWalk::getStructure( char * d ) const
 }
 
 
-CompactLatticeFolder::CompactLatticeFolder( int size )
-	: m_size( size ), m_num_structures( 0 ), m_num_folded( 0 )
+CompactLatticeFolder::CompactLatticeFolder( int size, double deltaG_cutoff, StructureID target_sid  )
+	: DGCutoffFolder( deltaG_cutoff, target_sid ), m_size( size ), m_num_structures( 0 ), m_num_folded( 0 )
 {
 	if ( m_size > 15 )
 	{
@@ -783,7 +783,7 @@ FoldInfo* CompactLatticeFolder::fold( const Protein& s ) const
 
 	bool valid = getAminoAcidIndices(s, aa_indices);
 	if (!valid) {
-		return new FoldInfo(9999, -1);
+		return new FoldInfo( false, false, 9999, -1);
 	}
 	/*cout << "ack " << s << endl;
 	for (int j=0; j<s.length(); j++) {
@@ -825,7 +825,7 @@ FoldInfo* CompactLatticeFolder::fold( const Protein& s ) const
 	// increment folded count
 	m_num_folded += 1;
 
-	return new FoldInfo(G, minIndex);
+	return new FoldInfo( G<m_deltaG_cutoff, minIndex==m_target_sid, G, minIndex);
 }
 
 double CompactLatticeFolder::getEnergy(const Protein& p, StructureID sid) const {

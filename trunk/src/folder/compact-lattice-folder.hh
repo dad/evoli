@@ -162,7 +162,7 @@ struct ltstr {
 };
 
 
-class CompactLatticeFolder : public ProteinFolder {
+class CompactLatticeFolder : public DGCutoffFolder {
 private:
 	// some useful typedefs
 	typedef hash_map<const char*, int, hash<const char*>, eqstr> StructureMap;
@@ -206,7 +206,7 @@ protected:
 	//return ProteinContactEnergies::MJ85TableVI[residue1][residue2]; }
 
 public:
-	CompactLatticeFolder( int size );
+	CompactLatticeFolder( int size, double deltaG_cutoff = 0, StructureID target_sid = -1 );
 	virtual ~CompactLatticeFolder();
 
 	/**

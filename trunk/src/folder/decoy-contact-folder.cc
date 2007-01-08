@@ -51,14 +51,18 @@ int DecoyContactStructure::getMaxResidueNumber() {
 	return max_res;
 }
 
-DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs) {
+DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs, double deltaGCutoff, StructureID targetSID)
+	: DGCutoffFolder( deltaGCutoff, targetSID )
+{
 	m_length = length;
 	m_structures = structs;
 	m_log_num_conformations = log_num_confs;
 	m_num_folded = 0;
 }
 
-DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir): m_structures(0) {
+DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir, double deltaGCutoff, StructureID targetSID )
+	: DGCutoffFolder( deltaGCutoff, targetSID ), m_structures(0)
+{
 	m_length = length;
 	m_log_num_conformations = log_num_confs;
 	ContactMapUtil::readContactMapsFromFile(fin, dir, m_structures);
@@ -114,7 +118,7 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 	vector<unsigned int> aa_indices(s.size());
 	bool valid = getAminoAcidIndices(s, aa_indices);
 	if (!valid) {
-		return new DecoyFoldInfo(9999, -1, 9999, 9999, 9999);
+		return new DecoyFoldInfo(false, false, 9999, -1, 9999, 9999, 9999);
 	}
 
 	for ( unsigned int sid = 0; sid < m_structures.size(); sid++) {
@@ -171,7 +175,7 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 	
 	// increment folded count
 	m_num_folded += 1;
-	return new DecoyFoldInfo(dG, minIndex, mean_G, var_G, minG);
+	return new DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
 }
 
 

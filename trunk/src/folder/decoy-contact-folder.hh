@@ -42,7 +42,9 @@ protected:
 	double m_min_G;
 	
 public:
-	DecoyFoldInfo(double fe, StructureID sid, double mean_G, double var_G, double min_G) : FoldInfo(fe, sid) {
+	DecoyFoldInfo( bool fold_is_stable, bool fold_is_target, double fe, StructureID sid, double mean_G, double var_G, double min_G)
+		: FoldInfo( fold_is_stable, fold_is_target, fe, sid)
+	{
 		m_var_G = var_G;
 		m_mean_G = mean_G;
 		m_min_G = min_G;
@@ -103,7 +105,7 @@ if ( folder.good() )
  **/
 
 
-class DecoyContactFolder : public ProteinFolder {
+class DecoyContactFolder : public DGCutoffFolder {
 private:
 	DecoyContactFolder(); ///< Prohibited constructor.
 	DecoyContactFolder( const DecoyContactFolder & ); ///< Prohibited constructor.
@@ -137,8 +139,10 @@ public:
 	 * @param log_num_confs A numerical fudge-factor; use log(10^160).
 	 * @param structs A vector of pointers to contact structures. The folder object
 	 * assumes ownership over these structures and will delete them upon exit.
+	 * @param deltaG_cutoff The DeltaG cutoff, as in \ref DGCutoffFolder.
+	 * @param target_sid The target structure ID, as in \ref DGCutoffFolder.
 	 **/
-	DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs);
+	DecoyContactFolder(int length, double log_num_confs, vector<DecoyContactStructure*>& structs, double deltaG_cutoff = 0., StructureID target_sid = -1 );
 	/**
 	 * Create DecoyContactFolder; structures are read from disk.
 	 *
@@ -146,8 +150,10 @@ public:
 	 * @param log_num_confs A numerical fudge-factor; use log(10^160).
 	 * @param fin An ifstream that contains filenames of the contact map files to be read.
 	 * @param dir Directory in which contact maps are stored (must end with "/" or platform-appropriate directory separator)
+	 * @param deltaG_cutoff The DeltaG cutoff, as in \ref DGCutoffFolder.
+	 * @param target_sid The target structure ID, as in \ref DGCutoffFolder.
 	 **/
-	DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir);
+	DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir, double deltaG_cutoff = 0., StructureID target_sid = -1 );
 
 	~DecoyContactFolder();
 

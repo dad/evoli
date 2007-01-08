@@ -1,8 +1,20 @@
 * move tools.hh from directory folder into directory tools (Claus)
+
 * place the logic of when a protein is stably folded into folder classes (Claus)
+	- break up FoldInfo into two separate classes. The basic FoldInfo should only know
+	  whether the molecule is stably folded, but not know about DeltaG and StructureID.
+	  Those quantities make already assumptions about the specific method of folding.
+
+	- Once the new structure is fully put into place, the function isFoldedBelowThreshold()
+	  in the CompactLatticeFolder would better fit into a separate class (say a subclass of
+	  the CompactLatticeFolder), where it could replace the fold() function.
+
 * refactor GenebankAnalyzer: separate organisms-specific code from generic code. (?)
+
 * make function ErrorproneTranslation::getCodonCosts() not return a pointer
   to an internal data structure. (?)
+
 * convert calcOutcomes(...) and countOutcomes(...) to return a data structure 
   rather than modifying a large set of incoming references (Allan)
+
 * refactor files to adhere to one-class-one-file paradigm (Allan)

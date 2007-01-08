@@ -52,21 +52,40 @@ At a minimum, a \ref FoldInfo object contains the \ref StructureID of the minimu
 */
 class FoldInfo {
 protected:
+	bool m_fold_is_stable; ///< Stores whether the folded molecule is stable
+	bool m_fold_is_target; ///< Stores whether the folded structure corresponds to the target structure
 	double m_deltag;
 	StructureID m_structure_id; ///< \ref StructureID of the minimum free energy structure of the folded protein sequence.
 public:
-	FoldInfo() : m_deltag( 0.0 ),
-		m_structure_id( static_cast<StructureID>( -1 ) ) { ; }
-		
-	FoldInfo(double dg, StructureID sid) : m_deltag( dg ),
-		m_structure_id( sid ) { ; }
+	FoldInfo( bool fold_is_stable, bool fold_is_target, double dg, StructureID sid)
+		: m_fold_is_stable( fold_is_stable ), m_fold_is_target( fold_is_target ),
+		m_deltag( dg ), m_structure_id( sid ) { ; }
 
 	virtual ~FoldInfo() {}
+
+	/**
+	@return True if the protein fold is stable, by whatever criterium the protein folder determines this property, and false otherwise.
+	*/
+	bool foldIsStable() const { return m_fold_is_stable; }
+
+	/**
+	@return True if the protein fold matches a predefined target structure, and false otherwise.
+	*/
+	bool foldMatchesTarget() const { return m_fold_is_target; }
+
+	/**
+	@return True if \ref foldIsStable() and \ref foldMatchesTarget() return true, and false otherwise.
+	*/
+	bool foldsStablyIntoTarget() const { return m_fold_is_stable && m_fold_is_target; }
 
 	/**
 	\return The \ref StructureID of the minimum free energy structure of the folded protein sequence.
 	*/
 	StructureID getStructure() const { return m_structure_id; }
+
+	/**
+	@return The DeltaG value of the folded protein.
+	*/
 	double getDeltaG() const { return m_deltag; }
 };
 
@@ -132,8 +151,6 @@ protected:
 
 
 public:
-	virtual ~ProteinFolder() {}
-
 	/**
 	Fold sequence and return folding information in a \ref FoldInfo
 	object.
@@ -168,7 +185,28 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 	the folding information.
 	*/
 	virtual FoldInfo* fold(const Protein& p) const = 0;
-	
+};
+
+
+/**
+\brief Abstract base class for a ProteinFolder whose folding method is based on a DeltaG cutoff.
+
+All folder classes derived from this class assume that protein sequences can be folded into one of several protein structures, and that there is a DeltaG value that determines whether the fold is stable or not. In general, if DeltaG<cutoff, the fold is stable, and otherwise it is not.
+*/
+class DGCutoffFolder : public ProteinFolder {
+private:
+	DGCutoffFolder();
+	DGCutoffFolder( const DGCutoffFolder& );
+	const DGCutoffFolder& operator=( const DGCutoffFolder & );
+
+protected:
+	double m_deltaG_cutoff; //!< The DeltaG cutoff value. The fold is not stable if the DeltaG exceeds this value
+	StructureID m_target_sid; //!< The target structure ID.
+
+public:
+	DGCutoffFolder( double deltaG_cutoff, StructureID target_sid )
+		: m_deltaG_cutoff( deltaG_cutoff ), m_target_sid( target_sid ) {}
+
 	/**
 	 * This function calculates the contact free energy of a sequence on a give target structure.
 	 * @param s The sequence whose contact energy is sought.
@@ -188,6 +226,37 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 	 **/ 
 	virtual double getEnergy(const Protein& s, StructureID sid) const = 0;
 
+	/**
+	Gets the DeltaG cutoff.
+	@return The current DeltaG cutoff used in folding.
+	*/
+	double getDeltaGCutoff() const {
+		return m_deltaG_cutoff;
+	}
+
+	/**
+	Sets the DeltaG cutoff.
+	@param deltaG_cutoff The new DeltaG cutoff.
+	*/
+	void setDeltaGCutoff( double deltaG_cutoff ) {
+		m_deltaG_cutoff = deltaG_cutoff;
+	}
+
+	/**
+	Gets the structure ID.
+	@return The current target structure ID.
+	*/
+	StructureID getTargetSID() const {
+		return m_target_sid;
+	}
+
+	/**
+	Sets the structure ID.
+	@param target_sid The new target structure ID.
+	*/
+	void setTargetSID( StructureID target_sid ) {
+		m_target_sid = target_sid;
+	}
 };
 
 #endif // FOLDER_HH
