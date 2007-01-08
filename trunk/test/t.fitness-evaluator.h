@@ -50,13 +50,14 @@ struct TEST_CLASS( fitness_evaluator_basic )
 	void TEST_FUNCTION( create_EPT )
 	{
 		CompactLatticeFolder folder(side_length);
-		ErrorproneTranslation ept(&folder, gene_length/3, 599, -5, 1, 6, 0.1, 0.1, 0.1 );
+		ErrorproneTranslation ept(&folder, gene_length/3, 599, -1, 1, 6, 0.1, 0.1, 0.1 );
 		TEST_ASSERT(true);
 	}
+
 	void TEST_FUNCTION( test_EPT_approximation_for_accuracy ) {
 		CompactLatticeFolder folder(side_length);
 		double target_accuracy = 0.85;
-		double max_dg = -5;
+		double max_dg = -1;
 		int sid = 599;
 		CodingDNA g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		// Test with pre-discovered weights (generated using ./get-weights 6 -5 11 599 1000 1000 0.85 10)
@@ -80,7 +81,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 	void TEST_FUNCTION( test_automatic_init_EPT_approximation_for_accuracy ) {
 		CompactLatticeFolder folder(side_length);
 		double target_accuracy = 0.85;
-		double max_dg = -5;
+		double max_dg = -1;
 		int sid = 599;
 		
 		CodingDNA g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
@@ -105,8 +106,8 @@ struct TEST_CLASS( fitness_evaluator_basic )
 	void accumulateStatistics(ErrorproneTranslation& ept, Accumulator& accuracies, CodingDNA g) {
 		// Evolve while preserving fold for tot_equil steps to
 		// equilibrate, then for tot_rand steps, recording weights.
-		int num_rand = 100;
-		int num_equil = 2000;
+		int num_rand = 20;
+		int num_equil = 100;
 		int nrand=0, nequil=0;
 		while ( nrand < num_rand ) {
 			int randpos = Random::rint(g.codonLength());
