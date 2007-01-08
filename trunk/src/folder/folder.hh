@@ -98,13 +98,6 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 	virtual FoldInfo* fold(const Sequence& s) const = 0;
 	
 	/**
-	 * @param s The sequence whose energy is sought.
-	 * @param sid The structure ID of the target conformation.
-	 * @return The energy of a sequence in the target conformation.
-	 **/ 
-	virtual double getEnergy(const Sequence& s, StructureID sid) const = 0;
-	
-	/**
 	\brief This function assesses whether the folder has been properly initialized.
 	@return True if the folder is in good working order, False otherwise.
 	 **/
@@ -177,9 +170,10 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 	virtual FoldInfo* fold(const Protein& p) const = 0;
 	
 	/**
-	 * @param s The sequence whose energy is sought.
+	 * This function calculates the contact free energy of a sequence on a give target structure.
+	 * @param s The sequence whose contact energy is sought.
 	 * @param sid The structure ID of the target conformation.
-	 * @return The energy of the given sequence, interpreted as a protein, in the target conformation.
+	 * @return The contact energy of the given sequence, interpreted as a protein, in the target conformation.
 	 **/ 
 	virtual double getEnergy(const Sequence& s, StructureID sid) const {
 		const Protein p(s);
@@ -187,22 +181,12 @@ StructureID sid = fi->getStructure(); // assign structure ID to variable sid
 	}
 	
 	/**
-	 * @param s The protein sequence whose energy is sought.
+	 * This function calculates the contact free energy of a sequence on a give target structure.
+	 * @param s The protein sequence whose contact energy is sought.
 	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
 	 **/ 
 	virtual double getEnergy(const Protein& s, StructureID sid) const = 0;
-	
-	/**
-	\brief This function assesses whether the folder has been properly initialized.
-	@return True if the folder is in good working order, False otherwise.
-	 **/
-	virtual bool good() const = 0;
-
-	/**
-	@return The number of proteins that have been folded so far with this Folder instance.
-	*/
-	virtual uint getNumFolded() const = 0;
 
 };
 
