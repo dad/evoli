@@ -170,6 +170,36 @@ public:
 		return (*(m_pop[m_buffer] + i))->getOrganism();
 	}
 
+	/**
+	Calculates the last point in time before the any descendants of the most-recent common
+	ancestor begin to branch off. That is, if for example all organisms at time t are direct
+	descendants of the most-recent common ancestor, then this function returns t-1.
+	*/
+	int calcCoalescenceTime()
+	{
+		// first, make sure that all coalescent genotypes are marked as such
+		m_genebank.checkCoalescence( *(begin()) );
+
+		// store current time
+		int min_time = m_time;
+		const_iterator it = begin();
+		for (; it != end(); it++) {
+			//for ( int i=0; i<m_population.size(); i++ ) {
+			int t = m_time-1;
+			const GenebankEntry<Organism> *e = *it;
+		
+			while( !e->isCoalescent() ) {
+				t = e->getBirthTime()-1;
+				e = e->getParent();
+				assert( e!= 0 );
+			}
+		
+			if ( min_time > t )
+				min_time = t;
+		}
+		return min_time;
+	}
+
 
 protected:
 	/**

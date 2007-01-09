@@ -111,7 +111,6 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, vector<bool>& is_optimal,
 	cout << "nf: " <<  folder.getNumFolded() << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, &mut );
-	GenebankAnalyzer<CodingDNA> analyzer(pop.getGenebank());
 
 	int loop_length = 100;
 	int n_folded = 0;
@@ -120,11 +119,11 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, vector<bool>& is_optimal,
 			pop.evolve();
 		}
 		cout << "nf ev: " << folder.getNumFolded() << endl;
-		analyzer.prepareCoalescenceCalcs(pop.begin(), pop.end(), pop.getNumGenerations());
-		if ( analyzer.calcCoalescenceTime() > 2000 )
+		if ( pop.calcCoalescenceTime() > 2000 )
 			break;
 	}
 	cout << "# Evolved for " << pop.getNumGenerations() << " generations" << endl;
 
+	GenebankAnalyzer<CodingDNA> analyzer(pop.getGenebank(), pop.begin(), pop.end(), pop.getNumGenerations(), pop.calcCoalescenceTime());
 	return analyzer.analyzeDnDs( 1000, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 }

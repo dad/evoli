@@ -85,7 +85,6 @@ struct TEST_CLASS( population )
 		SimpleMutator mut(U);
 		CodingDNA g( "GGGAAGTGCGTCCAGCAGAGTTGGGTATGGGAGGGATCTAAGTTAAAG" );
 		pop.init( g, &fe, &mut );
-		GenebankAnalyzer<CodingDNA> analyzer(pop.getGenebank());
 
 		int equil_time = 100;
 		int window_size = 30;
@@ -93,13 +92,13 @@ struct TEST_CLASS( population )
 			for ( int j=0; j<100; j++ )	{
 				pop.evolve();
 			}
-			analyzer.prepareCoalescenceCalcs(pop.begin(), pop.end(), pop.getNumGenerations());
-			if ( analyzer.calcCoalescenceTime() > equil_time + window_size )
+			if ( pop.calcCoalescenceTime() > equil_time + window_size )
 				break;
 		}
 		double ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop;
 		vector<bool> is_optimal(64, false);
 
+		GenebankAnalyzer<CodingDNA> analyzer(pop.getGenebank(), pop.begin(), pop.end(), pop.getNumGenerations(), pop.calcCoalescenceTime());
 		analyzer.analyzeDnDs( window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 
 		//std::cout << endl << ave_dn << " " << ave_ds << " " << ave_N << " " << ave_S << " " << ave_f << " " << ave_fop << std::endl;

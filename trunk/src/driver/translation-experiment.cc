@@ -134,7 +134,6 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, Polymerase *poly, const Pa
 	s << "# Starting genotype: " << g << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, poly );
-	GenebankAnalyzer<Gene> analyzer(pop.getGenebank());
 	// If using AccuracyOnlyTranslation, initialize the evaluator with this sequence.
 	/*AccuracyOnlyTranslation *aot = dynamic_cast<AccuracyOnlyTranslation*>(fe);
 	if (aot != NULL) {
@@ -148,9 +147,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, Polymerase *poly, const Pa
 		for ( int j=0; j<loop_length; j++ ) {
 			pop.evolve();
 		}
-		analyzer.prepareCoalescenceCalcs(pop.begin(), pop.end(), pop.getNumGenerations());
-		//pop.prepareCoalescenceCalcs();
-		if ( analyzer.calcCoalescenceTime() > p.equilibration_time + p.window_size )
+		if ( pop.calcCoalescenceTime() > p.equilibration_time + p.window_size )
 			break;
 		cout << "t=" << i*loop_length+1 << "; " << flush;
 	}
@@ -158,6 +155,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, Polymerase *poly, const Pa
 
 	pop.printGenebank( s );
 
+	GenebankAnalyzer<Gene> analyzer(pop.getGenebank(), pop.begin(), pop.end(), pop.getNumGenerations(), pop.calcCoalescenceTime() );
 	return analyzer.analyzeDnDs( p.window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 }
 

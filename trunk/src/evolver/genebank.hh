@@ -257,9 +257,8 @@ public:
  * \verbatim
  Population<Gene, ProteinStructureFitness, SimpleMutator> pop;
  //...initialize population, etc.
- GenebankAnalyzer<Gene> analyzer( pop.getGenebank() );
+ GenebankAnalyzer<Gene> analyzer( pop.getGenebank(), pop.begin(), pop.end(), pop.getNumGenerations() );
  //...evolve population
- analyzer.prepareCoalescenceCalcs(pop.begin(), pop.end(), pop.getNumGenerations());
  analyzer.analyzeDnDs(...);
  int coal_time = analyzer.calcCoalescenceTime();
  \endverbatim
@@ -272,17 +271,22 @@ public:
 
 private:
 	Genebank<Organism>* m_genebank;
-	iterator m_population_begin; // beginning of the population
-	iterator m_population_end;  // end of the population
-	int m_time; // number of generations of evolution.
+	iterator m_population_begin; ///< beginning of the population
+	iterator m_population_end;  ///< end of the population
+	int m_time; ///< number of generations of evolution.
+	int m_coalescence_time; ///< birth time of the last-recent common ancestor
 	
 public:
 	/**
 	 * Make a new GenebankAnalyzer object.
+	 * @param begin An iterator pointing to the beginning of the evolving population
+	 * @param end An iterator pointing to the end of the evolving population
+	 * @param end_time The number of generations for which the population has evolved.
+	 * @param coalescence_time The birth time of the last-recent common ancestor
 	 */
-	GenebankAnalyzer(Genebank<Organism>* genebank)
+	GenebankAnalyzer(Genebank<Organism>* genebank, iterator begin, iterator end, int end_time, int coalescence_time )
+		: m_genebank( genebank), m_population_begin( begin ), m_population_end( end ), m_time( end_time ), m_coalescence_time( coalescence_time )
 	{
-		m_genebank = genebank;
 	}
 	~GenebankAnalyzer() {}
 
@@ -299,48 +303,7 @@ public:
 	 **/
 	bool analyzeDnDs( int window_size, double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f, double &ave_fop, const vector<bool>& is_optimal );
 
-	/**
-	 * Needs to be called before any of the functions concerning
-	 * coalescence distance or Hamming distance can be used.
-	 * @param begin An iterator pointing to the beginning of the evolving population
-	 * @param end An iterator pointing to the end of the evolving population
-	 * @param time The number of generations for which the population has evolved.
-	 **/
-	void prepareCoalescenceCalcs(iterator begin, iterator end, int time)
-	{
-		m_population_begin = begin;
-		m_population_end = end;
-		m_time = time;
-		m_genebank->checkCoalescence( *m_population_begin );
-	}
 
-	/**
-	 * Calculates the last point in time before the any descendants of the most-recent common ancestor
-	 * begin to branch off. That is, if for example all organisms at time t are direct descendants of
-	 * the most-recent common ancestor, then this function returns t-1.
-	 *
-	 * The function prepareCoalescenceCalcs must have been called before this one is called.
-	 **/
-	int calcCoalescenceTime()
-	{
-		int min_time = m_time;
-		const_iterator it = m_population_begin;
-		for (; it != m_population_end; it++) {
-			//for ( int i=0; i<m_population.size(); i++ ) {
-			int t = m_time-1;
-			const GenebankEntry<Organism> *e = *it;
-		
-			while( !e->isCoalescent() ) {
-				t = e->getBirthTime()-1;
-				e = e->getParent();
-				assert( e!= 0 );
-			}
-		
-			if ( min_time > t )
-				min_time = t;
-		}
-	return min_time;
-	}
 };
 
 
@@ -361,8 +324,8 @@ bool GenebankAnalyzer<Organism>::analyzeDnDs( int window_size, double &ave_dn, d
 	vector<double> fitness_vect;
 	vector<double> fop_vect;
 
-	// first, make sure that all coalescent genotypes are marked as such
-	prepareCoalescenceCalcs(m_population_begin, m_population_end, m_time);
+	// This shouldn't be necessary, but just to be on the save side
+	m_genebank->checkCoalescence( *m_population_begin );
 
 	const GenebankEntry<Organism> *e = *m_population_begin, *e2;
 
@@ -373,7 +336,7 @@ bool GenebankAnalyzer<Organism>::analyzeDnDs( int window_size, double &ave_dn, d
 	}
 	
 	// we end our analysis with this genotype, so get its birth time
-	int end_time = calcCoalescenceTime();
+	int end_time = m_coalescence_time;
 
 	if ( end_time < window_size ) {
 		cerr << "Window size exceeds time from start of simulation to most-recent common ancestor" << endl;
