@@ -27,12 +27,10 @@ print "top_builddir =", builddir
 folder = Extension('folder',
 				   sources = ['foldermodule.cc'],
 				   include_dirs = [srcdir + '/src/tools', \
-							srcdir+'/src/folder', \
-							srcdir+'/src/evolver'],
-				   libraries = ['tools', 'folder', 'evolver'],
+							srcdir+'/src/folder'],
+				   libraries = ['folder', 'tools'],
 				   library_dirs = [builddir + '/src/tools', \
-							builddir + '/src/folder', \
-							builddir + '/src/evolver'])
+							builddir + '/src/folder'])
 
 setup (name = 'CompactLatticeFolder',
 	          version = '0.1',
@@ -42,12 +40,10 @@ setup (name = 'CompactLatticeFolder',
 decoyfolder = Extension('decoyfolder',
 				   sources = ['decoyfoldermodule.cc'],
 				   include_dirs = [srcdir + '/src/tools', \
-							srcdir+'/src/folder', \
-							srcdir+'/src/evolver'],
-				   libraries = ['tools', 'folder', 'evolver'],
+							srcdir+'/src/folder'],
+				   libraries = ['folder', 'tools'],
 				   library_dirs = [builddir + '/src/tools', \
-							builddir + '/src/folder', \
-							builddir + '/src/evolver'])
+							builddir + '/src/folder'])
 
 setup (name = 'DecoyContactFolder',
 	          version = '0.1',
@@ -58,7 +54,7 @@ codon = Extension('codon',
 				   sources = ['codonmodule.cc'],
 				   include_dirs = [srcdir + '/src/tools',\
 							srcdir + '/src/folder'],
-				   libraries = ['tools', 'folder' ],
+				   libraries = ['folder', 'tools' ],
 				   library_dirs = [builddir + '/src/tools', \
 							builddir + '/src/folder'])
 
