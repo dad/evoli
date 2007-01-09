@@ -31,7 +31,7 @@ static char folder_fold__doc__[] =
 ""
 ;
 
-static Folder* folder = NULL;
+static CompactLatticeFolder* folder = NULL;
 static PyObject *
 folder_fold(PyObject *self /* Not used */, PyObject *args)
 {

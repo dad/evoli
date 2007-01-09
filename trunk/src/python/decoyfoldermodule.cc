@@ -73,7 +73,7 @@ decoyfolder_foldStats(PyObject *self /* Not used */, PyObject *args)
 	Protein p(protein_sequence);
 	auto_ptr<DecoyFoldInfo> folding_data( dynamic_cast<DecoyFoldInfo*>( folder->fold(p) ) );
 	//cout << folding_data.getStructure() << " " << folding_data.getDeltaG() << endl << p << endl;
-	return Py_BuildValue("iffff", folding_data->getStructure(), folding_data->getDeltaG(), folding_data->getUnfoldedFreeEnergyMean(), folding_data->getUnfoldedFreeEnergyVariance(), folding_data->getMinEnergy());
+	return Py_BuildValue("iffff", folding_data->getStructure(), folding_data->getDeltaG(), folding_data->getUnfoldedDeltaGMean(), folding_data->getUnfoldedDeltaGVariance(), folding_data->getMinEnergy());
 }
 
 static char decoyfolder_getEnergy__doc__[] =
