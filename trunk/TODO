@@ -9,6 +9,11 @@
 	  in the CompactLatticeFolder would better fit into a separate class (say a subclass of
 	  the CompactLatticeFolder), where it could replace the fold() function.
 
+* modify Population so that it can handle fitness models where the same sequence may
+  have different fitnesses at different points in time (Claus)
+
+* separate Folder-dependent functions from gene-util, and put them into a folder-util. (Claus)
+
 * refactor GenebankAnalyzer: separate organisms-specific code from generic code. (?)
 
 * make function ErrorproneTranslation::getCodonCosts() not return a pointer
