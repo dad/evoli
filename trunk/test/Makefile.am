@@ -1,13 +1,18 @@
 ## Makefile.am
 
 include $(top_srcdir)/config/Make-rules
-INCLUDES = -I$(top_srcdir)/src/tools/ -I$(top_srcdir)/src/folder/ -I$(top_srcdir)/src/evolver/
+INCLUDES = -I$(top_srcdir)/src/tools/ \
+		-I$(top_srcdir)/src/gene/ \
+		-I$(top_srcdir)/src/folder/ \
+		-I$(top_srcdir)/src/evolver/
+
 CLEANFILES =  runtest.cc
 
 bin_PROGRAMS = perf-test
-perf_test_LDADD = $(top_builddir)/src/tools/libtools.a \
-		$(top_builddir)/src/evolver/libevolver.a \
-		$(top_builddir)/src/folder/libfolder.a
+perf_test_LDADD = $(top_builddir)/src/evolver/libevolver.a \
+		$(top_builddir)/src/folder/libfolder.a \
+		$(top_builddir)/src/gene/libgene.a \
+	$(top_builddir)/src/tools/libtools.a
 perf_test_SOURCES = perf-test.cc
 
 ## Cutee unit testing directives
@@ -22,9 +27,10 @@ noinst_PROGRAMS = cutee runtest
 
 cutee_SOURCES = cutee.cc cutee.h
 
-runtest_LDADD = $(top_builddir)/src/tools/libtools.a \
-		$(top_builddir)/src/evolver/libevolver.a \
-		$(top_builddir)/src/folder/libfolder.a
+runtest_LDADD = $(top_builddir)/src/evolver/libevolver.a \
+		$(top_builddir)/src/folder/libfolder.a \
+		$(top_builddir)/src/gene/libgene.a \
+		$(top_builddir)/src/tools/libtools.a
 
 autocutee.mk: cutee Makefile.am $(test_files) $(runtest_LDADD)
 	$(CUTEE) -k -o autocutee.mk $(test_files)

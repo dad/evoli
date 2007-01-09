@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "compact-lattice-folder.hh"
 #include "fitness-evaluator.hh"
 #include "protein.hh"
-#include "gene-util.hh"
+#include "folder-util.hh"
 #include "tools.hh"
 #include <fstream>
 #include <cmath>
@@ -59,7 +59,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		double target_accuracy = 0.85;
 		double max_dg = -1;
 		int sid = 599;
-		CodingDNA g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		// Test with pre-discovered weights (generated using ./get-weights 6 -5 11 599 1000 1000 0.85 10)
 		ErrorproneTranslation ept(&folder, g.codonLength(), sid, max_dg, 1.0, 6.0, 0.0114735, 57.9439, 102.567);
 		TEST_ASSERT_M(ept.getFolded(g), "Generated test gene not folded.");
@@ -84,7 +84,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		double max_dg = -1;
 		int sid = 599;
 		
-		CodingDNA g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		// Test with automatically determined weights.
 		ErrorproneTranslation ept(&folder, g.codonLength(), sid, max_dg, 1.0, 6.0, target_accuracy);
 		TEST_ASSERT_M(ept.getFolded(g), "Generated test gene not folded.");

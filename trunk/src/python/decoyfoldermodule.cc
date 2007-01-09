@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "protein.hh"
 #include "folder.hh"
 #include "decoy-contact-folder.hh"
-#include "gene-util.hh"
+#include "folder-util.hh"
 
 
 static PyObject *FolderErrorObject;
@@ -115,7 +115,7 @@ decoyfolder_getSequenceForStructure( PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "idi", &protein_length, &free_energy_cutoff, &struct_id )) {
 		return NULL;
 	}
-	Gene g = GeneUtil::getSequenceForStructure(*folder, 3*protein_length, free_energy_cutoff, struct_id);
+	Gene g = FolderUtil::getSequenceForStructure(*folder, 3*protein_length, free_energy_cutoff, struct_id);
 	//cout << 3*protein_length << " " << free_energy_cutoff << " " << struct_id << " " << g << endl;
 	Protein p = g.translate();
 	

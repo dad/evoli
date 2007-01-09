@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "genetic-code.hh"
 #include "translator.hh"
 #include "gene-util.hh"
+#include "folder-util.hh"
 #include "tools.hh"
 
 #include <cmath>
@@ -124,7 +125,7 @@ ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int p
 	// Build the weight matrices for translation.
 	buildWeightMatrix();
 	// Get a seed genotype.
-	CodingDNA seed_gene = GeneUtil::getSequenceForStructure(*protein_folder, protein_length*3, max_free_energy, protein_structure_ID);
+	CodingDNA seed_gene = FolderUtil::getSequenceForStructure(*protein_folder, protein_length*3, max_free_energy, protein_structure_ID);
 	assert(seed_gene.encodesFullLength());
 	assert(seed_gene.translate().length() == protein_length);
 	assert(getFolded(seed_gene));
@@ -1128,7 +1129,7 @@ double RobustnessOnlyTranslation::getFitness( const Gene &g )
 		if ( ErrorproneTranslation::sequenceFolds(p) ) {
 			if ( m_tr_cost > 0 ) {
 				// Actual fraction folded will be (1-m_fraction_mistranslated) [all fold] + m_fraction_mistranslated*nu [neutral point mutations]
-				double nu = GeneUtil::calcNeutrality(*m_protein_folder, p, m_max_free_energy);
+				double nu = FolderUtil::calcNeutrality(*m_protein_folder, p, m_max_free_energy);
 				double ffold = m_fraction_accurate + nu*(1 - m_fraction_accurate);
 				fitness = exp( - m_tr_cost * (1.0 - ffold) / ffold );
 			}
@@ -1167,7 +1168,7 @@ double RobustnessOnlyTranslation::calcOutcomes( const Gene &g, double &frac_accu
 		return 0.0;
 	}
 
-	double nu = GeneUtil::calcNeutrality(*m_protein_folder, prot, m_max_free_energy);
+	double nu = FolderUtil::calcNeutrality(*m_protein_folder, prot, m_max_free_energy);
 	double ffold = m_fraction_accurate + nu*(1 - m_fraction_accurate);
 	double fitness = exp( - m_tr_cost * (1.0 - ffold) / ffold );
 

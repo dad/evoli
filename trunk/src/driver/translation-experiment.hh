@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "translator.hh"
 #include "tools.hh"
 #include "gene-util.hh"
+#include "folder-util.hh"
 #include "mutator.hh"
 
 #include <cmath>

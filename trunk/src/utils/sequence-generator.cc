@@ -25,7 +25,7 @@ The program \c sequence-generator can be used to generate protein sequences that
 
 #include "compact-lattice-folder.hh"
 #include "translator.hh"
-#include "gene-util.hh"
+#include "folder-util.hh"
 #include "tools.hh"
 
 #include <fstream>
@@ -79,10 +79,10 @@ Parameters getParams( int ac, char **av )
 void getSequence( Folder &b, const Parameters &p, ostream &s )
 {
 	int nfolded = b.getNumFolded();
-	Gene g = GeneUtil::getSequence(b, 3*p.protein_length, p.free_energy_cutoff);
+	Gene g = FolderUtil::getSequence(b, 3*p.protein_length, p.free_energy_cutoff);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
-	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
+	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << " " << FolderUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
 	  << " " << (b.getNumFolded()-nfolded) << endl;
 }
 
@@ -90,10 +90,10 @@ void getSequence( Folder &b, const Parameters &p, ostream &s )
 void getSequenceTargeted( Folder &b, const Parameters &p, const int struct_id, ostream &s )
 {
 	int nfolded = b.getNumFolded();
-	Gene g = GeneUtil::getSequenceForStructure(b, 3*p.protein_length, p.free_energy_cutoff, struct_id);
+	Gene g = FolderUtil::getSequenceForStructure(b, 3*p.protein_length, p.free_energy_cutoff, struct_id);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
-	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
+	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << " " << FolderUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
 	  << " " << (b.getNumFolded()-nfolded) << endl;
 }
 

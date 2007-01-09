@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 #include "decoy-contact-folder.hh"
 #include "translator.hh"
-#include "gene-util.hh"
+#include "folder-util.hh"
 #include "tools.hh"
 
 #include <fstream>
@@ -77,19 +77,19 @@ Parameters getParams( int ac, char **av )
 // finds a random sequence with folding energy smaller than cutoff.
 void getSequence( Folder &b, const Parameters &p, ostream &s )
 {
-	Gene g = GeneUtil::getSequence(b, 3*p.protein_length, p.free_energy_cutoff);
+	Gene g = FolderUtil::getSequence(b, 3*p.protein_length, p.free_energy_cutoff);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
-	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << endl; //" " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff ) << endl;
+	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << endl; //" " << FolderUtil::calcNeutrality( b, prot, p.free_energy_cutoff ) << endl;
 }
 
 // finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 void getSequenceTargeted( Folder &b, const Parameters &p, const int struct_id, ostream &s )
 {
-	Gene g = GeneUtil::getSequenceForStructure(b, 3*p.protein_length, p.free_energy_cutoff, struct_id);
+	Gene g = FolderUtil::getSequenceForStructure(b, 3*p.protein_length, p.free_energy_cutoff, struct_id);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
-	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << endl; // << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff ) << endl;
+	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << endl; // << " " << FolderUtil::calcNeutrality( b, prot, p.free_energy_cutoff ) << endl;
 }
 
 int main( int ac, char **av)

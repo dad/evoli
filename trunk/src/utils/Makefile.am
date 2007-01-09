@@ -2,10 +2,14 @@
 
 include $(top_srcdir)/config/Make-rules
 
-INCLUDES = -I$(top_srcdir)/src/tools/ -I$(top_srcdir)/src/folder/ -I$(top_srcdir)/src/evolver/
+INCLUDES = -I$(top_srcdir)/src/tools/ \
+		-I$(top_srcdir)/src/gene/ \
+		-I$(top_srcdir)/src/folder/ \
+		-I$(top_srcdir)/src/evolver/
 
 libraries = $(top_builddir)/src/evolver/libevolver.a \
 		$(top_builddir)/src/folder/libfolder.a \
+		$(top_builddir)/src/gene/libgene.a \
 		$(top_builddir)/src/tools/libtools.a
 
 gb_analyzer_SOURCES = gb-analyzer.cc

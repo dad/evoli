@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "population.hh"
 #include "translator.hh"
 #include "tools.hh"
-#include "gene-util.hh"
+#include "folder-util.hh"
 #include "compact-lattice-folder.hh"
 #include "mutator.hh"
 
@@ -107,7 +107,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, vector<bool>& is_optimal,
 
 	Folder& folder = *(fe->getFolder());
 	// Find a sequence.
-	CodingDNA g = GeneUtil::getSequenceForStructure(folder, 75, -5, 599);
+	CodingDNA g = FolderUtil::getSequenceForStructure(folder, 75, -5, 599);
 	cout << "nf: " <<  folder.getNumFolded() << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, &mut );

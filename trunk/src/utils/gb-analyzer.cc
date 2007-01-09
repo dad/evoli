@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "fitness-evaluator.hh"
 #include "tools.hh"
 #include "gene-util.hh"
+#include "folder-util.hh"
 
 #include <algorithm>
 #include <fstream>
@@ -254,7 +255,7 @@ void printGenebank( CompactLatticeFolder &b, const Params p, const vector<Geneba
 
 		d.w_new = ept->getFitness( d.g );
 		
-		d.nu = GeneUtil::calcNeutrality( b, d.g.translate(), p.free_energy_cutoff );
+		d.nu = FolderUtil::calcNeutrality( b, d.g.translate(), p.free_energy_cutoff );
 		d.fop = GeneUtil::calcFop( d.g, ept->getOptimalCodons(false) );
 
 		cout << d.birth_time << " " << d.w_saved << " " << d.w_new << " ";

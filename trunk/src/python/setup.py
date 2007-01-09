@@ -27,9 +27,11 @@ print "top_builddir =", builddir
 folder = Extension('folder',
 				   sources = ['foldermodule.cc'],
 				   include_dirs = [srcdir + '/src/tools', \
+							srcdir + '/src/gene', \
 							srcdir+'/src/folder'],
-				   libraries = ['folder', 'tools'],
+				   libraries = ['folder', 'gene', 'tools'],
 				   library_dirs = [builddir + '/src/tools', \
+	 						builddir + '/src/gene', \
 							builddir + '/src/folder'])
 
 setup (name = 'CompactLatticeFolder',
@@ -40,9 +42,11 @@ setup (name = 'CompactLatticeFolder',
 decoyfolder = Extension('decoyfolder',
 				   sources = ['decoyfoldermodule.cc'],
 				   include_dirs = [srcdir + '/src/tools', \
+							srcdir + '/src/gene', \
 							srcdir+'/src/folder'],
-				   libraries = ['folder', 'tools'],
+				   libraries = ['folder', 'gene', 'tools'],
 				   library_dirs = [builddir + '/src/tools', \
+							builddir + '/src/gene', \
 							builddir + '/src/folder'])
 
 setup (name = 'DecoyContactFolder',
@@ -53,10 +57,10 @@ setup (name = 'DecoyContactFolder',
 codon = Extension('codon',
 				   sources = ['codonmodule.cc'],
 				   include_dirs = [srcdir + '/src/tools',\
-							srcdir + '/src/folder'],
-				   libraries = ['folder', 'tools' ],
+							srcdir + '/src/gene'],
+				   libraries = ['gene', 'tools' ],
 				   library_dirs = [builddir + '/src/tools', \
-							builddir + '/src/folder'])
+							builddir + '/src/gene'])
 
 setup (name = 'Codon',
 	          version = '0.1',

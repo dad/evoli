@@ -137,22 +137,6 @@ struct TEST_CLASS( protein_gene_basic )
 		Protein p2(p1.toString());
 		TEST_ASSERT( p1 == p2 );
 	}
-	void TEST_FUNCTION( sequence_for_structure )
-	{
-		CompactLatticeFolder folder(side_length);
-		double max_dg = -1;
-		int sid = 574;
-		Random::seed(11);
-		int nfolded = folder.getNumFolded();
-		CodingDNA g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
-		//cout << "num folded: " << (folder.getNumFolded() - nfolded) << endl;
-		Protein p = g.translate();
-		//cout << "xx" << p << endl;
-		auto_ptr<FoldInfo> fi( folder.fold(p) );
-		TEST_ASSERT( fi->getDeltaG() <= max_dg );
-		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
-		return;
-	}
 };
 
 

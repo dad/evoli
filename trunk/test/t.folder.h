@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "compact-lattice-folder.hh"
 #include "coding-sequence.hh"
 #include "protein.hh"
+#include "folder-util.hh"
+#include "random.hh"
+
 #include <fstream>
 #include <cmath>
 #include <memory>
@@ -135,6 +138,22 @@ struct TEST_CLASS( folder_basic )
 		// Clean up
 	}
 
+	void TEST_FUNCTION( sequence_for_structure )
+	{
+		CompactLatticeFolder folder(side_length);
+		double max_dg = -1;
+		int sid = 574;
+		Random::seed(11);
+		int nfolded = folder.getNumFolded();
+		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		//cout << "num folded: " << (folder.getNumFolded() - nfolded) << endl;
+		Protein p = g.translate();
+		//cout << "xx" << p << endl;
+		auto_ptr<FoldInfo> fi( folder.fold(p) );
+		TEST_ASSERT( fi->getDeltaG() <= max_dg );
+		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
+		return;
+	}
 };
 
 

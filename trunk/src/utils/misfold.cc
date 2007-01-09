@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "tools.hh"
 #include "random.hh"
 #include "gene-util.hh"
+#include "folder-util.hh"
 
 #include <cmath>
 #include <cstdio>
@@ -244,7 +245,7 @@ void misfoldDistExperiment(Parameters& p)
 		double cffold, cfacc, cfrob, cftrunc;
 		double fitness = fe->calcOutcomes(rec.gene, cfacc, cfrob, cftrunc, cffold);
 		double fitnessDensity = -1; //fde.getFitnessDensity(rec.gene, *fe, p.N);
-		double nu = GeneUtil::calcNeutrality( folder, prot, p.free_energy_cutoff );
+		double nu = FolderUtil::calcNeutrality( folder, prot, p.free_energy_cutoff );
 
 		// Compute fraction robust for codon-randomized genes.
 		vector<double> randrobs;

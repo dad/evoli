@@ -72,7 +72,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe, Polymerase& 
 
 	Population<Gene, ErrorproneTranslation, Polymerase> pop( p.N );
 	Folder& folder = *(fe.getFolder());
-	Gene g = GeneUtil::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
+	Gene g = FolderUtil::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
 	pop.init(g, &fe, &poly);
 
 	vector<bool> is_optimal = fe.getOptimalCodons();
@@ -130,7 +130,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, Polymerase *poly, const Pa
 
 	Folder& folder = *(fe->getFolder());
 	// Find a sequence.
-	Gene g = GeneUtil::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
+	Gene g = FolderUtil::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
 	s << "# Starting genotype: " << g << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, poly );
