@@ -1,5 +1,3 @@
-* move tools.hh from directory folder into directory tools (Claus)
-
 * place the logic of when a protein is stably folded into folder classes (Claus)
 	- break up FoldInfo into two separate classes. The basic FoldInfo should only know
 	  whether the molecule is stably folded, but not know about DeltaG and StructureID.
@@ -11,8 +9,6 @@
 
 * modify Population so that it can handle fitness models where the same sequence may
   have different fitnesses at different points in time (Claus)
-
-* refactor GenebankAnalyzer: separate organisms-specific code from generic code. (?)
 
 * make function ErrorproneTranslation::getCodonCosts() not return a pointer
   to an internal data structure. (?)
