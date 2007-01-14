@@ -124,7 +124,11 @@ def compareDirectories( template_dir, test_dir ):
 		print "   Leaving test data in temporary directory."
 		print "   ***********************************************"
 		return False
+	exclude_list = ['.svn'] # files to exclude from comparison
 	template_dir_files = os.listdir( template_dir )
+	for i in exclude_list:
+		if i in template_dir_files:
+			template_dir_files.remove( i )
 	template_dir_files.sort()
 	test_dir_files = os.listdir( test_dir )
 	test_dir_files.sort()

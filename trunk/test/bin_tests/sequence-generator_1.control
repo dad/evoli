@@ -1,0 +1,2 @@
+Binary: src/utils/sequence-generator
+Arguments: 25 -3. 10 5 23
