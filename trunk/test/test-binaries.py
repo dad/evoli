@@ -21,8 +21,10 @@ To create a new test, follow the steps below:
 	4. That's it.
 
 Structure of the control file:
-The control file consists of lines of the form <variable name>: <value>. The following
-variables exist:
+The control file consists of lines of the form <variable name>: <value>. Comments
+are *not* allowed in the control file.
+
+The following variables exist:
 Binary: The name of the program to execute.
 Arguments: The set of arguments to give to the binary
 Exclude: A regular expression to exclude lines from the file comparison that determines
@@ -32,10 +34,17 @@ Exclude: A regular expression to exclude lines from the file comparison that det
 		Exclude: /excluded line/
 	will exclude all lines containing the string "excluded line" from the file comparison.
 	There can be several Exclude directives in a control file. All will be applied.
+	
+You can also add a file called 'DONT_RUN' into the directory holding all the tests (i.e.,
+"test/bin_tests"). All tests whose name is listed in this file will not be run. Several
+tests can be listed on a single line, separated by commas, or on separate lines. You can
+use the symbol "#" to comment out parts of the file. The 'DONT_RUN' file is useful
+when your are debugging specific tests.
 """
 
 
 testsdir = './test/bin_tests/' # directory that holds all the test data
+dontrun = 'DONT_RUN' # name of the don't run file.
 
 
 class ControlRecord:
@@ -45,12 +54,33 @@ class ControlRecord:
                 self.excludes = []
 
 
-
 def printTestFailed():
 	print '\n   **********   Test failed!   **********'
 
 def printTestPassed():
 	print '      test passed.'
+
+def readDontRunFile():
+	result = []
+	filename = os.path.join( testsdir, dontrun )
+	try:
+		lines = file( filename ).readlines()
+	except:
+		return result
+	for line in lines:
+		# get rid of comments:
+		contents = line.strip().split( '#', 1 )[0]
+		if re.match( r'^\s*$', contents ): # ignore empty lines
+			continue
+		names = contents.split( ',' )
+		for name in names:
+			result.append( name.strip() )
+	if not result == []:
+		print "Skipping tests:"
+		for name in result:
+			print "\t", name
+	return result
+
 
 def runProgram( testdir_name, cr ):
 	'''
@@ -207,9 +237,11 @@ def compareDirectories( template_dir, test_dir, cr ):
 		printTestPassed()
 	return result
 
-def testProgram( testsdir, control_file ):
+def testProgram( control_file, dontrun ):
 	m = re.compile( r'^(.*).control$' ).match( control_file )
 	testname = m.groups()[0]
+	if testname in dontrun: # exclude tests listed in dontrun
+		return
 	cr = parseControlFile( os.path.join( testsdir, control_file ) )
 	print 'running test:', testname
 	testdir_name = testname + '.DKhje8bS3.tmp_dir'
@@ -219,9 +251,10 @@ def testProgram( testsdir, control_file ):
 
 def runTests():
 	files = os.listdir( testsdir )
+	dontrun = readDontRunFile()
 	for file in files:
 		if file.endswith( '.control' ):
-			testProgram( testsdir, file )
+			testProgram( file, dontrun )
 
 
 runTests()
