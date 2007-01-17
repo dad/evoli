@@ -11,18 +11,39 @@ temporary directory is left in place, so that the error can be investigated.
 
 To create a new test, follow the steps below:
 	1. Add a suitable control file to the directory "test/bin_tests". (Control files have
-	   names of the form "<testname>.control", and contain the name of the binary
-	   to be tested and the argument list. See tr-driver_tr for an example.) Let's
+	   names of the form "<testname>.control", and contain information about the
+	   test to run. See details below, or the existing tests for a examples.) Let's
 	   assume your new control file is called "newtest.control".
 	2. Run the test script with "python ./test/test-binaries.py". The new test will fail.
 	3. Copy the entire contents of the temporary directory into a directory "newtest"
 	   in "test/bin_tests":
 		cp -r newtest.DKhje8bS3.tmp_dir/ test/bin_tests/newtest
 	4. That's it.
+
+Structure of the control file:
+The control file consists of lines of the form <variable name>: <value>. The following
+variables exist:
+Binary: The name of the program to execute.
+Arguments: The set of arguments to give to the binary
+Exclude: A regular expression to exclude lines from the file comparison that determines
+	whether the test passed or not. The regular expression has to be enclosed in 
+	slashes (/).
+	For example, the directive:
+		Exclude: /excluded line/
+	will exclude all lines containing the string "excluded line" from the file comparison.
+	There can be several Exclude directives in a control file. All will be applied.
 """
 
 
 testsdir = './test/bin_tests/' # directory that holds all the test data
+
+
+class ControlRecord:
+        def __init__( self ):
+                self.binary = ""
+                self.argument = ""
+                self.excludes = []
+
 
 
 def printTestFailed():
@@ -31,7 +52,11 @@ def printTestFailed():
 def printTestPassed():
 	print '      test passed.'
 
-def runProgram( testdir_name, binary, arguments ):
+def runProgram( testdir_name, cr ):
+	'''
+	'testdir_name' is the name of the temporary directory in which the test is run.
+	'cr' is a ControlRecord object holding all the information necessary to run the test.
+	'''
 	print '   creating temporary directory:', testdir_name
 	try:
 		os.mkdir( testdir_name )
@@ -41,7 +66,7 @@ def runProgram( testdir_name, binary, arguments ):
 	
 	os.chdir( testdir_name )
 	try:
-		command = os.path.join( "../", binary ) + " " + arguments + " > testrun_log.txt"
+		command = os.path.join( "../", cr.binary ) + " " + cr.arguments + " > testrun_log.txt"
 		print '   executing:', command
 		os.system( command )
 	except:
@@ -66,36 +91,58 @@ def cleanup( testdir_name ):
 def parseControlFile( filename ):
 	regbinary = re.compile( r'^\s*Binary:\s*(.*)' )
 	regarguments = re.compile( r'^\s*Arguments:\s*(.*)' )
+	regexclude = re.compile( r'^\s*Exclude:\s*/(.*)/$' )
 	
-	lines = open( filename ).readlines()	
+	lines = open( filename ).readlines()
+	record = ControlRecord()
 	for line in lines:
 		m = regbinary.match( line.strip() )
 		if m:
-			binary = m.groups()[0]
+			record.binary = m.groups()[0]
 			continue
 		m = regarguments.match( line.strip() )
 		if m:
-			arguments = m.groups()[0]
+			record.arguments = m.groups()[0]
 			continue
+		m = regexclude.match( line.strip() )
+		if m:
+			record.excludes.append( m.groups()[0] )
+	return record
 
-	return ( binary, arguments )
-
-def compareFiles( template_file, test_file ):
-	template_raw_lines = open( template_file ).readlines()
-	template_stripped_lines = []
-	for line in template_raw_lines:
-		sline = re.sub("\s+", " ", line)
+def prepareFileContents( lines, cr ):
+	'''
+	This function removes whitespace and other information from the files that are
+	being compared. It is given an array of lines (i.e., strings) to process, and returns
+	a new array of lines.
+	
+	'lines' is the array of strings to process
+	'cr' is a ControlRecord object containing information about the test
+	'''
+	result = []
+	for line in lines:
+		exclude = False
+		for s in cr.excludes: # test whether we should exclude the line
+			if re.search( s, line ): # does line match an exclude?
+				exclude = True # exclude this line
+				break
+		if exclude:
+			continue
+		sline = re.sub("\s+", " ", line) # if we are still in the game, strip whitespace
 		if sline == ' ': # skip empty lines
 			continue
-		template_stripped_lines.append( sline )
-	test_raw_lines = open( test_file ).readlines()
-	test_stripped_lines = []
-	for line in test_raw_lines:
-		sline = re.sub("\s+", " ", line)
-		if sline == ' ': # skip empty lines
-			continue
-		test_stripped_lines.append( sline )
-	if not len( template_stripped_lines ) == len( test_stripped_lines ):
+		result.append( sline )
+	return result
+
+
+def compareFiles( template_file, test_file, cr ):
+	'''
+	'template_file' is the name of the file against which we are comparing
+	'test_file' is the name of the file we compare against the template
+	'cr' is a ControlRecord object holding information about the test
+	'''
+	template_lines = prepareFileContents( open( template_file ).readlines(), cr )
+	test_lines = prepareFileContents( open( test_file ).readlines(), cr )
+	if not len( template_lines ) == len( test_lines ):
 		printTestFailed()
 		print "   files"
 		print "     ", template_file
@@ -103,7 +150,7 @@ def compareFiles( template_file, test_file ):
 		print "     ", test_file
 		print "   differ in length."
 		return False
-	a = zip( template_stripped_lines, test_stripped_lines )
+	a = zip( template_lines, test_lines )
 	for i in a:
 		if not i[0] == i[1]:
 			printTestFailed()
@@ -116,8 +163,10 @@ def compareFiles( template_file, test_file ):
 	return True
 
 
-def compareDirectories( template_dir, test_dir ):
-	"""Compare the file contents of two directories. Does not work for subdirectories!"""
+def compareDirectories( template_dir, test_dir, cr ):
+	"""Compare the file contents of two directories. Does not work for subdirectories!
+	'cr' is a ControlRecord object
+	"""
 	if not os.path.exists( template_dir ):
 		print "   ***********************************************"
 		print "   Cannot complete test. No comparison data exists."
@@ -150,7 +199,7 @@ def compareDirectories( template_dir, test_dir ):
 				print 'Currently the function "compareDirectories()" does not work in this case.'
 				print 'Test could not be completed.'
 				result = False
-			if not compareFiles( os.path.join( template_dir, file ), os.path.join( test_dir, file ) ):
+			if not compareFiles( os.path.join( template_dir, file ), os.path.join( test_dir, file ), cr ):
 				result = False
 	if result:
 		cleanup( test_dir )
@@ -161,12 +210,12 @@ def compareDirectories( template_dir, test_dir ):
 def testProgram( testsdir, control_file ):
 	m = re.compile( r'^(.*).control$' ).match( control_file )
 	testname = m.groups()[0]
-	( binary, arguments ) = parseControlFile( os.path.join( testsdir, control_file ) )
+	cr = parseControlFile( os.path.join( testsdir, control_file ) )
 	print 'running test:', testname
 	testdir_name = testname + '.DKhje8bS3.tmp_dir'
 	cleanup( testdir_name ) # cleanup from previous failed run, just in case
-	runProgram( testdir_name, binary, arguments )
-	compareDirectories( os.path.join( testsdir, testname ), testdir_name )
+	runProgram( testdir_name, cr )
+	compareDirectories( os.path.join( testsdir, testname ), testdir_name, cr )
 
 def runTests():
 	files = os.listdir( testsdir )
