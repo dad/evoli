@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "translator.hh"
 #include "folder-util.hh"
 #include "tools.hh"
+#include "random.hh"
 
 #include <fstream>
 
@@ -97,7 +98,7 @@ int main( int ac, char **av)
 	Parameters p = getParams( ac, av );
 
 	// set random seed
-	srand48( p.random_seed );
+	Random::seed( p.random_seed );
 
 	string path = (p.structure_dir+p.structure_file);
 	ifstream fin(path.c_str());

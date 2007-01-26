@@ -27,6 +27,7 @@ The program \c sequence-generator can be used to generate protein sequences that
 #include "translator.hh"
 #include "folder-util.hh"
 #include "tools.hh"
+#include "random.hh"
 
 #include <fstream>
 
@@ -102,7 +103,8 @@ int main( int ac, char **av)
 	Parameters p = getParams( ac, av );
 
 	// set random seed
-	srand48( p.random_seed );
+	//srand48( p.random_seed );
+	Random::seed( p.random_seed );
 
 	int side_length = (int)(sqrt(float(p.protein_length)));
 	// initialize the protein folder
