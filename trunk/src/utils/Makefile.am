@@ -24,6 +24,9 @@ decoy_sequence_generator_LDADD = $(libraries)
 decoy_sequence_analyzer_SOURCES = decoy-sequence-analyzer.cc
 decoy_sequence_analyzer_LDADD = $(libraries)
 
+neutral_evolve_SOURCES = neutral-evolve.cc
+neutral_evolve_LDADD = $(libraries)
+
 structure_printer_SOURCES = structure-printer.cc
 structure_printer_LDADD = $(libraries)
 
@@ -40,7 +43,8 @@ snp_mistrans_stability_SOURCES = snp-mistrans-stability.cc
 snp_mistrans_stability_LDADD = $(libraries)
 
 bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer \
-	structure-printer misfold get-weights gb-analyzer evolved-dg-dist snp-mistrans-stability
+	structure-printer misfold get-weights gb-analyzer evolved-dg-dist snp-mistrans-stability \
+	neutral-evolve
 
 CLEANFILES = pdbcontacts.pyc pdb.pyc
 
