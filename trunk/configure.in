@@ -5,7 +5,7 @@
 
 AC_PREREQ(2.57)
 
-AC_INIT([evoli], [0.1], [dadrummond@gmail.com])
+AC_INIT([evoli], [1.0], [dadrummond@gmail.com])
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([src/folder/folder.hh])
 AM_INIT_AUTOMAKE([1.6.3 foreign])
