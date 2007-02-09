@@ -1,7 +1,7 @@
 /*
 This file is part of the evoli project.
-Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
-Allan Drummond <dadrummond@gmail.com>
+Copyright (C) 2004, 2005, 2006, 2007 Claus Wilke <cwilke@mail.utexas.edu>,
+Allan Drummond <dadrummond@gmail.com>, Matt Cowperthwaite <mattccowp@mac.com>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 */
 
-
 #include "folder.hh"
 #include "fitness-evaluator.hh"
 #include "population.hh"
@@ -32,60 +31,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <fstream>
 #include <iomanip>
 #include <ctime>
+#include <sstream>
+using namespace std;
 
 class Parameters {
 public:
-	string eval_type;
+
 	unsigned int protein_length;
-	double free_energy_cutoff;
-	double free_energy_minimum;
 	double u;
-	double tr_cost;
-	string tr_cost_str;
-	double ca_cost;
-	double error_rate;
-	double error_weight;
-	double accuracy_weight;
 	int repetitions;
 	int window_size;
 	int equilibration_time;
 	int random_seed;
 	int N;
-	mutable int structure_ID;
 	string run_id;
 	bool valid;
 
 	Parameters( int ac, char **av ) {
-		if ( ac < 17 )	{
+		
+		if ( ac < 8 )	{
 			valid = false;
 			cout << "Start program like this:" << endl;
-			cout << "\t" << av[0] << " <eval type> <prot length> <pop size> <log10 tr cost> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <mutation rate> <window time> <equilibration time> <repetitions> <random seed> <run ID>" << endl;
+			cout << "\t" << av[0] << " <prot length> <pop size> <mutation rate> ";
+			cout << " <window time> <equilibration time> <repetitions> <random seed> <run ID>" << endl;
 			return;
 		}
 
 		int i = 1;
-		eval_type = av[i++];
 		protein_length = atoi( av[i++] );
 		N = atoi( av[i++] );
-		tr_cost_str = av[i++];
-		tr_cost = pow(10.0,atof( tr_cost_str.c_str() ));
-		ca_cost = atof( av[i++] );
-		error_rate = atof( av[i++] );
-		accuracy_weight = atof( av[i++] );
-		error_weight = atof( av[i++] );
-		structure_ID = atoi( av[i++] );
-		free_energy_cutoff = atof( av[i++] );
-		free_energy_minimum = atof( av[i++] );
 		u = atof( av[i++] );
 		window_size = atoi( av[i++] );
 		equilibration_time = atoi( av[i++] );
 		repetitions = atoi( av[i++] );
 		random_seed = atoi( av[i++] );
-		if ( ac == 19 ){
+		if ( ac == 9 ){
 			run_id = av[i++];
 		}
 		else{
-			run_id = itoa(random_seed, 10);
+			run_id = itoa( random_seed, 10 );
 		}
 
 		valid = true;
@@ -95,9 +79,5 @@ public:
 ostream & operator<<( ostream &s, const Parameters &p );
 
 int getStructureID( Folder &b, const Gene &g );
-bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
-		     double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f,
-		     double &ave_fop );
-void evolutionTest( const Parameters &p, ErrorproneTranslation& fe);
-void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe);
-
+bool analyzeReplica( const Parameters &p, ostream &s );
+void evolutionExperiment( const Parameters &p );

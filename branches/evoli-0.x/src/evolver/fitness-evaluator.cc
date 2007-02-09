@@ -1184,10 +1184,12 @@ double RobustnessOnlyTranslation::countOutcomes( const Gene &g, const int num_to
 NeutralFitness::NeutralFitness()
 {}
 
-
 NeutralFitness::~NeutralFitness()
 {}
 
+AASequenceFitness::AASequenceFitness( const Protein p ) : m_protein( p ) {}
+
+AASequenceFitness::~AASequenceFitness() {}
 
 CutoffErrorproneTranslation::CutoffErrorproneTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight, double cost_constant, int toxicity_cutoff)
  : ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight) {
@@ -1246,3 +1248,9 @@ double fixation_probability(int N, double s) {
 	return res;
 }
 
+NeutralTranslation::NeutralTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight )
+ : ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight) {
+}
+
+NeutralTranslation::~NeutralTranslation() {
+}

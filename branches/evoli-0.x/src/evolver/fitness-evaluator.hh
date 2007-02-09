@@ -88,6 +88,32 @@ public:
 };
 
 
+class AASequenceFitness : public FitnessEvaluator {
+private:
+	Protein m_protein;
+public:
+	// AASequenceFitness( const Protein p ) : m_protein( p ) {}
+	AASequenceFitness( const Protein p );
+	virtual ~AASequenceFitness();
+
+	void setNewTargetSequence( const Protein p ) {
+		m_protein = p;
+	}
+
+	double getFitness( const Gene& g ) {
+		return getFitness( g.translate() );
+	}
+	double getFitness( const Protein& p ) {
+		if ( p == m_protein )
+			return 1;
+		else
+			return 0;
+	}
+	
+	
+};
+
+
 /** \brief A \ref FitnessEvaluator in which the fitness of a gene sequence is determined from the amount of misfolded protein generated under error-prone mistranslation.
 
 **/
@@ -510,6 +536,26 @@ public:
 	virtual ~CutoffErrorproneTranslation();
     double getFitness( const Gene& g );
     double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
+};
+
+/** \brief A \ref FitnessEvaluator, derived from \ref ErrorproneTranslation, in which only neutral evolution is permitted.
+	folds into the target structure it's fitness is 1, otherwise it's fitness is zero
+*/
+class NeutralTranslation : public ErrorproneTranslation {
+
+protected:
+public:
+
+	NeutralTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
+	virtual ~NeutralTranslation();
+	
+	double getFitness( const Gene& g ) {
+		return 1;
+	}
+	double getFitness( const Protein& p ) {
+		return 1;
+	}
+
 };
 
 /**
