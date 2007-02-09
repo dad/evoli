@@ -21,12 +21,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 /** \page aaseq-driver aaseq-driver
 The program \c aa-seq-driver is used to simulate evoltion with a constrained amino
-acid sequence.
+acid sequence.  The fitness can be set to scale with the hamming distance from the 
+target amino-acid sequence.  The fourth argument is a scaling factor, which must be
+between 0 & 1.
+
+The fitness is (1-s)^d, where s is the scaling factor and d is the hamming distance
+between the two amino acids sequences.  If s == 1, then anything that does not perfectly
+match has fitness 0.
 
 The program is called with the following command-line parameters:
 \verbatim
-   ./aaseq-driver 25 1000 0.00001 100000 50000 50 111
-                  0  1    2       3      4     5  6
+   ./aaseq-driver 25 1000 0.00001 0.0   100000 50000 50 111
+                  0  1    2       3     4      5     6  7
 \endverbatim
 (The numbers under the call count the parameters.)
 
@@ -34,6 +40,7 @@ The parameters are, in order (the zeroth parameter is the program name):
 -#  %Protein length in amino acids
 -#  %Population size
 -#  Mutation rate per nucleotide
+-#  Scaling factor for distance
 -#  Window time -- number of generations for which evolutionary data is being collected
 -#  Equilibration time -- evolution time in generations before collection of evolutionary data begins
 -#  Number of replicates
@@ -43,13 +50,77 @@ The parameters are, in order (the zeroth parameter is the program name):
 */
 
 #include "compact-lattice-folder.hh"
-#include "aa-seq-driver.hh"
+#include "folder.hh"
+#include "fitness-evaluator.hh"
+#include "population.hh"
+#include "translator.hh"
+#include "tools.hh"
+#include "gene-util.hh"
 
-ostream & operator<<( ostream &s, const Parameters &p )
-{
+#include <cmath>
+#include <cstdio>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <ctime>
+#include <sstream>
+using namespace std;
+
+class Parameters {
+public:
+
+	unsigned int protein_length;
+	double u, dist_scale_factor;
+	int repetitions;
+	int window_size;
+	int equilibration_time;
+	int random_seed;
+	int N;
+	string run_id;
+	bool valid;
+
+	Parameters( int ac, char **av ) {
+		
+		if ( ac < 9 )	{
+			valid = false;
+			cout << "Start program like this:" << endl;
+			cout << "\t" << av[0] << " <prot length> <pop size> <mutation rate> <scale factor>";
+			cout << " <window time> <equilibration time> <repetitions> <random seed> <run ID>" << endl;
+			return;
+		}
+
+		int i = 1;
+		protein_length = atoi( av[i++] );
+		N = atoi( av[i++] );
+		u = atof( av[i++] );
+		dist_scale_factor = atof( av[i++] );
+		window_size = atoi( av[i++] );
+		equilibration_time = atoi( av[i++] );
+		repetitions = atoi( av[i++] );
+		random_seed = atoi( av[i++] );
+		if ( ac == 10 ){
+			run_id = av[i++];
+		}
+		else{
+			run_id = itoa( random_seed, 10 );
+		}
+
+		valid = true;
+	}
+};
+
+ostream & operator<<( ostream &s, const Parameters &p );
+
+int getStructureID( Folder &b, const Gene &g );
+bool analyzeReplica( const Parameters &p, ostream &s );
+void evolutionExperiment( const Parameters &p );
+
+ostream & operator<<( ostream &s, const Parameters &p ) {
+	
 	s << "# Parameters:" << endl;
 	s << "#   protein length: " << p.protein_length << endl;
 	s << "#   per-site mutation rate u: " << p.u << endl;
+	s << "#   scaling factor s: " << p.dist_scale_factor << endl;
 	s << "#   population size N: " << p.N << endl;
 	s << "#   window size tau: " << p.window_size << endl;
 	s << "#   equilibration time: " << p.equilibration_time << endl;
@@ -58,10 +129,12 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	s << "#   run ID: " << p.run_id << endl;
 	s << "#" << endl;
 	return s;
+	
 }
 
 
-StructureID getStructureID( Folder &b, const Gene &g ) {
+StructureID getStructureID ( Folder &b, const Gene &g ) {
+	
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
 		auto_ptr<FoldInfo> fi( b.fold(p) );
@@ -69,11 +142,12 @@ StructureID getStructureID( Folder &b, const Gene &g ) {
 	}
 	else
 		return (StructureID)-1;
+		
 }
 
 
-void runAndAnalyzeReplica( const Parameters &p, ostream &s )
-{
+void runAndAnalyzeReplica ( const Parameters &p, ostream &s ) {
+	
 	// initialize the population
 	Population pop( p.N );
 	
@@ -82,7 +156,7 @@ void runAndAnalyzeReplica( const Parameters &p, ostream &s )
 	s << "# Target sequence: " << targ << endl;
 	
 	// Get a fitness evaluator with the random target
-	AASequenceFitness* fe = new AASequenceFitness( targ );
+	AASequenceFitness* fe = new AASequenceFitness( targ, p.dist_scale_factor );
 
 	// Find a sequence.
 	Gene g = GeneUtil::reverseTranslate( targ );

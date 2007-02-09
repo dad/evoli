@@ -71,6 +71,9 @@ public:
 
 	double getFitness( const Gene& g );
 	double getFitness( const Protein& p );
+	
+	Folder* getFolder();
+	
 };
 
 
@@ -87,32 +90,33 @@ public:
 	}
 };
 
-
+/** \brief A \ref FitnessEvaluator in which the fitness of a protein sequnece is determined by
+	its similarity to a target amino-acid sequence.  Fitness is determined by the function
+	(1-s)^d, where s is a scaling factor and d is the hamming distance from the target sequence.
+	
+**/
 class AASequenceFitness : public FitnessEvaluator {
+	
 private:
 	Protein m_protein;
+	double  m_scale_factor;
+	
 public:
 	// AASequenceFitness( const Protein p ) : m_protein( p ) {}
-	AASequenceFitness( const Protein p );
+	AASequenceFitness( const Protein p, double s );
 	virtual ~AASequenceFitness();
 
 	void setNewTargetSequence( const Protein p ) {
 		m_protein = p;
 	}
+	void setNewScaleFactor( double s ) {
+		m_scale_factor = s;
+	}
 
-	double getFitness( const Gene& g ) {
-		return getFitness( g.translate() );
-	}
-	double getFitness( const Protein& p ) {
-		if ( p == m_protein )
-			return 1;
-		else
-			return 0;
-	}
-	
+	double getFitness( const Gene& g );
+	double getFitness( const Protein& p );
 	
 };
-
 
 /** \brief A \ref FitnessEvaluator in which the fitness of a gene sequence is determined from the amount of misfolded protein generated under error-prone mistranslation.
 

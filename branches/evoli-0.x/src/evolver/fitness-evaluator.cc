@@ -74,22 +74,32 @@ ProteinStructureFitness::~ProteinStructureFitness() {
 }
 
 double ProteinStructureFitness::getFitness( const Gene &g ) {
+	
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
 		return getFitness(p);
 	}
 	else
 		return 0;
+		
 }
 
 double ProteinStructureFitness::getFitness( const Protein &p ) {
+	
 	auto_ptr<FoldInfo> pf( m_protein_folder->fold(p) );
+		
 	if ( pf->getFreeEnergy() > m_max_free_energy )
 		return 0;
 
 	if ( pf->getStructure() != m_protein_structure_ID )
 		return 0;
+		
 	return 1;
+	
+}
+
+Folder* ProteinStructureFitness::getFolder ( ) {
+	return m_protein_folder;
 }
 
 struct greater_pair_first
@@ -1181,15 +1191,31 @@ double RobustnessOnlyTranslation::countOutcomes( const Gene &g, const int num_to
 	return 0.0;
 }
 
+
+
+
 NeutralFitness::NeutralFitness()
 {}
 
 NeutralFitness::~NeutralFitness()
 {}
 
-AASequenceFitness::AASequenceFitness( const Protein p ) : m_protein( p ) {}
+
+AASequenceFitness::AASequenceFitness( const Protein p, double s ) : m_protein( p ) {
+	 m_scale_factor = s;
+}
 
 AASequenceFitness::~AASequenceFitness() {}
+
+double AASequenceFitness::getFitness( const Gene& g ) {
+	return AASequenceFitness::getFitness( g.translate() );
+}
+double AASequenceFitness::getFitness( const Protein& p ) {
+	if ( p == m_protein )
+		return 1;
+	else
+		return pow( (1.0 - m_scale_factor), double(p.distance( m_protein )) );
+}
 
 CutoffErrorproneTranslation::CutoffErrorproneTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight, double cost_constant, int toxicity_cutoff)
  : ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight) {
