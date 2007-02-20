@@ -69,8 +69,8 @@ struct TEST_CLASS( random )
 	void TEST_FUNCTION( rnorm )
 	{
 		// The first 10 standard normal random deviates for random seed 23
-		double randnorms[10] = { 0.345669, 1.56275, -0.118777, -0.858446, 1.66391,
-				-0.326751, -0.428157, 0.00572826, -0.598339, -0.907825 };
+		double randnorms[10] = { -0.553171, 0.145303, 0.55217, -1.16218, -0.694667,
+							-0.8824, 1.50299, 0.169946, 0.828755, -1.41958 };
 
 		Random::seed( 23U );
 		bool rstdnorm_test_passed = true;
