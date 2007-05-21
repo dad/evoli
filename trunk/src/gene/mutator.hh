@@ -41,13 +41,13 @@ public:
 	 * Returns the mutation rate.
 	 * @return The per-nucleotide mutation rate.
 	 */
-	double getMutationRate() { return m_mutation_rate; }
+	double getMutationRate() const { return m_mutation_rate; }
 	
 	/**
 	 * Mutates a nucleotide sequence with a pre-specified probability.
 	 * @return Whether any mutations occurred.
 	 **/
-	virtual bool mutate(NucleotideSequence& dna);
+	virtual bool mutate(NucleotideSequence& dna) const;
 };
 
 /**
@@ -55,24 +55,59 @@ public:
  **/
 class Polymerase {
 private:
-	double m_mutation_rate;
-	vector<vector<double> > m_mutation_matrix;
+	double m_mutation_rate;  //!< overall mutation frequency
+	vector<double> m_mut_rate_ACGT; //!< mutation rates for each of the four bases
+	vector<double> m_AtoCGT; //!< mutation distr. from base A
+	vector<double> m_CtoGTA; //!< mutation distr. from base C
+	vector<double> m_GtoTAC; //!< mutation distr. from base G
+	vector<double> m_TtoACG; //!< mutation distr. from base T
+
+protected:
+	/**
+	Turns the vector of relative mutation frequencies into a properly normalized (cummulative)
+	distribution.
+	*/
+	void normalize( vector<double> & p );
+
+	/**
+	Prepares mutation matrix (normalizes, turns into cummulative).
+	*/
+	void prepareMutationMatrix();
+
+	/**
+	Chooses a mutation at random, given the cummulative distribution vector p.
+	(Assumes specifically that there are only three possible states a mutation can lead to.)
+	*/
+	int chooseMutation( const vector<double> & p ) const;
 public:
+	/**
+	The default constructor uses uniform relative mutation frequencies.
+	\param mutation_rate Overall mutation rate.
+	*/
 	Polymerase(double mutation_rate);
-	Polymerase(double mutation_rate, vector<vector<double> >& mutation_matrix);
+	/**
+	The mutation frequencies from A to C, G, or T etc. need not be normalized. However, normalization is done over all four mutation frequencies. I.e., if AtoCGT is ( 2, 1, 1 ) and
+	CtoGTA is ( 4, 2, 2 ), then overall mutations from C are twice as frequent as mutations from A.
+	\param mutation_rate Overall mutation rate.
+	\param AtoCGT Relative mutation frequencies from A to C, G, or T.
+	\param CtoGTA As AtoCGT.
+	\param GtoTAC As AtoCGT.
+	\param TtoACG As AtoCGT.
+	*/
+	Polymerase(double mutation_rate, const vector<double>& AtoCGT, const vector<double>& CtoGTA,  const vector<double>& GtoTAC,  const vector<double>& TtoACG );
 	virtual ~Polymerase();
 
 	/**
-	 * Returns the mutation rate.
-	 * @return The per-nucleotide mutation rate.
+	 * Returns the overall mutation rate.
+	 * @return The average per-nucleotide mutation rate.
 	 */
-	double getMutationRate() { return m_mutation_rate; }
+	double getMutationRate() const { return m_mutation_rate; }
 
 	/**
 	 * Mutates a nucleotide sequence with the pre-specified probabilities.
 	 * @return Whether any mutations occurred.
 	 **/
-	virtual bool mutate(NucleotideSequence& dna);
+	virtual bool mutate(NucleotideSequence& dna) const;
 };
 
 #endif // MUTATOR_HH
