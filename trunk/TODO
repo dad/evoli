@@ -17,3 +17,10 @@
   rather than modifying a large set of incoming references (Allan)
 
 * refactor files to adhere to one-class-one-file paradigm (Allan)
+
+After the implementation of the new polymerase class, these things still need to be done:
+- Update binary tests. All the binary tests of the tr-driver program now break, because the new polymerase uses random numbers differently (even if mutation frequencies are homogeneous).
+
+- The test program in src/gene should be removed, and the functions in there integrated into the regression test suite.
+
+
