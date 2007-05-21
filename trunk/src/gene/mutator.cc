@@ -68,6 +68,23 @@ Polymerase::Polymerase(double mutation_rate, const vector<double>& AtoCGT, const
 	prepareMutationMatrix();
 }
 
+Polymerase::Polymerase(double mutation_rate, double GCtoAT, double ATtoGC, double GCtoTA, double GCtoCG, double ATtoCG, double ATtoTA ) {
+	m_mutation_rate = mutation_rate;
+	m_AtoCGT.push_back(ATtoCG);
+	m_AtoCGT.push_back(ATtoGC);
+	m_AtoCGT.push_back(ATtoTA);
+	m_CtoGTA.push_back(GCtoCG);
+	m_CtoGTA.push_back(GCtoAT);
+	m_CtoGTA.push_back(GCtoTA);
+	m_GtoTAC.push_back(GCtoTA);
+	m_GtoTAC.push_back(GCtoAT);
+	m_GtoTAC.push_back(GCtoCG);
+	m_TtoACG.push_back(ATtoTA);
+	m_TtoACG.push_back(ATtoCG);
+	m_TtoACG.push_back(ATtoGC);
+	prepareMutationMatrix();
+}
+
 Polymerase::~Polymerase() {
 }
 
