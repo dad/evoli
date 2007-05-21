@@ -222,7 +222,7 @@ public:
 	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
 	virtual FoldInfo* fold( const Protein& p ) const;
-	bool isFoldedBelowThreshold( const Protein&s, const int structID, double cutoff) const;
+	bool isFoldedBelowThreshold( const Protein &s, const int structID, double cutoff) const;
 	void getMinMaxPartitionContributions(const Protein& s, const int ci, double& cmin, double& cmax) const;
 	/**
 	 * @param s The sequence whose energy is sought.

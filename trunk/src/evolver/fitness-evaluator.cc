@@ -776,9 +776,9 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 		char aa = GeneticCodeUtil::geneticCode(codon);
 		if (m_codon_cost[ci] == 0) {
 			is_optimal[ci] = true;
-		}
-		if (print_report) {
-			cout << aa << ": " << codon << " is optimal" << endl;
+			if (print_report) {
+			  cout << "# " << aa << ": " << codon << " is optimal" << endl;
+			}
 		}
 	}
 	

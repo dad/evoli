@@ -42,6 +42,47 @@ struct TEST_CLASS( mutator_basic )
 			TEST_ASSERT( changed == (g2 != g) );
 		}
 	}
+
+	void TEST_FUNCTION( mutator_push ) {
+		vector<double> AtoCGT;
+		vector<double> CtoGTA;
+		vector<double> GtoTAC;
+		vector<double> TtoACG;
+		AtoCGT.push_back( 1. );	// A -> C
+		AtoCGT.push_back( 0. );	// A -> G
+		AtoCGT.push_back( 0. );	// A -> T
+		CtoGTA.push_back( 1. );	// C -> G
+		CtoGTA.push_back( 0. );	// C -> T
+		CtoGTA.push_back( 0. );	// C -> A
+		GtoTAC.push_back( 1. );	// G -> T
+		GtoTAC.push_back( 0. );	// G -> A
+		GtoTAC.push_back( 0. );	// G -> C
+		TtoACG.push_back( 0. );	// T -> A
+		TtoACG.push_back( 0. );	// T -> C
+		TtoACG.push_back( 0. );	// T -> G
+
+		Polymerase p2( 1, AtoCGT, CtoGTA, GtoTAC, TtoACG );
+		// Every step leads to a certain mutation.  After one step, all A's should be C's;
+		// after two steps, G's, and after three steps, T's.  Similarly all
+		vector<char> steps;
+		steps.push_back('A');
+		steps.push_back('C');
+		steps.push_back('G');
+		steps.push_back('T');
+		steps.push_back('T');
+
+		int L = 10;
+		int reps = steps.size()-1;
+		NucleotideSequence s( L, 'A' );
+		for ( int i=0; i<reps; i++ ) {
+			bool mutated = p2.mutate(s);
+			TEST_ASSERT( reps>2 || mutated ); // Probability of a mutation is 1!
+			for (int j=0; j<L; j++) {
+				//cout << s[j] << " " << steps[i+1] << endl;
+				TEST_ASSERT( s[j] == steps[i+1] );
+			}
+		}
+	}
 };
 
 #endif // _T_MUTATOR_H__
