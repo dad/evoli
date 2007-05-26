@@ -13,7 +13,7 @@ void testPolymerase( const Polymerase& p, int reps, int L )
 	vector<int> GtoTAC( 3 );
 	vector<int> TtoACG( 3 );
 	NucleotideSequence s( L );
-	
+
 	int count = 0;
 
 	for ( int i=0; i<reps; i++ )

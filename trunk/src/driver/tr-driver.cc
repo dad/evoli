@@ -99,35 +99,14 @@ int main( int ac, char **av)
 
 	cout << p;
 	// Create Polymerase based on input parameter p.mutation_rate
-	if (false) {
-		// Biases from Giroux et al. MCB 1988, Table 2
-		vector<double> AtoCGT;
-		vector<double> CtoGTA;
-		vector<double> GtoTAC;
-		vector<double> TtoACG;
-		double laplace = 0.0; // 166 total point mutations sequenced
-		AtoCGT.push_back( 4. + laplace );	// A -> C
-		AtoCGT.push_back( 27. + laplace );	// A -> G
-		AtoCGT.push_back( 10. + laplace );	// A -> T
-		CtoGTA.push_back( 33. + laplace );	// C -> G
-		CtoGTA.push_back( 39. + laplace );	// C -> T
-		CtoGTA.push_back( 53. + laplace );	// C -> A
-		GtoTAC.push_back( 53. + laplace );	// G -> T
-		GtoTAC.push_back( 39. + laplace );	// G -> A
-		GtoTAC.push_back( 33. + laplace );	// G -> C
-		TtoACG.push_back( 10. + laplace );	// T -> A
-		TtoACG.push_back( 27. + laplace );	// T -> C
-		TtoACG.push_back( 4. + laplace );	// T -> G
-		Polymerase poly(p.u, AtoCGT, CtoGTA, GtoTAC, TtoACG);
-	}
 	double GCtoAT = 69.;
 	double ATtoGC = 41.;
 	double GCtoTA = 88.;
 	double GCtoCG = 52.;
 	double ATtoCG = 5.;
 	double ATtoTA = 11.;
-	Polymerase poly(p.u, GCtoAT, ATtoGC, GCtoTA, GCtoCG, ATtoCG, ATtoTA );
-
+	//Polymerase poly(p.u, GCtoAT, ATtoGC, GCtoTA, GCtoCG, ATtoCG, ATtoTA );
+	Polymerase poly(p.u);
 	// Choose the FitnessEvaluator based on input parameters (p.eval_type).
 	ErrorproneTranslation* fe = NULL;
 	if (p.eval_type == "tr") {
