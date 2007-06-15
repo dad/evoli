@@ -1,0 +1,20 @@
+# Parameters:
+#   free energy maximum: -5
+#   codon adaptation cost factor: 6
+#   random seed: 11
+#   genotype file | structure ID: 599
+#   num. gens to equilibrate: 1000
+#   num. gens to measure: 1000
+#   target accuracy: 0.85
+#   reps: 3
+#
+# Invalid filename; interpreting 599 as structure ID and assuming length 25.
+# Seed gene CTGCTTCTTTCAGATTCGTTACACAGGGCGGTCAAACGTCGAGGCAAGCTCGCGTTTTTATTATTAGCGGACTCG
+# Translates to LLLSDSLHRAVKRRGKLAFLLLADS
+# Structure ID 599
+error rate	accuracy weight	error weight
+0.0113855	58.0186	101.945
+0.0119509	57.242	105.575
+0.0112774	60.0573	104.525
+# Averages:
+0.0115379	58.4393	104.015

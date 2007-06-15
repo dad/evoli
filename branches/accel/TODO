@@ -1,0 +1,28 @@
+* place the logic of when a protein is stably folded into folder classes (Claus)
+	- break up FoldInfo into two separate classes. The basic FoldInfo should only know
+	  whether the molecule is stably folded, but not know about DeltaG and StructureID.
+	  Those quantities make already assumptions about the specific method of folding.
+
+	- Once the new structure is fully put into place, the function isFoldedBelowThreshold()
+	  in the CompactLatticeFolder would better fit into a separate class (say a subclass of
+	  the CompactLatticeFolder), where it could replace the fold() function.
+
+* modify Population so that it can handle fitness models where the same sequence may
+  have different fitnesses at different points in time (Claus)
+
+* make function ErrorproneTranslation::getCodonCosts() not return a pointer
+  to an internal data structure. (?)
+
+* convert calcOutcomes(...) and countOutcomes(...) to return a data structure 
+  rather than modifying a large set of incoming references (Allan)
+
+* refactor files to adhere to one-class-one-file paradigm (Allan)
+
+After the implementation of the new polymerase class, these things still need to be done:
+- Update binary tests. All the binary tests of the tr-driver program now break, because the new polymerase uses random numbers differently (even if mutation frequencies are homogeneous).
+
+- The test program in src/gene should be removed, and the functions in there integrated into the regression test suite.
+
+
+* convert programs with long command lines to either use flags or an input file.  Consider using Boost? http://www.boost.org/doc/html/program_options.html (?)
+

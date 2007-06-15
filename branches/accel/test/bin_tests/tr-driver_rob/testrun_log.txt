@@ -1,0 +1,87 @@
+# Parameters:
+#   evaluation type: rob
+#   protein length: 25
+#   structure id: 599
+#   free energy maximum: -5
+#   free energy minimum: -100
+#   per-site mutation rate u: 1e-05
+#   transl. robust. cost factor: 1
+#   codon adaptation cost factor: 3
+#   transl. error rate per codon: 0.0112
+#   transl. accuracy weight: 33.4
+#   transl. error weight: 57.7
+#   population size N: 100
+#   window size tau: 100
+#   equilibration time: 50
+#   repetitions: 1
+#   random seed: 111
+#   run ID: 111
+#
+K: AAA is optimal
+N: AAC is optimal
+K: AAG is optimal
+N: AAU is optimal
+T: ACA is optimal
+T: ACC is optimal
+T: ACG is optimal
+T: ACU is optimal
+R: AGA is optimal
+S: AGC is optimal
+R: AGG is optimal
+S: AGU is optimal
+I: AUA is optimal
+I: AUC is optimal
+M: AUG is optimal
+I: AUU is optimal
+Q: CAA is optimal
+H: CAC is optimal
+Q: CAG is optimal
+H: CAU is optimal
+P: CCA is optimal
+P: CCC is optimal
+P: CCG is optimal
+P: CCU is optimal
+R: CGA is optimal
+R: CGC is optimal
+R: CGG is optimal
+R: CGU is optimal
+L: CUA is optimal
+L: CUC is optimal
+L: CUG is optimal
+L: CUU is optimal
+E: GAA is optimal
+D: GAC is optimal
+E: GAG is optimal
+D: GAU is optimal
+A: GCA is optimal
+A: GCC is optimal
+A: GCG is optimal
+A: GCU is optimal
+G: GGA is optimal
+G: GGC is optimal
+G: GGG is optimal
+G: GGU is optimal
+V: GUA is optimal
+V: GUC is optimal
+V: GUG is optimal
+V: GUU is optimal
+*: UAA is optimal
+Y: UAC is optimal
+*: UAG is optimal
+Y: UAU is optimal
+S: UCA is optimal
+S: UCC is optimal
+S: UCG is optimal
+S: UCU is optimal
+*: UGA is optimal
+C: UGC is optimal
+W: UGG is optimal
+C: UGU is optimal
+L: UUA is optimal
+F: UUC is optimal
+L: UUG is optimal
+F: UUU is optimal
+t=1; t=101; 
+[1/1] 
+
+# Folded 5618 proteins
