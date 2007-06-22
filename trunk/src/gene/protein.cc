@@ -37,7 +37,7 @@ Protein Protein::createRandom(unsigned int length) {
 	Protein p(length, 'A');
 	Protein::iterator pit = p.begin();
 	for (; pit != p.end(); pit++) {
-		char aa = GeneticCodeUtil::indexToAminoAcidLetter(Random::rint(20)+1);
+		char aa = GeneticCodeUtil::indexToAminoAcidLetter(Random::rint(20));
 		*pit = aa;
 	}
 	return p;
