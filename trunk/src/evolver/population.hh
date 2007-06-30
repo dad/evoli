@@ -247,6 +247,7 @@ void Population<Organism, FitnessEvaluator, Mutator>::init( const Organism &g, F
 	
 	// get the parent fitness
 	double f = m_fitness_evaluator->getFitness( g );
+	assert( f > 0.0 );
 	
 	// create the parent of all organisms
 	GenebankEntry<Organism> *parent = m_genebank.createOrganism( g, f, 0, 0 );
@@ -273,6 +274,7 @@ GenebankEntry<Organism>* Population<Organism, FitnessEvaluator, Mutator>::create
 
 	assert( m_fitness_evaluator != 0 );
 	double f =  m_fitness_evaluator->getFitness( g );
+	assert( f > 0.0 );
 	return m_genebank.createOrganism( g, f, e, m_time );
 }
 
@@ -324,15 +326,26 @@ void Population<Organism, FitnessEvaluator, Mutator>::evolve()
 		fitnessSum += (*g)->getFitness();
 		(*bin) = fitnessSum; bin++;
 	}
-	// now normalize the bins
-	for (int i=0; i<m_N; i++)
-		m_selectionBins[i] /= fitnessSum;
+	assert(fitnessSum > 0.0);
+	if (fitnessSum <= 0.0) {
+		cout << m_time << ": got <= 0 fitness sum " << fitnessSum << endl;
+	}
 
+	// now normalize the bins
+	for (int i=0; i<m_N; i++) {
+		m_selectionBins[i] /= fitnessSum;
+	}
 
 	// now do the selection/mutation step
 	for ( int i=0; i<m_N; i++ ) {
 		index = Random::randintFromDistr( m_selectionBins, m_N );
-		m_pop[outBuffer][i] =  createOffspring( m_pop[m_buffer][index] );
+		double f = m_pop[m_buffer][index]->getFitness();
+		assert( f > 0.0);
+		if (f <= 0.0) {
+			cout << "reproducing with fitness <= 0.0" << endl;
+		}
+		
+		m_pop[outBuffer][i] = createOffspring( m_pop[m_buffer][index] );
 	}
 
 	// un-register the organisms of the old generation
