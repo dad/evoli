@@ -89,6 +89,7 @@ misfold_setErrorRate(PyObject *self /* Not used */, PyObject *args)
 		return NULL;
 	}
 	fitness_evaluator->setErrorRate(error_rate);
+	return Py_None;
 }
 
 static char misfold_getErrorRate__doc__[] =
