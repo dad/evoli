@@ -73,6 +73,30 @@ misfold_countOutcomes(PyObject *self /* Not used */, PyObject *args)
 	return Py_BuildValue("iiii", cfacc, cfrob, cftrunc, cffold);
 }
 
+static char misfold_countOutcomeFractions__doc__[] =
+""
+;
+
+static PyObject *
+misfold_countOutcomeFractions(PyObject *self /* Not used */, PyObject *args)
+{
+	const char *gene_sequence;
+	int num_to_fold;
+	if (!fitness_evaluator) {
+		PyErr_SetString(MisfoldErrorObject, "uninitialized misfold object: call 'misfold.init(...)' first");
+		return NULL;
+	}
+	if (!PyArg_ParseTuple(args, "si", &gene_sequence, &num_to_fold)) {
+		return NULL;
+	}
+	CodingDNA g(gene_sequence);
+	int nfold, nacc, nrob, ntrunc;
+	fitness_evaluator->countOutcomes(g, num_to_fold, nfold, nacc, nrob, ntrunc);
+	double ntf = static_cast<double>(num_to_fold);
+			   
+	return Py_BuildValue("dddd", nfold/ntf, nacc/ntf, nrob/(ntf-nacc), ntrunc/ntf);
+}
+
 static char misfold_setErrorRate__doc__[] =
 ""
 ;
@@ -134,6 +158,7 @@ misfold_init(PyObject *self /* Not used */, PyObject *args)
 static struct PyMethodDef misfold_methods[] = {
 	{"calcOutcomes",	(PyCFunction)misfold_calcOutcomes,	METH_VARARGS, misfold_calcOutcomes__doc__},
 	{"countOutcomes",	(PyCFunction)misfold_countOutcomes,	METH_VARARGS, misfold_countOutcomes__doc__},
+	{"countOutcomeFractions",	(PyCFunction)misfold_countOutcomeFractions,	METH_VARARGS, misfold_countOutcomeFractions__doc__},
 	{"setErrorRate",	(PyCFunction)misfold_setErrorRate,	METH_VARARGS, misfold_setErrorRate__doc__},
 	{"getErrorRate",	(PyCFunction)misfold_getErrorRate,	METH_VARARGS, misfold_getErrorRate__doc__},
 	{"init",	(PyCFunction)misfold_init,	METH_VARARGS, misfold_init__doc__},
