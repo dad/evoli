@@ -33,6 +33,18 @@ struct TEST_CLASS( protein_gene_basic )
 {
 	const static int side_length = 5;
 	const static int gene_length = side_length*side_length*3;
+
+	int countAminoAcids(char aa, const Protein& p){
+	  int count = 0;
+	  for (int i=0; i<p.size(); i++) {
+		if (p[i] == aa) {
+		  count++;
+		}
+	  }
+	  return count;
+	}
+
+
 	
 	void TEST_FUNCTION( sequence_from_string ) {
 		string str("ACTGCT");
@@ -136,6 +148,18 @@ struct TEST_CLASS( protein_gene_basic )
 		Protein p1 = g.translate();
 		Protein p2(p1.toString());
 		TEST_ASSERT( p1 == p2 );
+	}
+	void TEST_FUNCTION( random_protein ) {
+	  string letters = "ACDEFGHIKLMNPQRSTVWY";
+	  Protein p = Protein::createRandom(1000);
+	  for (int i=0; i<letters.size(); i++) {
+		char aa = letters[i];
+		int count = countAminoAcids(aa, p);
+		// Let this be random; the probability of failure is 
+		// extraordinarily low for a sequence of this length.
+		TEST_ASSERT(count > 0);
+	  }
+
 	}
 };
 
