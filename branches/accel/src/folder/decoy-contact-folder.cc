@@ -111,11 +111,10 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 	double kT = 0.6;
 	double minG = 1e50;
 	int minIndex = -1;
-
+	vector<unsigned int> aa_indices(s.size());
 	double sumG = 0.0;
 	double sumsqG = 0.0;
 
-	vector<unsigned int> aa_indices(s.size());
 	bool valid = getAminoAcidIndices(s, aa_indices);
 	if (!valid) {
 		return new DecoyFoldInfo(false, false, 9999, -1, 9999, 9999, 9999);
@@ -177,6 +176,14 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 	m_num_folded += 1;
 	return new DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
 }
+
+DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein& p, const DecoyHistoryFoldInfo* history) const {
+  DecoyFoldInfo* fi = fold(p); //DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
+  vector<double> temp_list(m_structures.size(), 0.0);
+  DecoyHistoryFoldInfo* dhfi = new DecoyHistoryFoldInfo(*fi, p, temp_list);
+  return dhfi;
+}
+
 
 
 void ContactMapUtil::readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs) {

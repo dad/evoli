@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 using namespace std;
 
 
-/** \brief Basic class to store a genetic sequence of any type (DNA, protein).
+/** \brief Basic class to store a biological sequence of any type (DNA, protein).
 **/
 
 //typedef string Sequence;

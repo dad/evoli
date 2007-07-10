@@ -42,19 +42,82 @@ protected:
 	double m_min_G;
 	
 public:
-	DecoyFoldInfo( bool fold_is_stable, bool fold_is_target, double fe, StructureID sid, double mean_G, double var_G, double min_G)
-		: FoldInfo( fold_is_stable, fold_is_target, fe, sid)
+  DecoyFoldInfo( const FoldInfo& fi, double mean_G, double var_G, double min_G)
+    : FoldInfo( fi.foldIsStable(), fi.foldMatchesTarget(), fi.getDeltaG(), fi.getStructure()) {
+    m_var_G = var_G;
+    m_mean_G = mean_G;
+    m_min_G = min_G;
+  }
+  DecoyFoldInfo( bool fold_is_stable, bool fold_is_target, double fe, StructureID sid, double mean_G, double var_G, double min_G)
+    : FoldInfo( fold_is_stable, fold_is_target, fe, sid)
+  {
+    m_var_G = var_G;
+    m_mean_G = mean_G;
+    m_min_G = min_G;
+  }
+
+  virtual ~DecoyFoldInfo() {}
+  
+  double getUnfoldedDeltaGMean() const { return m_mean_G; }
+  double getUnfoldedDeltaGVariance() const { return m_var_G; }
+  double getMinEnergy() const { return m_min_G; }
+};
+
+
+/******************* Beginning of DecoyHistoryFoldInfo Implementation*******************/
+
+class DecoyHistoryFoldInfo : public DecoyFoldInfo {
+public:
+  DecoyHistoryFoldInfo( bool fold_is_stable, bool fold_is_target, double fe, StructureID sid, double mean_G, double var_G, double min_G, const Protein& p, vector<double>& energy_list)
+		: DecoyFoldInfo( fold_is_stable, fold_is_target, fe, sid, mean_G, var_G, min_G)
 	{
-		m_var_G = var_G;
-		m_mean_G = mean_G;
-		m_min_G = min_G;
+	}
+
+  DecoyHistoryFoldInfo( const DecoyFoldInfo& fi, const Protein& p, vector<double>& energy_list)
+    : DecoyFoldInfo( fi )
+	{
+	  
+	}
+	virtual ~DecoyHistoryFoldInfo() {}
+};
+/*
+  protected:
+  vector<double> m_structure_energies;
+  Protein m_protein;
+
+public:
+ 
+  DecoyHistoryFoldInfo( double m_var_G, double m_mean_G, double m_min_G, StructureID sid, double mean_G, double var_G, double min_G)
+		: DecoyFoldInfo( fold_is_stable, fold_is_target, fe, sid)
+	{
+	  m_var_G = var_G;
+	  m_mean_G = mean_G;
+	  m_min_G = min_G;
 	}
 	virtual ~DecoyFoldInfo() {}
 
 	double getUnfoldedDeltaGMean() const { return m_mean_G; }
 	double getUnfoldedDeltaGVariance() const { return m_var_G; }
-	double getMinEnergy() const { return m_min_G; }
+	double getMinEnergy() const { return m_min_G; }public:
+
+	DecoyHistoryFoldInfo( bool fold_is_stable, bool fold_is_target, double fe, StructureID sid, double mean_G, double var_G, double min_G)
+		: DecoyFoldInfo( fold_is_stable, fold_is_target, fe, sid)
+	{
+	  m_var_G = var_G;
+	  m_mean_G = mean_G;
+	  m_min_G = min_G;
+	}
+
+  virtual ~DecoyHistoryFoldInfo() {}
+
+  vector<double>m_structure_energies;
+  Protein m_protein;
+
 };
+
+/******************* End of DecoyHistoryFoldInfo Implementation*************************/
+
+
 
 
 /**
@@ -166,6 +229,10 @@ public:
 	virtual DecoyFoldInfo* fold(const Protein& p) const;
 
 	/**
+	 **/
+	virtual DecoyHistoryFoldInfo* foldWithHistory(const Protein& p, const DecoyHistoryFoldInfo* history) const;
+
+	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
@@ -190,7 +257,6 @@ struct ContactMapUtil {
 };
 
 #endif // DECOY_CONTACT_FOLDER_HH
-
 
 
 

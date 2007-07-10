@@ -154,6 +154,29 @@ struct TEST_CLASS( folder_basic )
 		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
 		return;
 	}
+	void TEST_FUNCTION( fold_with_history )
+	{
+		int protein_length = 300;
+		double log_nconf = 160.0*log(10.0);
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
+		
+		TEST_ASSERT( folder.good() );
+		if (!folder.good() )
+			return;
+		Protein p(stable_seq);
+		auto_ptr<FoldInfo> fi( folder.fold( p ) );
+		//FoldInfo* real_fi = folder.fold(p);
+		//auto_ptr<FoldInfo> fi( real_fi );
+		
+		DecoyHistoryFoldInfo *dhfi = NULL;
+		dhfi = folder.foldWithHistory(p, dhfi);
+		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
+		// Now do some real test
+		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
+		TEST_ASSERT(auto_dhfi->getProtein() == p);
+	}
 };
 
 
