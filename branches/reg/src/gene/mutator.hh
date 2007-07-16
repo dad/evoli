@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 #include "tools.hh"
 #include "coding-sequence.hh"
+#include "expressible-gene.hh"
 
 using namespace std;
 
@@ -122,6 +123,25 @@ public:
 	 * @return Whether any mutations occurred.
 	 **/
 	virtual bool mutate(NucleotideSequence& dna) const;
+};
+
+class ExpressibleGenePolymerase : public Polymerase {
+public:
+	ExpressibleGenePolymerase(double mutation_rate) : Polymerase(mutation_rate) {}
+	virtual ~ExpressibleGenePolymerase() {}
+
+	bool mutate(ExpressibleGene& gene) {
+		NucleotideSequence& prom = gene.getPromoter();
+		//cout << prom << endl;
+		NucleotideSequence& dna = gene.getCodingDNA();
+		
+		bool prom_mut = Polymerase::mutate(prom);
+		bool code_mut = Polymerase::mutate(dna);
+		/*if (prom_mut)
+		  cout << "mp: " << prom << endl;*/
+		return (prom_mut || code_mut);
+	}
+
 };
 
 #endif // MUTATOR_HH

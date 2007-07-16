@@ -42,9 +42,12 @@ evolved_dg_dist_LDADD = $(libraries)
 snp_mistrans_stability_SOURCES = snp-mistrans-stability.cc
 snp_mistrans_stability_LDADD = $(libraries)
 
+mistime_SOURCES = mistime.cc
+mistime_LDADD = $(libraries)
+
 bin_PROGRAMS = sequence-generator decoy-sequence-generator decoy-sequence-analyzer \
 	structure-printer misfold get-weights gb-analyzer evolved-dg-dist snp-mistrans-stability \
-	neutral-evolve
+	neutral-evolve mistime
 
 CLEANFILES = pdbcontacts.pyc pdb.pyc
 

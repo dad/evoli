@@ -528,6 +528,34 @@ public:
     double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
 };
 
+
+class ExpressibleGeneFitness {
+	FitnessEvaluator* m_fe;
+	TranscriptionFactor* m_tf;
+	BindingInteraction* m_binding_inter;
+public:
+	ExpressibleGeneFitness(FitnessEvaluator* fe, TranscriptionFactor* tf, BindingInteraction* bi) :
+		m_fe(fe), m_tf(tf), m_binding_inter(bi) {}
+	virtual ~ExpressibleGeneFitness() {}
+
+	FitnessEvaluator* getFitnessEvaluator() {
+		return m_fe;
+	}
+
+	virtual double getFitness( const ExpressibleGene& gene ) {
+		double expression_level = gene.express(*m_tf, *m_binding_inter, 0);
+		//double cost_constant = 0.0001;
+		//cout << "gf: " << expression_level << endl;
+		if (expression_level > 0) {
+			const CodingDNA& dna = gene.getCodingDNA();
+			return m_fe->getFitness(dna);
+		}
+		else {
+			return 1.;
+		}
+	}
+};
+
 /**
  * Computes the probability of fixation of a mutant with fitness advantage s in a population of size N.
  *
