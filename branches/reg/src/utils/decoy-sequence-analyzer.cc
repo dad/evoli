@@ -93,7 +93,7 @@ int main( int ac, char **av)
 		if (seq[0] != '#') {
 			Protein p(seq);
 			auto_ptr<FoldInfo> fi( folder.fold(p) );
-			cout << seq << " " << fi->getFreeEnergy() << " " << fi->getStructure() << endl;
+			cout << seq << " " << fi->getDeltaG() << " " << fi->getStructure() << endl;
 		}
 	}
 

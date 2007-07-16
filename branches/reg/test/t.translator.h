@@ -39,7 +39,7 @@ public:
 	//									   const vector<vector<pair<double, int> > >& weights, const double* prefCodons, 
 	//									   const double nonPrefCodonPenalty, bool& truncated)
 
-	const vector<vector<pair<double, int> > >& getWeights() {
+	const vector<vector<pair<double, char> > >& getWeights() {
 		return m_cum_weight_matrix;
 	}
 	const double* getPrefCodons() {
@@ -55,7 +55,7 @@ struct TEST_CLASS( translator_basic )
 	void TEST_FUNCTION( native_sequence_truncated )
 	{
 		CompactLatticeFolder folder(side_length);
-		Gene g("AUGCGUUAAGGG");
+		CodingDNA g("ATGCGTTAAGGG");
 		Translator t(0);
 		TranslationTester t_tester(&folder);
 		Protein p(g.codonLength());
@@ -64,8 +64,8 @@ struct TEST_CLASS( translator_basic )
 		numErrors = t.translateRelativeWeighted(g, p, 50, t_tester.getWeights(), t_tester.getPrefCodons(), 6, truncated);
 		TEST_ASSERT( numErrors == 0 );
 		TEST_ASSERT( truncated );
-		string prot_str = p.toString();
-		TEST_ASSERT( prot_str[0] == 'M' );
+		//cout << p << endl;
+		TEST_ASSERT( p[0] == 'M' );
 		return;
 	}
 };

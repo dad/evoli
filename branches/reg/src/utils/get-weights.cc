@@ -45,7 +45,7 @@ compact lattice model).
 #include "population.hh"
 #include "translator.hh"
 #include "tools.hh"
-#include "gene-util.hh"
+#include "folder-util.hh"
 #include "random.hh"
 
 #include <cmath>
@@ -144,7 +144,7 @@ StructureID getStructureID( Folder *b, const Gene &g ) {
 	if ( g.encodesFullLength() ) {
 		Protein p = g.translate();
 		auto_ptr<FoldInfo> fi( b->fold(p) );
-		cout << fi->getStructure() << " " << fi->getFreeEnergy() << flush << endl;
+		cout << fi->getStructure() << " " << fi->getDeltaG() << flush << endl;
 		return fi->getStructure();
 	}
 	else
@@ -174,7 +174,7 @@ void getWeightsExperiment(Parameters& p)
 		cout << "# Invalid filename; interpreting " << p.genotype_file_name << " as structure ID and assuming length 25." << endl;
 		StructureID struct_id = (StructureID)(atoi(p.genotype_file_name.c_str()));
 		folder = new CompactLatticeFolder(5);
-		seed_gene = GeneUtil::getSequenceForStructure(*folder, 75, p.free_energy_cutoff, struct_id);
+		seed_gene = FolderUtil::getSequenceForStructure(*folder, 75, p.free_energy_cutoff, struct_id);
 		cout << "# Seed gene " << seed_gene << endl;
 		cout << "# Translates to " << seed_gene.translate() << endl;
 		auto_ptr<FoldInfo> fi( folder->fold(seed_gene.translate()) );

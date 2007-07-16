@@ -24,7 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "cutee.h"
 #include "decoy-contact-folder.hh"
 #include "compact-lattice-folder.hh"
+#include "coding-sequence.hh"
 #include "protein.hh"
+#include "folder-util.hh"
+#include "random.hh"
+
 #include <fstream>
 #include <cmath>
 #include <memory>
@@ -39,7 +43,7 @@ struct TEST_CLASS( folder_basic )
 		CompactLatticeFolder folder(side_length);
 		Protein p("CSVMQGGKTVFQMPIIERVMQAYNI"); //Gene::createRandomNoStops(gene_length);
 		auto_ptr<FoldInfo> fi( folder.fold(p) );
-		TEST_ASSERT( fabs(fi->getFreeEnergy()-0.564) < 1e-2 );
+		TEST_ASSERT( fabs(fi->getDeltaG()-0.564) < 1e-2 );
 		TEST_ASSERT( fi->getStructure() == (StructureID)225 );
 		return;
 	}
@@ -54,11 +58,11 @@ struct TEST_CLASS( folder_basic )
 			return;
 		int num_to_fold = 1;
 		for (int j=0; j<num_to_fold; j++) {
-			Gene g = Gene::createRandomNoStops(protein_length*3);
+			CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
 			Protein p = g.translate();
 			auto_ptr<FoldInfo> fi( folder.fold(p) );
 			TEST_ASSERT(fi->getStructure()>-1);
-			//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
+			//cout << "folded:" << tab << fi.getStructure() << tab << fi.getDeltaG() << endl;
 		}
 		// Clean up
 		return;
@@ -74,9 +78,9 @@ struct TEST_CLASS( folder_basic )
 			return;
 		Protein p("PRPEEEKKKREREEKRRKEDKLERIRDLPRKILKMIVEPKRRKKGETEDDDEKESKRREEMEKFKREFFTICIKLLECEEEMARRREKRREEEDIDSLRELMKDCRRFIDDPRRVEQQSQRLDFRSRRKLEDEKDDEDKRKPDFLFEFEMCEEDMRRRPLDRVKDICRVCCEMDEEEEIREEEEFFRPEEEDMKLKSFRESFKDVRRCILRKFEKSRREKSAEFLRHEIPMFSSEDEEDRKKKDRRRQRPMMRHFMKRIKEKEEERKKREFKEQEEPKPKSFKWKTEEEMEELGEQEKRV");
 		auto_ptr<FoldInfo> fi( folder.fold(p) );
-		//cout << fi.getFreeEnergy() << " " << fi.getStructure() << endl;
+		//cout << endl << fi->getDeltaG() << " " << fi->getStructure() << endl;
 		//cout << p << endl;
-		TEST_ASSERT( fabs(fi->getFreeEnergy()-0.00732496)<1e-4 );
+		TEST_ASSERT( fabs(fi->getDeltaG()-0.00732496)<1e-4 );
 		TEST_ASSERT( fi->getStructure() == (StructureID)0 );
 	}
 
@@ -130,10 +134,26 @@ struct TEST_CLASS( folder_basic )
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
 		TEST_ASSERT(fi->getStructure()==34);
 		//cout << "Williams:" << endl;
-		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getFreeEnergy() << endl;
+		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getDeltaG() << endl;
 		// Clean up
 	}
 
+	void TEST_FUNCTION( sequence_for_structure )
+	{
+		CompactLatticeFolder folder(side_length);
+		double max_dg = -1;
+		int sid = 574;
+		Random::seed(11);
+		int nfolded = folder.getNumFolded();
+		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		//cout << "num folded: " << (folder.getNumFolded() - nfolded) << endl;
+		Protein p = g.translate();
+		//cout << "xx" << p << endl;
+		auto_ptr<FoldInfo> fi( folder.fold(p) );
+		TEST_ASSERT( fi->getDeltaG() <= max_dg );
+		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
+		return;
+	}
 };
 
 

@@ -162,7 +162,7 @@ struct ltstr {
 };
 
 
-class CompactLatticeFolder : public Folder {
+class CompactLatticeFolder : public DGCutoffFolder {
 private:
 	// some useful typedefs
 	typedef hash_map<const char*, int, hash<const char*>, eqstr> StructureMap;
@@ -206,7 +206,7 @@ protected:
 	//return ProteinContactEnergies::MJ85TableVI[residue1][residue2]; }
 
 public:
-	CompactLatticeFolder( int size );
+	CompactLatticeFolder( int size, double deltaG_cutoff = 0, StructureID target_sid = -1 );
 	virtual ~CompactLatticeFolder();
 
 	/**
@@ -214,22 +214,22 @@ public:
 	@return True if the folder is in good working order, False otherwise.
 	 **/
 	virtual bool good() const { return m_structures.size() > 0; }
-	
+
 	/**
 	 * Folds a protein. See Folder::fold() for details.
 	 *
 	 * @param s The sequence to be folded.
 	 * @return The folding information (of type DecoyFoldInfo).
 	 **/
-	virtual FoldInfo* fold( const Sequence& s ) const;
-	bool isFoldedBelowThreshold( const Sequence&s, const int structID, double cutoff) const;
-	void getMinMaxPartitionContributions(const Sequence& s, const int ci, double& cmin, double& cmax) const;
+	virtual FoldInfo* fold( const Protein& p ) const;
+	bool isFoldedBelowThreshold( const Protein &s, const int structID, double cutoff) const;
+	void getMinMaxPartitionContributions(const Protein& s, const int ci, double& cmin, double& cmax) const;
 	/**
 	 * @param s The sequence whose energy is sought.
 	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
-	 **/ 
-	virtual double getEnergy(const Sequence& s, StructureID sid) const;
+	 **/
+	virtual double getEnergy(const Protein& s, StructureID sid) const;
 
 	void printContactEnergyTable( ostream &s ) const;
 	void printStructure( int id, ostream& os, const char* prefix ) const;
@@ -245,7 +245,12 @@ public:
 	\return A pointer to the corresponding LatticeStructure.
 	*/
 	LatticeStructure* getStructure( StructureID sid ) const {
-		return m_structures[sid];
+		if (sid >= 0 && sid < m_num_structures) {
+			return m_structures[sid];
+		}
+		else {
+			return NULL;
+		}
 	}
 
 	/**
@@ -253,6 +258,12 @@ public:
 	*/
 	uint getNumFolded() const {
 		return m_num_folded;
+	}
+	/**
+	 @return The number of structures into which sequences can fold.
+	 **/
+	uint getNumStructures() const {
+		return m_num_structures;
 	}
 };
 

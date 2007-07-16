@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "protein.hh"
 #include "folder.hh"
 #include "decoy-contact-folder.hh"
-#include "gene-util.hh"
+#include "folder-util.hh"
 
 
 static PyObject *FolderErrorObject;
@@ -50,8 +50,8 @@ decoyfolder_fold(PyObject *self /* Not used */, PyObject *args)
 	}
 	Protein p(protein_sequence);
 	auto_ptr<FoldInfo> fd( folder->fold(p) );
-	//cout << folding_data.getStructure() << " " << folding_data.getFreeEnergy() << endl << p << endl;
-	return Py_BuildValue("if", fd->getStructure(), fd->getFreeEnergy());
+	//cout << folding_data.getStructure() << " " << folding_data.getDeltaG() << endl << p << endl;
+	return Py_BuildValue("if", fd->getStructure(), fd->getDeltaG());
 }
 
 static char decoyfolder_foldStats__doc__[] =
@@ -71,8 +71,8 @@ decoyfolder_foldStats(PyObject *self /* Not used */, PyObject *args)
 	}
 	Protein p(protein_sequence);
 	auto_ptr<DecoyFoldInfo> folding_data( dynamic_cast<DecoyFoldInfo*>( folder->fold(p) ) );
-	//cout << folding_data.getStructure() << " " << folding_data.getFreeEnergy() << endl << p << endl;
-	return Py_BuildValue("iffff", folding_data->getStructure(), folding_data->getFreeEnergy(), folding_data->getUnfoldedFreeEnergyMean(), folding_data->getUnfoldedFreeEnergyVariance(), folding_data->getMinEnergy());
+	//cout << folding_data.getStructure() << " " << folding_data.getDeltaG() << endl << p << endl;
+	return Py_BuildValue("iffff", folding_data->getStructure(), folding_data->getDeltaG(), folding_data->getUnfoldedDeltaGMean(), folding_data->getUnfoldedDeltaGVariance(), folding_data->getMinEnergy());
 }
 
 static char decoyfolder_getEnergy__doc__[] =
@@ -115,7 +115,7 @@ decoyfolder_getSequenceForStructure( PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "idi", &protein_length, &free_energy_cutoff, &struct_id )) {
 		return NULL;
 	}
-	Gene g = GeneUtil::getSequenceForStructure(*folder, 3*protein_length, free_energy_cutoff, struct_id);
+	Gene g = FolderUtil::getSequenceForStructure(*folder, 3*protein_length, free_energy_cutoff, struct_id);
 	//cout << 3*protein_length << " " << free_energy_cutoff << " " << struct_id << " " << g << endl;
 	Protein p = g.translate();
 	

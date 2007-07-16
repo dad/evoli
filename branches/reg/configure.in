@@ -5,7 +5,7 @@
 
 AC_PREREQ(2.57)
 
-AC_INIT([evoli], [0.1], [dadrummond@gmail.com])
+AC_INIT([evoli], [1.0], [dadrummond@gmail.com])
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([src/folder/folder.hh])
 AM_INIT_AUTOMAKE([1.6.3 foreign])
@@ -80,7 +80,15 @@ AM_CONDITIONAL(BUILD_APIDOC, test x$bapidoc = xyes)
 # **********************************************
 #                 Makefile generation
 # **********************************************
-AC_CONFIG_FILES([Makefile src/Makefile src/tools/Makefile src/driver/Makefile src/folder/Makefile
-				src/evolver/Makefile src/python/Makefile src/utils/Makefile
-				doc/Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile 
+		src/Makefile 
+		src/tools/Makefile 
+		src/gene/Makefile 
+		src/folder/Makefile
+		src/evolver/Makefile 
+		src/driver/Makefile 
+		src/utils/Makefile
+		src/python/Makefile
+		doc/Makefile 
+		test/Makefile])
 AC_OUTPUT

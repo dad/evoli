@@ -35,10 +35,9 @@ public:
 	FitnessEvaluator();
 	virtual ~FitnessEvaluator();
 
-	virtual double getFitness( const Gene& ) = 0;
+	virtual double getFitness( const CodingDNA& ) = 0;
 	virtual double getFitness( const Protein& ) = 0;
 };
-
 
 class ProteinFreeEnergyFitness : public FitnessEvaluator {
 private:
@@ -49,7 +48,7 @@ public:
 	ProteinFreeEnergyFitness( Folder *protein_folder );
 	virtual ~ProteinFreeEnergyFitness();
 
-	double getFitness( const Gene& g );
+	double getFitness( const CodingDNA& g );
 	double getFitness( const Protein& p );
 };
 
@@ -67,19 +66,21 @@ public:
 	virtual ~ProteinStructureFitness();
 
 	void setFreeEnergyCutoff(double cutoff) { m_max_free_energy = cutoff; }
-	double getFreeEnergyCutoff() const { return m_max_free_energy; }
+	double getDeltaGCutoff() const { return m_max_free_energy; }
 
-	double getFitness( const Gene& g );
+	double getFitness( const CodingDNA& g );
 	double getFitness( const Protein& p );
 };
 
-
+/**
+ * \brief A \ref FitnessEvaluator that assigns equal fitness to all sequences.
+ */
 class NeutralFitness : public FitnessEvaluator {
 public:
 	NeutralFitness();
 	virtual ~NeutralFitness();
 
-	double getFitness( const Gene& ) {
+	double getFitness( const CodingDNA& ) {
 		return 1;
 	}
 	double getFitness( const Protein& ) {
@@ -114,14 +115,14 @@ protected:
 	This weight matrix contains the probability that a given codon will
 	be mistranslated as a given amino acid, including a stop (at pos 20).
 	*/
-	vector<vector<double> > m_weight_matrix;
+	//vector<vector<double> > m_weight_matrix;
 
 	/**
 	This weight matrix contains the sorted cumulative probability that
 	a given codon will be mistranslated as a given amino acid, including
 	a stop.
 	*/
-	vector<vector<pair<double, int> > > m_cum_weight_matrix;
+	vector<vector<pair<double, char> > > m_cum_weight_matrix;
 
 	double calcWeight( int co, int ct );
 	virtual bool sequenceFolds(Protein& p);
@@ -129,7 +130,7 @@ protected:
 	/**
 	 * Compute the translational accuracy-related gene weights of a large set of random genotypes encoding folded proteins.
 	 */
-	void setRandomWeights(const Gene& seed_genotype, const int num_equil=5000, const int num_rand=1000);
+	void setRandomWeights(const CodingDNA& seed_genotype, const int num_equil=5000, const int num_rand=1000);
 
 	/**
 	 * Build the weight matrices that will be used in translating genes.
@@ -169,6 +170,21 @@ public:
 	ErrorproneTranslation(Folder *protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate );
 
 	/**
+	 * \brief Create new ErrorproneTranslation object from a preexisting object.
+	 **/
+	ErrorproneTranslation(const ErrorproneTranslation& ept) {
+		m_protein_folder = ept.m_protein_folder;
+		m_protein_length = ept.m_protein_length;
+		m_protein_structure_ID = ept.m_protein_structure_ID;
+		m_max_free_energy = ept.m_max_free_energy;
+		m_ca_cost = ept.m_ca_cost;
+		m_error_rate = ept.m_error_rate;
+		m_accuracy_weight = ept.m_accuracy_weight;
+		m_error_weight = ept.m_error_weight;
+		buildWeightMatrix();
+	}
+
+	/**
 	 * \brief Destroy this ErrorproneTranslation object.
 	 **/
 	virtual ~ErrorproneTranslation();
@@ -180,23 +196,23 @@ public:
 		m_protein_structure_ID = structure_ID;
 	}
 
-	double getFitness( const Gene& g );
+	double getFitness( const CodingDNA& g );
 	double getFitness( const Protein& p );
 
 	/**
-	Tests whether the protein encoded by the \ref Gene g folds
+	Tests whether the protein encoded by the \ref CodingDNA g folds
 	correctly. Calls \ref sequenceFolds(), which may be overridden
 	in interesting ways.
-	@param g The \ref Gene to test.
+	@param g The \ref CodingDNA to test.
 	@return True if the protein folds correctly, False otherwise.
 	*/
-	virtual bool getFolded( const Gene& g );
+	virtual bool getFolded( const CodingDNA& g );
 
 	/**
 	Set fitness costs for codons. The implemented cost scheme weights
 	each codon by the alphabetical order of its one-letter code.
 	*/
-	virtual void setCodonCosts();
+	//virtual void setCodonCosts();
 
 	/**
 	Writes the currently defined codon costs to a stream.
@@ -209,7 +225,7 @@ public:
 	the pointer will become invalid upon destruction of the \ref ErrorproneTranslation class.
 	*/
 	double* getCodonCosts() const;
-	vector<vector<pair<double, int> > > getTranslationWeights() const;
+	vector<vector<pair<double, char> > > getTranslationWeights() const;
 
 	/**
 	@return A vector of bools indicating whether a given codon
@@ -255,7 +271,7 @@ public:
 	and unpreferred codons is 6, then the site weight is 6.
 
 	The "error weight" for a gene is the sum of its site
-	weights. Genes with higher error weights are more likely to be
+	weights. CodingDNAs with higher error weights are more likely to be
 	mistranslated, though in some cases the translation errors may be
 	synonymous.
 
@@ -283,13 +299,13 @@ public:
 	@param error_weight Stores computed error weight (see above).
 	@param accuracy_weight Stores computed accuracy weight (see above).
 	 */
-	void getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_fraction_accurate, double& error_rate,
+	void getWeightsForTargetAccuracy(const CodingDNA& seed_genotype, const double target_fraction_accurate, double& error_rate,
 									 double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand);
 
 	/**
 	 * Given a [[DAD: is this used?]]
 	 **/
-	void setTargetAccuracyOfRandomGenes(const Gene& seed_genotype, const double target_fraction_accurate, const int num_equil, const int num_rand);
+	void setTargetAccuracyOfRandomGenes(const CodingDNA& seed_genotype, const double target_fraction_accurate, const int num_equil, const int num_rand);
 
 	/**
 	 * Sets the translational error rate per codon directly.
@@ -337,7 +353,7 @@ public:
 	 * @param frac_folded The estimated fraction of folded proteins from this gene.
 	 * @return The fitness that would result from these estimated translation outcomes.
 	 **/
-	virtual double calcOutcomes( const Gene& g, double& frac_accurate, double& frac_robust, double& frac_truncated, double& frac_folded );
+	virtual double calcOutcomes( const CodingDNA& g, double& frac_accurate, double& frac_robust, double& frac_truncated, double& frac_folded );
 
 	/**
 	 *	Record the actual fractions accurately translated, folded despite
@@ -352,12 +368,12 @@ public:
 	 * @param num_folded The observed number of folded proteins from this gene.
 	 * @return The fitness that would result from the generated set of proteins.
 	 **/
-	virtual double countOutcomes(const Gene& g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
+	virtual double countOutcomes(const CodingDNA& g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
 
 	/**
 	 * Record stabilities of mistranslated proteins.
 	 */
-	virtual void stabilityOutcomes( const Gene& g, const int num_to_fold, vector<double>& ddgs );
+	virtual void stabilityOutcomes( const CodingDNA& g, const int num_to_fold, vector<double>& ddgs );
 
 	/**
 	 * Returns the translational error probability per codon.
@@ -402,9 +418,9 @@ public:
 						const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
   virtual ~FoldingOnlyFitness();
 
-  double getFitness( const Gene& g );
+  double getFitness( const CodingDNA& g );
   double getFitness( const Protein& p );
-  bool getFolded( const Gene& g );
+  bool getFolded( const CodingDNA& g );
 };
 
 /** \brief A \ref FitnessEvaluator, derived from \ref ErrorproneTranslation, in which fitness differences are due to different effective translational accuracies influenced by the gene sequence.
@@ -425,9 +441,9 @@ public:
 	virtual ~AccuracyOnlyTranslation();
 	//void setTargetSequence( const Protein& p);
 
-	double getFitness( const Gene& g );
+	double getFitness( const CodingDNA& g );
     double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
-	bool getFolded( const Gene& g );
+	bool getFolded( const CodingDNA& g );
 };
 
 /** \brief A \ref FitnessEvaluator, derived from \ref ErrorproneTranslation, in which all fitness differences are due to differing protein robustness to translation errors.
@@ -449,7 +465,7 @@ public:
 		const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
 	virtual ~RobustnessOnlyTranslation();
 
-	double getFitness( const Gene& g );
+	double getFitness( const CodingDNA& g );
     double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
 
 	/**
@@ -458,7 +474,7 @@ public:
 	spectrum of this FitnessEvaluator.
 	@return The estimated fitness.
 	 */
-	virtual double calcOutcomes( const Gene& g, double& frac_accurate, double& frac_robust, double& frac_truncated, double& frac_folded );
+	virtual double calcOutcomes( const CodingDNA& g, double& frac_accurate, double& frac_robust, double& frac_truncated, double& frac_folded );
 
 	/**
 	 * \warning This function is currently not implemented and sets all values to zero!
@@ -475,7 +491,7 @@ public:
 	 * @param num_folded The observed fraction of folded proteins from this gene.
 	 * @return The fitness that would result from the generated set of proteins.
 	 **/
-	virtual double countOutcomes(const Gene& g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
+	virtual double countOutcomes(const CodingDNA& g, const int num_to_fold, int& num_accurate, int& num_robust, int& num_truncated, int& num_folded);
 };
 
 /** \brief A \ref FitnessEvaluator, derived from \ref ErrorproneTranslation, in which a minimum number of misfolded proteins are required before any fitness cost is incurred.
@@ -508,7 +524,7 @@ public:
 	CutoffErrorproneTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight, double cost_constant, int toxicity_cutoff);
 
 	virtual ~CutoffErrorproneTranslation();
-    double getFitness( const Gene& g );
+    double getFitness( const CodingDNA& g );
     double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
 };
 

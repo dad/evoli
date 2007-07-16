@@ -556,8 +556,8 @@ void SelfAvoidingWalk::getStructure( char * d ) const
 }
 
 
-CompactLatticeFolder::CompactLatticeFolder( int size )
-	: m_size( size ), m_num_structures( 0 ), m_num_folded( 0 )
+CompactLatticeFolder::CompactLatticeFolder( int size, double deltaG_cutoff, StructureID target_sid  )
+	: DGCutoffFolder( deltaG_cutoff, target_sid ), m_size( size ), m_num_structures( 0 ), m_num_folded( 0 )
 {
 	if ( m_size > 15 )
 	{
@@ -766,10 +766,11 @@ void CompactLatticeFolder::enumerateStructures()
 //	 cout << "#Total number of potentially interacting pairs: " << count << endl;
 }
 
+
 /**
  * Fold the sequence and return information about the result (structure, free energy).
  */
-FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
+FoldInfo* CompactLatticeFolder::fold( const Protein& s ) const
 {
 	assert( m_num_structures > 0 );
 
@@ -778,9 +779,19 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 	int minIndex = 0;
 	double Z = 0;
 	double G;
+	vector<unsigned int> aa_indices(s.size());
 
-	for ( int i=0; i<m_num_structures; i++ )
-	{
+	bool valid = getAminoAcidIndices(s, aa_indices);
+	if (!valid) {
+		return new FoldInfo( false, false, 9999, -1);
+	}
+	/*cout << "ack " << s << endl;
+	for (int j=0; j<s.length(); j++) {
+		cout << aa_indices[j] << ' ';
+	}
+	cout << endl;
+	*/
+	for ( int i=0; i<m_num_structures; i++ ) {
 		double E = 0;
 
 		// calculate binding energy of this fold
@@ -788,7 +799,10 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 		vector<pair<int,int> >::const_iterator it=pair_list.begin();
 		for ( ; it!=pair_list.end(); it++ )
 		{
-			double deltaE = contactEnergy(s[(*it).first-1], s[(*it).second-1]);
+			//cout << (*it).first << " " << (*it).second << endl;
+			assert((*it).first >0 && (*it).first <= aa_indices.size());
+			assert((*it).second >0 && (*it).second <= aa_indices.size());
+			double deltaE = contactEnergy(aa_indices[(*it).first-1], aa_indices[(*it).second-1]);
 			E += deltaE;
 		}
 		// check if binding energy is lower than any previously calculated one
@@ -799,10 +813,8 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 		}
 		// add energy to partition sum
 		Z +=  exp(-E/kT);
-
 	}
-
-
+	//cout << "arg" << endl;
 	// calculate free energy of folding
 	G = minE + kT * log( Z - exp(-minE/kT) );
 
@@ -813,10 +825,10 @@ FoldInfo* CompactLatticeFolder::fold( const Sequence& s ) const
 	// increment folded count
 	m_num_folded += 1;
 
-	return new FoldInfo(G, minIndex);
+	return new FoldInfo( G<m_deltaG_cutoff, minIndex==m_target_sid, G, minIndex);
 }
 
-double CompactLatticeFolder::getEnergy(const Sequence& p, StructureID sid) const {
+double CompactLatticeFolder::getEnergy(const Protein& p, StructureID sid) const {
 	const vector<Contact> &pair_list = m_structures[sid]->getInteractingPairs();
 	vector<Contact>::const_iterator it=pair_list.begin();
 	double E = 0.0;
@@ -827,7 +839,7 @@ double CompactLatticeFolder::getEnergy(const Sequence& p, StructureID sid) const
 	return E;
 }
 
-void CompactLatticeFolder::getMinMaxPartitionContributions(const Sequence& p, const int ci, double& cmin, double& cmax) const {
+void CompactLatticeFolder::getMinMaxPartitionContributions(const Protein& p, const int ci, double& cmin, double& cmax) const {
 	double kT = 0.6;
 	double min_cont = 1e5;
 	double max_cont = -1e5;
@@ -849,7 +861,7 @@ void CompactLatticeFolder::getMinMaxPartitionContributions(const Sequence& p, co
 	//cout << cmin << tab << cmax << tab << num_contacts << endl;
 }
 
-bool CompactLatticeFolder::isFoldedBelowThreshold( const Sequence& p, const int structID, double cutoff) const
+bool CompactLatticeFolder::isFoldedBelowThreshold( const Protein& p, const int structID, double cutoff) const
 {
 	assert( m_num_structures > 0 );
 
@@ -909,11 +921,11 @@ void CompactLatticeFolder::printContactEnergyTable( ostream &s ) const
 	s << "Contact energies:" << endl;
 	s << "      ";
 	for ( int i=0; i<20; i++ )
-		s << GeneticCodeUtil::residues[i] << "   ";
+		s << GeneticCodeUtil::indexToAminoAcidLetter(i) << "   ";
 	s << endl;
 	for ( int i=0; i<20; i++ )
 	{
-		s << GeneticCodeUtil::residues[i] << " ";
+		s << GeneticCodeUtil::indexToAminoAcidLetter(i) << " ";
 		for ( int j=0; j<20; j++ )
 		{
 			s.width(5);

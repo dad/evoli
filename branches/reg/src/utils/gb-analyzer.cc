@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "fitness-evaluator.hh"
 #include "tools.hh"
 #include "gene-util.hh"
+#include "folder-util.hh"
 
 #include <algorithm>
 #include <fstream>
@@ -246,7 +247,7 @@ void printGenebank( CompactLatticeFolder &b, const Params p, const vector<Geneba
 	{
 		GenebankData d = *cit;
 		auto_ptr<FoldInfo> fi( b.fold( d.g.translate() ) );
-		d.free_energy = fi->getFreeEnergy();
+		d.free_energy = fi->getDeltaG();
 		d.struct_id = fi->getStructure();
 				
 		ErrorproneTranslation *ept = new ErrorproneTranslation( &b, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost,
@@ -254,7 +255,7 @@ void printGenebank( CompactLatticeFolder &b, const Params p, const vector<Geneba
 
 		d.w_new = ept->getFitness( d.g );
 		
-		d.nu = GeneUtil::calcNeutrality( b, d.g.translate(), p.free_energy_cutoff );
+		d.nu = FolderUtil::calcNeutrality( b, d.g.translate(), p.free_energy_cutoff );
 		d.fop = GeneUtil::calcFop( d.g, ept->getOptimalCodons(false) );
 
 		cout << d.birth_time << " " << d.w_saved << " " << d.w_new << " ";
@@ -326,19 +327,19 @@ void analyzeSurfaceCore( CompactLatticeFolder &b, Params p, const vector<Geneban
 	{
 		double n, s, nSurf, nCore, sSurf, sCore;
 		double N, S, NSurf, NCore, SSurf, SCore;
-		GeneUtil::calcDnDs( n, s, d.g, (*cit).g );
+		pair<double,double> sitens = GeneUtil::calcDnDs( d.g, (*cit).g );
 		GeneUtil::calcDnDsSurfaceCore( nSurf, nCore, sSurf, sCore, d.g, (*cit).g, surface );
 		S = GeneUtil::calcSynonymousSites( d.g );
 		N = GeneUtil::calcTotalSites( d.g ) - S;
 		GeneUtil::calcSNSitesSurfaceCore( NSurf, NCore, SSurf, SCore, d.g, surface );
-		nn += n;
-		ns += s;
+		nn += sitens.first;
+		ns += sitens.second;
 		nnSurf += nSurf;
 		nnCore += nCore;
 		nsSurf += sSurf;
 		nsCore += sCore;
-		dn += n/N;
-		ds += s/S;
+		dn += sitens.first/N;
+		ds += sitens.second/S;
 		dnSurf += nSurf/NSurf;
 		dnCore += nCore/NCore;
 		dsSurf += sSurf/SSurf;

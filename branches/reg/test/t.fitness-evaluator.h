@@ -1,7 +1,7 @@
 /*
 This file is part of the evoli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
-Allan Drummond <dadrummond@gmail.com>
+Allan Drummond <drummond@alumni.princeton.edu>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "compact-lattice-folder.hh"
 #include "fitness-evaluator.hh"
 #include "protein.hh"
-#include "gene-util.hh"
+#include "folder-util.hh"
 #include "tools.hh"
 #include <fstream>
 #include <cmath>
@@ -36,29 +36,30 @@ struct TEST_CLASS( fitness_evaluator_basic )
 	const static int side_length = 5;
 	const static int gene_length = side_length*side_length*3;
 
-	void TEST_FUNCTION( create_EPT )
-	{
-		CompactLatticeFolder folder(side_length);
-		ErrorproneTranslation ept(&folder, gene_length/3, 599, -5, 1, 6, 0.1, 0.1, 0.1 );
-		TEST_ASSERT(true);
-	}
-
 	void TEST_FUNCTION( create_EPT_without_weights )
 	{
 		CompactLatticeFolder folder(side_length);
 		ErrorproneTranslation ept(&folder, gene_length/3, 599, -2.0, 1.0, 6.0, 0.85);
-		Gene test_gene = Gene::createRandomNoStops(gene_length);
-
+		CodingDNA test_gene = CodingDNA::createRandomNoStops(gene_length);
+		Protein p = test_gene.translate();
+		auto_ptr<FoldInfo> fi(folder.fold(p));
 		double fitness = ept.getFitness(test_gene);
 		TEST_ASSERT(fitness >= 0 && fitness <= 1);
+	}
+	
+	void TEST_FUNCTION( create_EPT )
+	{
+		CompactLatticeFolder folder(side_length);
+		ErrorproneTranslation ept(&folder, gene_length/3, 599, -1, 1, 6, 0.1, 0.1, 0.1 );
+		TEST_ASSERT(true);
 	}
 
 	void TEST_FUNCTION( test_EPT_approximation_for_accuracy ) {
 		CompactLatticeFolder folder(side_length);
 		double target_accuracy = 0.85;
-		double max_dg = -5;
+		double max_dg = -1;
 		int sid = 599;
-		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		// Test with pre-discovered weights (generated using ./get-weights 6 -5 11 599 1000 1000 0.85 10)
 		ErrorproneTranslation ept(&folder, g.codonLength(), sid, max_dg, 1.0, 6.0, 0.0114735, 57.9439, 102.567);
 		TEST_ASSERT_M(ept.getFolded(g), "Generated test gene not folded.");
@@ -80,10 +81,10 @@ struct TEST_CLASS( fitness_evaluator_basic )
 	void TEST_FUNCTION( test_automatic_init_EPT_approximation_for_accuracy ) {
 		CompactLatticeFolder folder(side_length);
 		double target_accuracy = 0.85;
-		double max_dg = -5;
+		double max_dg = -1;
 		int sid = 599;
 		
-		Gene g = GeneUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		// Test with automatically determined weights.
 		ErrorproneTranslation ept(&folder, g.codonLength(), sid, max_dg, 1.0, 6.0, target_accuracy);
 		TEST_ASSERT_M(ept.getFolded(g), "Generated test gene not folded.");
@@ -102,22 +103,22 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		TEST_ASSERT_M( ((target_accuracy <= mean+spread) && (target_accuracy >= mean-spread)), ss.str());
 	}
 
-	void accumulateStatistics(ErrorproneTranslation& ept, Accumulator& accuracies, Gene g) {
+	void accumulateStatistics(ErrorproneTranslation& ept, Accumulator& accuracies, CodingDNA g) {
 		// Evolve while preserving fold for tot_equil steps to
 		// equilibrate, then for tot_rand steps, recording weights.
-		int num_rand = 100;
-		int num_equil = 2000;
+		int num_rand = 20;
+		int num_equil = 100;
 		int nrand=0, nequil=0;
 		while ( nrand < num_rand ) {
 			int randpos = Random::rint(g.codonLength());
 			// go through all possible point mutations
-			int from_codon = g[randpos];
-			int to_codon = from_codon;
+			Codon from_codon = g.getCodon(randpos);
+			Codon to_codon = from_codon;
 			do {
-				to_codon = Random::rint(64);
+				to_codon = GeneticCodeUtil::indexToCodon(Random::rint(64));
 			} while (to_codon == from_codon);
 
-			g[randpos] = to_codon;
+			g.setCodon(randpos, to_codon);
 			if (ept.getFolded(g)) {
 				nequil++;
 				if (nequil > num_equil) {
@@ -129,7 +130,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 				}
 			}
 			else {
-				g[randpos] = from_codon;
+				g.setCodon(randpos, from_codon);
 			}
 		}
 	}

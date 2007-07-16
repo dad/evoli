@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "genetic-code.hh"
 #include "codon.hh"
 
-
 static PyObject *CodonErrorObject;
 
 /* ----------------------------------------------------- */
@@ -103,14 +102,13 @@ codon_calcDnDs(PyObject *self /* Not used */, PyObject *args)
 		return NULL;
 	}
 	
-	int c1 = CodonUtil::lettersToCodon( codon1[0], codon1[1], codon1[2] );
-	int c2 = CodonUtil::lettersToCodon( codon2[0], codon2[1], codon2[2] );
+	Codon c1(codon1);
+	Codon c2(codon2);
 
-	double dn, ds;
 	// calculate dn and ds and store in variables
-	GeneticCodeUtil::calcDnDs( dn, ds, c1, c2 );
+	pair<double,double> dnds = GeneticCodeUtil::calcDnDs( c1, c2 );
 
-	return Py_BuildValue( "dd", dn, ds );
+	return Py_BuildValue( "dd", dnds.first, dnds.second );
 }
 
 static char codon_calcNS__doc__[] =
@@ -137,8 +135,8 @@ codon_calcNS(PyObject *self /* Not used */, PyObject *args)
 		PyErr_SetString(CodonErrorObject, "Invalid codon. Codons can contain only the letters a, A, u, U, t, T, g, G, c, C.");
 		return NULL;
 	}
-	
-	int c1 = CodonUtil::lettersToCodon( codon1[0], codon1[1], codon1[2] );
+
+	Codon c1(codon1);
 
 	// calculate N and S
 	double S = GeneticCodeUtil::calcSynonymousSites( c1 );
@@ -173,7 +171,7 @@ codon_calcNSMutatOpport(PyObject *self /* Not used */, PyObject *args)
 		return NULL;
 	}
 	
-	int c1 = CodonUtil::lettersToCodon( codon1[0], codon1[1], codon1[2] );
+	Codon c1(codon1);
 
 	// calculate N and S
 	double S = GeneticCodeUtil::calcSynMutationOpportunity( c1, rho );
@@ -210,8 +208,8 @@ codon_calcDnDsMutatOpport(PyObject *self /* Not used */, PyObject *args)
 		return NULL;
 	}
 	
-	int c1 = CodonUtil::lettersToCodon( codon1[0], codon1[1], codon1[2] );
-	int c2 = CodonUtil::lettersToCodon( codon2[0], codon2[1], codon2[2] );
+	Codon c1(codon1);
+	Codon c2(codon2);
 
 	// calculate dn and ds and store in variables
 	pair<double, double> p = GeneticCodeUtil::calcDnDsWeighted( c1, c2, rho );

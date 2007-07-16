@@ -25,8 +25,9 @@ The program \c sequence-generator can be used to generate protein sequences that
 
 #include "compact-lattice-folder.hh"
 #include "translator.hh"
-#include "gene-util.hh"
+#include "folder-util.hh"
 #include "tools.hh"
+#include "random.hh"
 
 #include <fstream>
 
@@ -78,21 +79,23 @@ Parameters getParams( int ac, char **av )
 // finds a random sequence with folding energy smaller than cutoff.
 void getSequence( Folder &b, const Parameters &p, ostream &s )
 {
-	Gene g = GeneUtil::getSequence(b, 3*p.protein_length, p.free_energy_cutoff);
+	int nfolded = b.getNumFolded();
+	Gene g = FolderUtil::getSequence(b, 3*p.protein_length, p.free_energy_cutoff);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
-	s << g << " " << fdata->getFreeEnergy() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
-	  << endl;
+	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << " " << FolderUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
+	  << " " << (b.getNumFolded()-nfolded) << endl;
 }
 
 // finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 void getSequenceTargeted( Folder &b, const Parameters &p, const int struct_id, ostream &s )
 {
-	Gene g = GeneUtil::getSequenceForStructure(b, 3*p.protein_length, p.free_energy_cutoff, struct_id);
+	int nfolded = b.getNumFolded();
+	Gene g = FolderUtil::getSequenceForStructure(b, 3*p.protein_length, p.free_energy_cutoff, struct_id);
 	Protein prot = g.translate();
 	auto_ptr<FoldInfo> fdata( b.fold(prot) );
-	s << g << " " << fdata->getFreeEnergy() << " " << fdata->getStructure() << " " << GeneUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
-	  << endl;
+	s << g << " " << fdata->getDeltaG() << " " << fdata->getStructure() << " " << FolderUtil::calcNeutrality( b, prot, p.free_energy_cutoff )
+	  << " " << (b.getNumFolded()-nfolded) << endl;
 }
 
 int main( int ac, char **av)
@@ -100,14 +103,15 @@ int main( int ac, char **av)
 	Parameters p = getParams( ac, av );
 
 	// set random seed
-	srand48( p.random_seed );
+	//srand48( p.random_seed );
+	Random::seed( p.random_seed );
 
 	int side_length = (int)(sqrt(float(p.protein_length)));
 	// initialize the protein folder
 	CompactLatticeFolder b(side_length);
 
 	cout << p;
-	cout << "# <sequence> <free energy> <structure id> <neutrality>" << endl;
+	cout << "# <sequence> <free energy> <structure id> <neutrality> <nfolded>" << endl;
 
 	for ( int i=0; i<p.repetitions; i++ )
 	{

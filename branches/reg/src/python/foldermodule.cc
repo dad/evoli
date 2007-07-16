@@ -31,7 +31,7 @@ static char folder_fold__doc__[] =
 ""
 ;
 
-static Folder* folder = NULL;
+static CompactLatticeFolder* folder = NULL;
 static PyObject *
 folder_fold(PyObject *self /* Not used */, PyObject *args)
 {
@@ -45,7 +45,7 @@ folder_fold(PyObject *self /* Not used */, PyObject *args)
 	}
 	Protein p(protein_sequence);
 	auto_ptr<FoldInfo> folding_data( folder->fold(p) );
-	return Py_BuildValue("if", folding_data->getStructure(), folding_data->getFreeEnergy());
+	return Py_BuildValue("if", folding_data->getStructure(), folding_data->getDeltaG());
 }
 
 static char folder_getEnergy__doc__[] =

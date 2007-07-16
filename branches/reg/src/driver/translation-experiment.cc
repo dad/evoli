@@ -59,7 +59,7 @@ StructureID getStructureID( Folder &b, const Gene &g ) {
 		return (StructureID)-1;
 }
 
-void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
+void evolutionTest( const Parameters &p, ErrorproneTranslation& fe, Polymerase& poly) {
 	if ( p.structure_ID < 0 )
 	{
 		cerr << "Input sequence does not translate!" << endl;
@@ -70,10 +70,10 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 	// set random seed
 	Random::seed( p.random_seed );
 
-	Population pop( p.N );
+	Population<Gene, ErrorproneTranslation, Polymerase> pop( p.N );
 	Folder& folder = *(fe.getFolder());
-	Gene g = GeneUtil::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
-	pop.init(g, &fe, p.u);
+	Gene g = FolderUtil::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
+	pop.init(g, &fe, &poly);
 
 	vector<bool> is_optimal = fe.getOptimalCodons();
 
@@ -98,7 +98,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 			if (folded) {
 				Protein p = g.translate();
 				auto_ptr<FoldInfo> fold_data( folder.fold(p) );
-				dG = fold_data->getFreeEnergy();
+				dG = fold_data->getDeltaG();
 			}
 			double facc, frob, ftrunc, ffold;
 			fe.calcOutcomes( g, facc, frob, ftrunc, ffold);
@@ -121,19 +121,19 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe) {
 	}
 }
 
-bool runAndAnalyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s, vector<bool>& is_optimal,
+bool runAndAnalyzeReplica( ErrorproneTranslation *fe, Polymerase *poly, const Parameters &p, ostream &s, vector<bool>& is_optimal,
 		     double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f,
 		     double &ave_fop )
 {
 	// initialize the population
-	Population pop( p.N );
+	Population<Gene, ErrorproneTranslation, Polymerase> pop( p.N );
 
 	Folder& folder = *(fe->getFolder());
 	// Find a sequence.
-	Gene g = GeneUtil::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
+	Gene g = FolderUtil::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
 	s << "# Starting genotype: " << g << endl;
 	// Fill the population with the genotype that we found above
-	pop.init( g, fe, p.u );
+	pop.init( g, fe, poly );
 	// If using AccuracyOnlyTranslation, initialize the evaluator with this sequence.
 	/*AccuracyOnlyTranslation *aot = dynamic_cast<AccuracyOnlyTranslation*>(fe);
 	if (aot != NULL) {
@@ -147,7 +147,6 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostre
 		for ( int j=0; j<loop_length; j++ ) {
 			pop.evolve();
 		}
-		pop.prepareCoalescenceCalcs();
 		if ( pop.calcCoalescenceTime() > p.equilibration_time + p.window_size )
 			break;
 		cout << "t=" << i*loop_length+1 << "; " << flush;
@@ -156,11 +155,11 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostre
 
 	pop.printGenebank( s );
 
-	return pop.analyzeDnDs( p.window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
+	GenebankAnalyzer<Gene> analyzer(pop.getGenebank(), pop.begin(), pop.end(), pop.getNumGenerations(), pop.calcCoalescenceTime() );
+	return analyzer.analyzeDnDs( p.window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 }
 
-void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe)
-{
+void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polymerase& poly) {
 	// set random seed
 	Random::seed( p.random_seed );
 
@@ -189,7 +188,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe)
 		ofstream gen_file( filename.c_str(), ios::out );
 		gen_file << p;
 
-		if ( runAndAnalyzeReplica( &fe, p, gen_file, is_optimal, dn, ds, N, S, f, fop ) )
+		if ( runAndAnalyzeReplica( &fe, &poly, p, gen_file, is_optimal, dn, ds, N, S, f, fop ) )
 		{
 			count += 1;
 			data_file << "# " << dn << tab << ds << tab << N << tab << S << tab << f

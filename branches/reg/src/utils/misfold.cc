@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "tools.hh"
 #include "random.hh"
 #include "gene-util.hh"
+#include "folder-util.hh"
 
 #include <cmath>
 #include <cstdio>
@@ -91,11 +92,12 @@ public:
 	int random_seed;
 	string genotype_file_name;
 	int num_to_fold;
+	string out_file_name;
 	bool valid;
 
 
 	Parameters( int ac, char **av ) {
-		if ( ac != 14 )	{
+		if ( ac != 15 )	{
 			valid = false;
 			return;
 		}
@@ -114,6 +116,7 @@ public:
 		random_seed = atoi( av[i++] );
 		genotype_file_name = av[i++];
 		num_to_fold = atoi( av[i++] );
+		out_file_name = av[i++];
 
 		valid = true;
 	}
@@ -135,6 +138,7 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	s << "#   population size N: " << p.N << endl;
 	s << "#   random seed: " << p.random_seed << endl;
 	s << "#   genotype file: " << p.genotype_file_name << endl;
+	s << "#   output file: " << p.out_file_name << endl;
 	s << "#" << endl;
 	return s;
 }
@@ -176,9 +180,10 @@ void misfoldDistExperiment(Parameters& p)
 	}
 	fin.close();
 
-	cout << "# Read " << runResults.size() << " results" << endl;
-	cout << p;
-	cout << "orf\trun_id\ttr\trep\tdG\tfitness\tfop\tnu\tnacc\tnrob\tntrunc\tnfold\tfacc\tfrob\tftrunc\tffold\tcfacc\tcfrob\tcftrunc\tcffold\tfdens\tmrandrob\tsdrandrob\tgene" << endl;
+	ofstream fout( p.out_file_name.c_str() );
+	fout << "# Read " << runResults.size() << " results" << endl;
+	fout << p;
+	fout << "orf\trun_id\ttr\trep\tdG\tfitness\tfop\tnu\tnacc\tnrob\tntrunc\tnfold\tfacc\tfrob\tftrunc\tffold\tcfacc\tcfrob\tcftrunc\tcffold\tfdens\tmrandrob\tsdrandrob\tgene" << endl;
 	vector<RunRecord>::iterator it = runResults.begin();
 	bool printCodonReport = true;
 
@@ -227,7 +232,7 @@ void misfoldDistExperiment(Parameters& p)
 		double fop = GeneUtil::calcFop( rec.gene, isOptimal);
 		Protein prot = rec.gene.translate();
 		auto_ptr<FoldInfo> fi( folder.fold(prot) );
-		double dG = fi->getFreeEnergy();
+		double dG = fi->getDeltaG();
 
 		int numAccurate = 0;
 		int numTruncated = 0;
@@ -244,7 +249,7 @@ void misfoldDistExperiment(Parameters& p)
 		double cffold, cfacc, cfrob, cftrunc;
 		double fitness = fe->calcOutcomes(rec.gene, cfacc, cfrob, cftrunc, cffold);
 		double fitnessDensity = -1; //fde.getFitnessDensity(rec.gene, *fe, p.N);
-		double nu = GeneUtil::calcNeutrality( folder, prot, p.free_energy_cutoff );
+		double nu = FolderUtil::calcNeutrality( folder, prot, p.free_energy_cutoff );
 
 		// Compute fraction robust for codon-randomized genes.
 		vector<double> randrobs;
@@ -270,7 +275,7 @@ void misfoldDistExperiment(Parameters& p)
 		double mean_randrob = mean(randrobs);
 		double sd_randrob = sqrt(variance(randrobs));
 
-		cout << rec.orf << tab << rec.run_id << tab << rec.cost << tab << rec.rep << tab << dG << tab << fitness << tab << fop << tab << nu << tab
+		fout << rec.orf << tab << rec.run_id << tab << rec.cost << tab << rec.rep << tab << dG << tab << fitness << tab << fop << tab << nu << tab
 			 << numAccurate << tab << numRobust << tab << numTruncated << tab << numFolded << tab
 			 << setprecision(6) << facc << tab << frob << tab << ftrunc << tab << ffold << tab
 			 << cfacc << tab << cfrob << tab << cftrunc << tab << cffold << tab
@@ -278,6 +283,7 @@ void misfoldDistExperiment(Parameters& p)
 
 		last_cost = rec.cost;
 	}
+	fout.close();
 	delete fe;
 }
 
@@ -289,7 +295,7 @@ int main( int ac, char **av)
 	}
 	else {
 		cout << "Start program like this:" << endl;
-		cout << "\t" << av[0] << " <eval type> <prot length> <pop size> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <random seed> <gene file name> <num. to fold>" << endl;
+		cout << "\t" << av[0] << " <eval type> <prot length> <pop size> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <random seed> <gene file name> <num. to fold> <outfile>" << endl;
 	}
 }
 

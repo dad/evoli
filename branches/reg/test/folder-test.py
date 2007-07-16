@@ -20,8 +20,8 @@
 
 import random, math, os, sys
 # Import the modules
-import folder, decoyfolder
-#sys.path = [os.path.expanduser('~/research/lib')] + sys.path
+import folder, decoyfolder, misfold
+#sys.path = [os.path.expanduser('~/research/lib/lib')] + sys.path
 #import translate
 
 # The 20 canonical amino acids
@@ -30,7 +30,7 @@ aas = 'ACDEFGHIKLMNPQRSTVWY'
 # side_length refers to the protein.  E.g., in the 5x5
 # model, side_length=5.
 
-if True:
+if False:
 	side_length = 5
 	prot_length = side_length*side_length
 	folder.init(side_length)
@@ -59,7 +59,7 @@ if True:
 				print "%d\t%1.3f" % (j, G)
 		'''		
 
-if True:
+if False:
 	prot_length = 300
 	log_nconf = 10*math.log(10)
 	map_file = os.path.abspath("test/data/rand_contact_maps/maps.txt")
@@ -78,7 +78,7 @@ if True:
 			# Print them out
 			print "%d\t%1.3f" % (j, G)
 		
-if True:
+if False:
 	prot_length = 300
 	log_nconf = 10*math.log(10)
 	map_file = os.path.abspath("test/data/rand_contact_maps/maps.txt")
@@ -89,3 +89,29 @@ if True:
 	p = "PRPEEEKKKREREEKRRKEDKLERIRDLPRKILKMIVEPKRRKKGETEDDDEKESKRREEMEKFKREFFTICIKLLECEEEMARRREKRREEEDIDSLRELMKDCRRFIDDPRRVEQQSQRLDFRSRRKLEDEKDDEDKRKPDFLFEFEMCEEDMRRRPLDRVKDICRVCCEMDEEEEIREEEEFFRPEEEDMKLKSFRESFKDVRRCILRKFEKSRREKSAEFLRHEIPMFSSEDEEDRKKKDRRRQRPMMRHFMKRIKEKEEERKKREFKEQEEPKPKSFKWKTEEEMEELGEQEKRV"
 	(sid, dg) = decoyfolder.fold(p)
 	print sid, dg
+
+if True:
+	side_length = 5
+	struct_id = 599
+	target_fraction_accurate = 0.1
+	ca_cost = 4
+	max_free_energy = -5
+	
+	misfold.init(side_length, struct_id, max_free_energy, ca_cost, target_fraction_accurate)
+	#print misfold.getErrorRate()
+	gene = "CCCCTGTACCGTACGACGAAATCTAACACTGGATCATGGCCTTCTGATTGGAAACCCCTACCTTATGAGTCAAAG"
+	#(facc, frob, ftrunc, ffold) = misfold.calcOutcomes(gene);
+	#print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % ("mis", facc, frob, ftrunc, ffold)
+	if True:
+		f = file(os.path.expanduser('~/research/trsim/data/trs599ca4nmut-genes.txt'),'r')
+		for line in f.readlines()[2:]:
+			flds = line.strip().split('\t')
+			gene = flds[-1]
+			# print gene
+			#(facc, frob, ftrunc, ffold) = misfold.calcOutcomes(gene);
+			#print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % (flds[0], facc, frob, ftrunc, ffold)
+			(facc, frob, ftrunc, ffold) = misfold.countOutcomes(gene, 1000);
+			print "%s\t%d\t%d\t%d\t%d" % (flds[0], facc, frob, ftrunc, ffold)
+			#print line,
+		f.close()
+	

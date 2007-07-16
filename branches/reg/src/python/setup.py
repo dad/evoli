@@ -23,28 +23,16 @@ print "top_srcdir =", srcdir
 builddir = sys.argv.pop()
 print "top_builddir =", builddir
 
-codon = Extension('codon',
-				   sources = ['codonmodule.cc'],
-				   include_dirs = [srcdir + '/src/tools',\
-							srcdir + '/src/folder'],
-				   libraries = ['tools', 'folder' ],
-				   library_dirs = [builddir + '/src/tools', \
-							builddir + '/src/folder'])
-
-setup (name = 'Codon',
-	          version = '0.1',
-	          description = 'Module exposing functionality related to calculating synonymous and nonsynonymous substitutions and sites to Python',
-	          ext_modules = [codon])
 
 folder = Extension('folder',
 				   sources = ['foldermodule.cc'],
 				   include_dirs = [srcdir + '/src/tools', \
-							srcdir+'/src/folder', \
-							srcdir+'/src/evolver'],
-				   libraries = ['tools', 'folder', 'evolver'],
+							srcdir + '/src/gene', \
+							srcdir+'/src/folder'],
+				   libraries = ['folder', 'gene', 'tools'],
 				   library_dirs = [builddir + '/src/tools', \
-							builddir + '/src/folder', \
-							builddir + '/src/evolver'])
+	 						builddir + '/src/gene', \
+							builddir + '/src/folder'])
 
 setup (name = 'CompactLatticeFolder',
 	          version = '0.1',
@@ -54,15 +42,44 @@ setup (name = 'CompactLatticeFolder',
 decoyfolder = Extension('decoyfolder',
 				   sources = ['decoyfoldermodule.cc'],
 				   include_dirs = [srcdir + '/src/tools', \
-							srcdir+'/src/folder', \
-							srcdir+'/src/evolver'],
-				   libraries = ['tools', 'folder', 'evolver'],
+							srcdir + '/src/gene', \
+							srcdir+'/src/folder'],
+				   libraries = ['folder', 'gene', 'tools'],
 				   library_dirs = [builddir + '/src/tools', \
-							builddir + '/src/folder', \
-							builddir + '/src/evolver'])
+							builddir + '/src/gene', \
+							builddir + '/src/folder'])
 
 setup (name = 'DecoyContactFolder',
 	          version = '0.1',
 	          description = 'Module exposing decoy-contact protein folding to Python',
 	          ext_modules = [decoyfolder])
 
+codon = Extension('codon',
+				   sources = ['codonmodule.cc'],
+				   include_dirs = [srcdir + '/src/tools',\
+							srcdir + '/src/gene'],
+				   libraries = ['gene', 'tools' ],
+				   library_dirs = [builddir + '/src/tools', \
+							builddir + '/src/gene'])
+
+setup (name = 'Codon',
+	          version = '0.1',
+	          description = 'Module exposing functionality related to calculating synonymous and nonsynonymous substitutions and sites to Python',
+	          ext_modules = [codon])
+
+folder = Extension('misfold',
+				   sources = ['misfoldmodule.cc'],
+				   include_dirs = [srcdir + '/src/tools', \
+							srcdir + '/src/gene', \
+							srcdir + '/src/evolver', \
+							srcdir+'/src/folder'],
+				   libraries = ['folder', 'gene', 'tools', 'evolver'],
+				   library_dirs = [builddir + '/src/tools', \
+	 						builddir + '/src/gene', \
+	 						builddir + '/src/evolver', \
+							builddir + '/src/folder'])
+
+setup (name = 'Misfold',
+	          version = '0.1',
+	          description = 'Module exposing misfolding assays of lattice protein folding to Python',
+	          ext_modules = [folder])
