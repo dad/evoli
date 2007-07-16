@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "protein.hh"
 #include "folder-util.hh"
 #include "random.hh"
-
 #include <fstream>
 #include <cmath>
 #include <memory>
@@ -166,6 +165,7 @@ struct TEST_CLASS( folder_basic )
 		if (!folder.good() )
 			return;
 		Protein p(stable_seq);
+
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
 		//FoldInfo* real_fi = folder.fold(p);
 		//auto_ptr<FoldInfo> fi( real_fi );
@@ -175,7 +175,7 @@ struct TEST_CLASS( folder_basic )
 		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
 		// Now do some real test
 		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
-		//TEST_ASSERT(auto_dhfi->getProtein() == p);
+		//	TEST_ASSERT(auto_dhfi->getSequenceForStructure() == p);
 	}
 };
 
