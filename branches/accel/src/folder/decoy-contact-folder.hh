@@ -63,58 +63,33 @@ public:
   double getMinEnergy() const { return m_min_G; }
 };
 
+/*************************** Beginning of DecoyHistoryFoldInfo Implementation********************/
 
-/******************* Beginning of DecoyHistoryFoldInfo Implementation*******************/
 
 class DecoyHistoryFoldInfo : public DecoyFoldInfo {
+protected:
+  Protein m_p;
+  vector<double> m_energy_list;
+
 public:
+  DecoyHistoryFoldInfo( const DecoyFoldInfo& fi, const Protein& p, vector<double>& energy_list) : DecoyFoldInfo( fi.foldIsStable(), fi.foldMatchesTarget(), fi.getDeltaG(), fi.getStructure(), fi.getUnfoldedDeltaGMean(), fi.getUnfoldedDeltaGVariance(), fi.getMinEnergy()), m_p(p) {
+    //m_p = p;
+    m_energy_list = energy_list;
+  }
   DecoyHistoryFoldInfo( bool fold_is_stable, bool fold_is_target, double fe, StructureID sid, double mean_G, double var_G, double min_G, const Protein& p, vector<double>& energy_list)
-		: DecoyFoldInfo( fold_is_stable, fold_is_target, fe, sid, mean_G, var_G, min_G)
+    : DecoyFoldInfo( fold_is_stable, fold_is_target, fe, sid, mean_G, var_G, min_G), m_p(p)
 	{
-	}
-
-  DecoyHistoryFoldInfo( const DecoyFoldInfo& fi, const Protein& p, vector<double>& energy_list)
-    : DecoyFoldInfo( fi )
-	{
-	  
-	}
-	virtual ~DecoyHistoryFoldInfo() {}
-};
-/*
-  protected:
-  vector<double> m_structure_energies;
-  Protein m_protein;
-
-public:
- 
-  DecoyHistoryFoldInfo( double m_var_G, double m_mean_G, double m_min_G, StructureID sid, double mean_G, double var_G, double min_G)
-		: DecoyFoldInfo( fold_is_stable, fold_is_target, fe, sid)
-	{
-	  m_var_G = var_G;
-	  m_mean_G = mean_G;
-	  m_min_G = min_G;
-	}
-	virtual ~DecoyFoldInfo() {}
-
-	double getUnfoldedDeltaGMean() const { return m_mean_G; }
-	double getUnfoldedDeltaGVariance() const { return m_var_G; }
-	double getMinEnergy() const { return m_min_G; }public:
-
-	DecoyHistoryFoldInfo( bool fold_is_stable, bool fold_is_target, double fe, StructureID sid, double mean_G, double var_G, double min_G)
-		: DecoyFoldInfo( fold_is_stable, fold_is_target, fe, sid)
-	{
-	  m_var_G = var_G;
-	  m_mean_G = mean_G;
-	  m_min_G = min_G;
+	  // m_p = p;
+	  m_energy_list = energy_list;
 	}
 
   virtual ~DecoyHistoryFoldInfo() {}
 
-  vector<double>m_structure_energies;
-  Protein m_protein;
-
+  const Protein getProtein() const { return m_p; }
+  vector<double> getEnergies() const { return m_energy_list; }
 };
 
+ 
 /******************* End of DecoyHistoryFoldInfo Implementation*************************/
 
 
