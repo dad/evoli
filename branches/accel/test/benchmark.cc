@@ -30,7 +30,6 @@ char calc_frac(Protein x, int y){
   cout << "\n"; 
 }
 
-
 int main(){
   long t;
   time(&t);
@@ -48,25 +47,22 @@ int main(){
   double sum_sqdev_dg;  
   double variance_dg;
   
+  vector<Contact> m_contacts;
   double array[MAX];
-  int sid = 0; //previously 574;
+  int sid = 0; 
   Random::seed(11);
   
   ifstream fin("data/williams_contact_maps/maps.txt");
-  
-  cout << " Starting performance test" << endl;
+
   DecoyContactFolder folder(protein_length, log_nconf, fin, "data/williams_contact_maps/");
-  //
-  if (!folder.good() )
-      cout<< "G, DAD we have a problem!!" << endl;
-  else {
-    // CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+
+  if (!folder.good() ){
+      cout<< "Error: folder is not good!" << endl;
+  } else {
     CodingDNA g("TTCCGTTTTTTCCGTGTATGTGACCCGATCATATCCTTACTTATGCATATCTGGCCAGGCCCAATTCGAACACGCCGGCGTTCAAAAATATGGATAAAGGAATTTTGTATCAAGTGTGAACTATGTCCGGAAACATTCCGTCACAAAATGATAGTGTGCGAAAAAAATCCCCCGAGGCTGATATACGCAAAACTCCTACATAGACGCATGAGACGCTTAATTGATATACTAGGTATGATACACCATCGTAAAATCCGTGAGGAAGAGCAGCCGTGCCCTGCTCAGGTGATACTCCCGTTTTTGAGACTAGAGGTGAAGCACAATGTGGCCGCGATTCGCCGATGGACCGCGCCGACTGTGCTAAAAAAGCTCAAATTGGACATAATCCGCTTGGTTCAGATCGTGCCCAAGCTCTGTGAATGCTGTTCATTCGATTCCATCGAAGACTGCCGACGGAAAAGATTTTCGATTAAGGATAGATCGATAACAATAAAGACGGAGGCATGCAAAATCTTTTTTAGGCGGCGCAGATTTCGTCTGCGTACAATCGTAGATGAGCAAGTTCTCTCCCGTTCATCAGCACGGCGACGGAGACGCAAGATCGCCGCCTTCCTTTTTAGCGACCGTTTGCCAATCAGACTCGAACGACGTGATCGGAAGAAGAAAAGGCAAATATGCGAGGAGGAAGAGCCGTTTGACTGCGAGCCGGAGGCTCGCGACATACGATTGAAATTTAGGAGACTGCTAAGACCTAAGTCCTTTATTCGGGACGCGGAACGGGAAACCGATAAGCAAATTCGTTCGAATAGATGCATCGTTTCGGAAGTTTTAAAAGCCATCTCGCACGAGTCTATAGTCCTCAGGATCAAGCCCACACCGTTATTACGTATGAATGCCTTT");
-    //cout << g << endl;
-   // int nfolded = folder.getNumFolded();  
-  
-    //   cout << "num folded: " << (folder.getNumFolded()) << endl;
-   start = clock();
+    Protein p = g.translate();
+    cout << " Starting performance test..." << endl;
+    start = clock();
     for (int i=0; i< MAX;) {    
       SimpleMutator mut(0.001);
       CodingDNA g2 = g;

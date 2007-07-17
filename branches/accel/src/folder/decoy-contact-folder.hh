@@ -1,4 +1,4 @@
-/*
+v/*
 This file is part of the E.voli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
 Allan Drummond <dadrummond@gmail.com>
@@ -65,7 +65,6 @@ public:
 
 /*************************** Beginning of DecoyHistoryFoldInfo Implementation********************/
 
-
 class DecoyHistoryFoldInfo : public DecoyFoldInfo {
 protected:
   Protein m_p;
@@ -73,13 +72,11 @@ protected:
 
 public:
   DecoyHistoryFoldInfo( const DecoyFoldInfo& fi, const Protein& p, vector<double>& energy_list) : DecoyFoldInfo( fi.foldIsStable(), fi.foldMatchesTarget(), fi.getDeltaG(), fi.getStructure(), fi.getUnfoldedDeltaGMean(), fi.getUnfoldedDeltaGVariance(), fi.getMinEnergy()), m_p(p) {
-    //m_p = p;
     m_energy_list = energy_list;
   }
   DecoyHistoryFoldInfo( bool fold_is_stable, bool fold_is_target, double fe, StructureID sid, double mean_G, double var_G, double min_G, const Protein& p, vector<double>& energy_list)
     : DecoyFoldInfo( fold_is_stable, fold_is_target, fe, sid, mean_G, var_G, min_G), m_p(p)
 	{
-	  // m_p = p;
 	  m_energy_list = energy_list;
 	}
 
@@ -89,15 +86,14 @@ public:
   vector<double> getEnergies() const { return m_energy_list; }
 };
 
- 
-/******************* End of DecoyHistoryFoldInfo Implementation*************************/
 
-
+// ****************** End of DecoyHistoryFoldInfo Implementation*************************
 
 
 /**
  * Stores a contact structure: a list of contacts.
  **/
+
 class DecoyContactStructure : public ContactStructure {
 protected:
 	vector<Contact> m_contacts;
@@ -112,7 +108,6 @@ public:
 	virtual const vector<Contact>& getContacts() const { return m_contacts; }
 	int getMaxResidueNumber();
 };
-
 
 /** \brief  The DecoyContactFolder implements the protein folding model of P. D. Williams
  * et al., PLoS Comp. Biol. 2:e69.
@@ -132,8 +127,7 @@ ifstream fin("test/data/williams_contact_maps/maps.txt"); // file which contains
 // in directory "test/data/williams_contact_maps/":
 DecoyContactFolder folder( 300, 160.0*log(10.0), fin, "test/data/williams_contact_maps/");
 if ( folder.good() )
-{
-	// we store the result from the fold() function in an auto_ptr,
+{	// we store the result from the fold() function in an auto_ptr,
 	// so that we don't have to worry about memory management
 	auto_ptr<FoldInfo> fi( folder.fold( p ) );
 	cout << fi->getStructure() << " " << fi->getDeltaG() << endl;
@@ -141,7 +135,6 @@ if ( folder.good() )
 \endcode
 
  **/
-
 
 class DecoyContactFolder : public DGCutoffFolder {
 private:
@@ -224,7 +217,11 @@ public:
 	@return True if the folder is in good working order, False otherwise.
 	 **/
 	virtual bool good() const;
-	
+  /*
+  const DecoyContactStructure* getStructure(StructureID sid) const {
+    return m_structures[sid];
+    //  int k = Random::rint(100);
+    }*/
 };
 
 struct ContactMapUtil {
