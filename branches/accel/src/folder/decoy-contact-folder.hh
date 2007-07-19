@@ -1,4 +1,4 @@
-v/*
+/*
 This file is part of the E.voli project.
 Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
 Allan Drummond <dadrummond@gmail.com>
@@ -35,6 +35,7 @@ using namespace std;
 /**
  * Stores folding information.
  **/
+ 
 class DecoyFoldInfo : public FoldInfo {
 protected:
 	double m_var_G; 
@@ -87,7 +88,7 @@ public:
 };
 
 
-// ****************** End of DecoyHistoryFoldInfo Implementation*************************
+/******************* End of DecoyHistoryFoldInfo Implementation*************************/
 
 
 /**
@@ -148,6 +149,18 @@ protected:
 	vector<DecoyContactStructure*> m_structures; ///< Vector of the contact maps used as decoys.
 //	static const double DecoyContactFolder::contactEnergies [20][20]; ///< Table of contact energies.
 	mutable int m_num_folded; ///< Number of proteins folded since creation of the folder object.
+
+  // List of structure lists.  Entry i is a list of structures with contacts involving residue i.
+  vector<vector<StructureID> > m_structures_for_residue;
+
+  /**
+   * Fetch the structures for a given residue;
+   **/
+  /*  const vector<StructureID> getStructuresWithResidueContact(uint residue_number) const {
+    return m_structures_for_residue[residue_number];
+    }*/
+
+  void initializeStructuresForResidues();
 
 	/**
 	* Wrapper function to encapsulate the lookup of the
@@ -216,13 +229,25 @@ public:
 	This function assesses whether the folder has been properly initialized.
 	@return True if the folder is in good working order, False otherwise.
 	 **/
-	virtual bool good() const;
+  virtual bool good() const;
+
+  const DecoyContactStructure* getStructure(StructureID sid) const { return m_structures[sid]; }
+
+  const vector<StructureID> getStructuresWithResidueContact(uint residue_number) const {
+    return m_structures_for_residue[residue_number];
+  }
+
+
+  /*vector <Contact>& getContacts() const { return m_contacts; }
+  virtual const vector<Contact>& getContacts() const { return m_contacts; }
+  */
+};
+
   /*
   const DecoyContactStructure* getStructure(StructureID sid) const {
     return m_structures[sid];
     //  int k = Random::rint(100);
     }*/
-};
 
 struct ContactMapUtil {
 	static void readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs);

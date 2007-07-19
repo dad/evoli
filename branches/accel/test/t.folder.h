@@ -71,7 +71,7 @@ struct TEST_CLASS( folder_basic )
 		ifstream fin("test/data/rand_contact_maps/maps.txt");
 		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
-int k = Random::rint(100);
+		int k = Random::rint(100);
 		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/rand_contact_maps/");
 		TEST_ASSERT( folder.good() );
 		if (!folder.good() )
@@ -185,32 +185,38 @@ int k = Random::rint(100);
 		ifstream fin("test/data/williams_contact_maps/maps.txt");
 		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
-		
-		ifstream fin;
-		DecoyContactStructure structure;
+		const char* fname = "1qhwA_6_CB.cmap";
 		string filename = string("test/data/williams_contact_maps/")+fname;
 		fin.open(filename.c_str());
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps, bail out
 			return;
+		DecoyContactStructure structure;
 		structure.read(fin);
 		fin.close();
 		fin.open(filename.c_str());
-
 		
-		fin.close()
-
 		TEST_ASSERT( folder.good() );
 		if (!folder.good() )
 			return;
+		Protein p(stable_seq);
 
+		TEST_ASSERT(folder.good());
+		if (!folder.good())
+			return;
+		auto_ptr<FoldInfo> fi( folder.fold( p ) );		
 		// ensure that lookup table has been built
 		/*
 		TEST_ASSERT (lookup_table.good());
 		if (!lookup_table.good )
 			return;
 		*/
-		vector<vector<StructureID> >& lookup_table = folder.getStructureLookupTable();
+				
+		DecoyHistoryFoldInfo *dhfi = NULL;
+		dhfi = folder.foldWithHistory(p, dhfi);
+		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
+
+		//vector<vector<StructureID> >& lookup_table = folder.getStructureLookupTable();
 		// compare structures against contact lookups
 		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
 		//vector<DecoyContactStructure*>& structures = folder.getStructures();
@@ -219,16 +225,16 @@ int k = Random::rint(100);
 		// Pick 1000 structure IDs at random
 		for ( int i = 0; i < 1000; i++) {
 		  StructureID sid = (StructureID)Random::rint(1000);
-		  const DecoyContactStructure& structure = folder.getStructure(sid);
+		  const DecoyContactStructure* structure = folder.getStructure(sid);
 		// Within each structure, pick 10 contacts at random
 		  for (int j = 0; j < 10; j++) {
-		    vector<Contact>& contacts = structure.getContacts();
+		    const vector<Contact> contacts = structure->getContacts();
 		    int cid = Random::rint(contacts.size());
 		    int first_aa_index = contacts[cid].first;
 		    // Success means that the table's entry at first_aa_index contains structure ID sid.
-		    vector<StructureID>& structures = lookup_table[first_aa_index];
+		    const vector<StructureID>& structures = folder.getStructuresWithResidueContact(first_aa_index);
 		    bool found = false;
-		    for (int k=0; k<structures.size() && !found; k++) {
+		    for (int k = 0; k < structures.size() && !found; k++) {
 		      found = (structures[k] == sid);
 		    }
 		    TEST_ASSERT(found);
@@ -239,18 +245,10 @@ int k = Random::rint(100);
 		// Confirm that the structure ID exists in the table.
 
 		
-		Protein p(stable_seq);
 
-		auto_ptr<FoldInfo> fi( folder.fold( p ) );
+
 		//FoldInfo* real_fi = folder.fold(p);
 		//auto_ptr<FoldInfo> fi( real_fi );
-		
-		DecoyHistoryFoldInfo *dhfi = NULL;
-		dhfi = folder.foldWithHistory(p, dhfi);
-		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
-		// Now do some real test
-		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
-		TEST_ASSERT(auto_dhfi->getProtein() == p);
 	}
 
 };

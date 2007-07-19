@@ -58,6 +58,7 @@ DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, vector<
 	m_structures = structs;
 	m_log_num_conformations = log_num_confs;
 	m_num_folded = 0;
+	initializeStructuresForResidues();
 }
 
 DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir, double deltaGCutoff, StructureID targetSID )
@@ -69,7 +70,45 @@ DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstrea
 	//cout << "# structures = " << m_structures.size() << endl;
 	//cout << "# lognumconfs = " << log_num_confs << endl;
 	m_num_folded = 0;
+	initializeStructuresForResidues();
 }
+
+
+
+
+
+/*******************************Beginning of Structures For Residue Implementation*************************************************/
+
+		//vector<vector<StructureID> >& lookup_table = folder.getStructureLookupTable();
+		// compare structures against contact lookups
+
+void DecoyContactFolder::initializeStructuresForResidues() {
+  // Set up cache of structures.
+  // Allocate list of structure lists
+  m_structures_for_residue.resize(m_length);
+ // For each structure ID,
+  // get the structure
+  // run through the contacts
+  // for both the first and second residue in the contact,
+  // add the structure ID to the corresponding location.
+  
+  for ( unsigned int sid = 0; sid < m_structures.size(); sid++) {
+	const vector<Contact> &pair_list = m_structures[sid]->getContacts();
+	vector<Contact>::const_iterator it = pair_list.begin();
+	int num_contacts = 0;
+	for ( ; it!=pair_list.end(); it++ )	{
+	  int s1 = (*it).first;
+	  m_structures_for_residue[s1].push_back(sid);
+	  int s2 = (*it).second;
+	  m_structures_for_residue[s2].push_back(sid);
+	}    
+  }
+}
+
+
+/*******************************End of Structures For Residue Implementation*************************************************/
+
+
 
 DecoyContactFolder::~DecoyContactFolder() {
 	vector<DecoyContactStructure*>::iterator it = m_structures.begin();
