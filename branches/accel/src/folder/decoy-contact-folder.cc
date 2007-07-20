@@ -158,28 +158,39 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 	if (!valid) {
 		return new DecoyFoldInfo(false, false, 9999, -1, 9999, 9999, 9999);
 	}
-
 	for ( unsigned int sid = 0; sid < m_structures.size(); sid++) {
 		double G = 0;
 		// calculate binding energy of this fold
 		const vector<Contact> &pair_list = m_structures[sid]->getContacts();
 		vector<Contact>::const_iterator it=pair_list.begin();
+
 		int num_contacts = 0;
-		for ( ; it!=pair_list.end(); it++ )	{
+
+		for ( ; it!=pair_list.end(); it++ ) {
 			int s1 = (*it).first;
 			int s2 = (*it).second;
+			
+			
 			if (s1 < m_length && s2 < m_length) {
-				double contact_G = contactEnergy( aa_indices[s1], aa_indices[s2] );
-				// DAD: debugging
-				/*if (sid == 24) {
-					cout << num_contacts << "\t" << s1 << "\t" << s2 << "\t" << GeneticCodeUtil::residueLetters[s[s1]+1] << "\t" << GeneticCodeUtil::residueLetters[s[s2]+1] << "\t" << contact_G << endl;
-					}*/
-				G += contact_G;
-				//cout << "(" << s1 << ", " << s2 << ") -> " << GeneticCodeUtil::residues[s[s1]] 
-				//	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
-				num_contacts++;
+
+			  double contact_G = contactEnergy( aa_indices[s1], aa_indices[s2] );
+
+			  // DAD: debugging
+
+			  /*if (sid == 24) {
+			    cout << num_contacts << "\t" << s1 << "\t" << s2 << "\t" << GeneticCodeUtil::residueLetters[s[s1]+1] << "\t" << GeneticCodeUtil::residueLetters[s[s2]+1] << "\t" << contact_G << endl;
+			    }*/
+			  G += contact_G;
+
+			  //cout << "(" << s1 << ", " << s2 << ") -> " << GeneticCodeUtil::residues[s[s1]] 
+			  //	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
+			  num_contacts++;
 			}
+			cout << num_contacts++ << endl;
 		}
+
+
+
 		// check if binding energy is lower than any previously calculated one
 		if ( G < minG )
 		{

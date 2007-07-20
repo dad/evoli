@@ -197,7 +197,7 @@ public:
 	 * @param deltaG_cutoff The DeltaG cutoff, as in \ref DGCutoffFolder.
 	 * @param target_sid The target structure ID, as in \ref DGCutoffFolder.
 	 **/
-	DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir, double deltaG_cutoff = 0., StructureID target_sid = -1 );
+  DecoyContactFolder(int length, double log_num_confs, ifstream& fin, const string& dir, double deltaG_cutoff = 0., StructureID target_sid = -1 );
 
 	~DecoyContactFolder();
 

@@ -145,6 +145,7 @@ protected:
 		for (unsigned int i=0; i<p.size() && index >= 0; i++) {
 			index = GeneticCodeUtil::aminoAcidLetterToIndex(p[i]);
 			aa_indices[i] = index;
+			//cout << index << " " << i << " " << p[i] << endl;
 		}
 		return index >= 0;
 	}

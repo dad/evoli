@@ -48,12 +48,12 @@ struct TEST_CLASS( folder_basic )
 	}
 	void TEST_FUNCTION( init_decoy )
 	{
-		ifstream fin("test/data/williams_contact_maps/maps.txt");
-		int protein_length = 300;
-		double log_nconf = 160.0*log(10.0);
-		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
-		TEST_ASSERT( folder.good() );
-		if (!folder.good() )
+	  ifstream fin("../data/williams_contact_maps/maps.txt");
+	  int protein_length = 500;
+	  double log_nconf = 160.0*log(10.0);
+	  DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/williams_contact_maps/");
+	  TEST_ASSERT( folder.good() );
+	  if (!folder.good() )
 			return;
 		int num_to_fold = 1;
 		for (int j=0; j<num_to_fold; j++) {
@@ -68,11 +68,11 @@ struct TEST_CLASS( folder_basic )
 	}
 
 	void TEST_FUNCTION( decoy_known_stability ) {
-		ifstream fin("test/data/rand_contact_maps/maps.txt");
-		int protein_length = 300;
+		ifstream fin("../data/rand_contact_maps/maps.txt");
+		int protein_length = 500;
 		double log_nconf = 160.0*log(10.0);
 		int k = Random::rint(100);
-		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/rand_contact_maps/");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/rand_contact_maps/");
 		TEST_ASSERT( folder.good() );
 		if (!folder.good() )
 			return;
@@ -87,11 +87,10 @@ struct TEST_CLASS( folder_basic )
 
 	void TEST_FUNCTION( contact_reader ) {
 		string seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
-
 		const char* fname = "1qhwA_6_CB.cmap";
+		string filename = string("../data/williams_contact_maps/")+fname;
 		ifstream fin;
 		DecoyContactStructure structure;
-		string filename = string("test/data/williams_contact_maps/")+fname;
 		fin.open(filename.c_str());
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps, bail out
@@ -123,10 +122,10 @@ struct TEST_CLASS( folder_basic )
 		string native_1qhw_seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
 
-		int protein_length = 300;
+		int protein_length = 500;
 		double log_nconf = 160.0*log(10.0);
-		ifstream fin("test/data/williams_contact_maps/maps.txt");
-		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		ifstream fin("../data/williams_contact_maps/maps.txt");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/williams_contact_maps/");
 		TEST_ASSERT( folder.good() );
 		if (!folder.good() )
 			return;
@@ -156,10 +155,10 @@ struct TEST_CLASS( folder_basic )
 	}
 	void TEST_FUNCTION( fold_with_history )
 	{
-		int protein_length = 300;
+		int protein_length = 500;
 		double log_nconf = 160.0*log(10.0);
-		ifstream fin("test/data/williams_contact_maps/maps.txt");
-		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		ifstream fin("../data/williams_contact_maps/maps.txt");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/williams_contact_maps/");
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
 		
 		TEST_ASSERT( folder.good() );
@@ -180,13 +179,13 @@ struct TEST_CLASS( folder_basic )
 	}
 	void TEST_FUNCTION( compare_contacts )
 	{
-		int protein_length = 300;
+		int protein_length = 500;
 		double log_nconf = 160.0*log(10.0);
-		ifstream fin("test/data/williams_contact_maps/maps.txt");
-		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		ifstream fin("../data/williams_contact_maps/maps.txt");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/williams_contact_maps/");
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
 		const char* fname = "1qhwA_6_CB.cmap";
-		string filename = string("test/data/williams_contact_maps/")+fname;
+		string filename = string("../data/williams_contact_maps/")+fname;
 		fin.open(filename.c_str());
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps, bail out

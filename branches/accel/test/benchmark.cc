@@ -35,10 +35,10 @@ int main(){
   time(&t);
   clock_t start;
   Random::seed(t);
-  int size = 300;
-  int MAX = 10000;
+  // int size = 500;
+  int MAX = 10;
 
-  int protein_length = 300;
+  int protein_length = 500;
   int gene_length = protein_length*3;
   double log_nconf = 100.0*log(10.0);
   double max_dg = 0;
@@ -53,13 +53,13 @@ int main(){
   Random::seed(11);
   
   ifstream fin("data/williams_contact_maps/maps.txt");
-
+       
   DecoyContactFolder folder(protein_length, log_nconf, fin, "data/williams_contact_maps/");
-
+ 
   if (!folder.good() ){
       cout<< "Error: folder is not good!" << endl;
   } else {
-    CodingDNA g("TTCCGTTTTTTCCGTGTATGTGACCCGATCATATCCTTACTTATGCATATCTGGCCAGGCCCAATTCGAACACGCCGGCGTTCAAAAATATGGATAAAGGAATTTTGTATCAAGTGTGAACTATGTCCGGAAACATTCCGTCACAAAATGATAGTGTGCGAAAAAAATCCCCCGAGGCTGATATACGCAAAACTCCTACATAGACGCATGAGACGCTTAATTGATATACTAGGTATGATACACCATCGTAAAATCCGTGAGGAAGAGCAGCCGTGCCCTGCTCAGGTGATACTCCCGTTTTTGAGACTAGAGGTGAAGCACAATGTGGCCGCGATTCGCCGATGGACCGCGCCGACTGTGCTAAAAAAGCTCAAATTGGACATAATCCGCTTGGTTCAGATCGTGCCCAAGCTCTGTGAATGCTGTTCATTCGATTCCATCGAAGACTGCCGACGGAAAAGATTTTCGATTAAGGATAGATCGATAACAATAAAGACGGAGGCATGCAAAATCTTTTTTAGGCGGCGCAGATTTCGTCTGCGTACAATCGTAGATGAGCAAGTTCTCTCCCGTTCATCAGCACGGCGACGGAGACGCAAGATCGCCGCCTTCCTTTTTAGCGACCGTTTGCCAATCAGACTCGAACGACGTGATCGGAAGAAGAAAAGGCAAATATGCGAGGAGGAAGAGCCGTTTGACTGCGAGCCGGAGGCTCGCGACATACGATTGAAATTTAGGAGACTGCTAAGACCTAAGTCCTTTATTCGGGACGCGGAACGGGAAACCGATAAGCAAATTCGTTCGAATAGATGCATCGTTTCGGAAGTTTTAAAAGCCATCTCGCACGAGTCTATAGTCCTCAGGATCAAGCCCACACCGTTATTACGTATGAATGCCTTT");
+    CodingDNA g = Gene::createRandomNoStops(gene_length);
     Protein p = g.translate();
     cout << " Starting performance test..." << endl;
     start = clock();
@@ -67,18 +67,26 @@ int main(){
       SimpleMutator mut(0.001);
       CodingDNA g2 = g;
       bool changed = mut.mutate(g2);
-      if(changed){
-	//	cout << "Ahhh, it has been mutated!" << endl;
-	Protein p = g2.translate();
-        auto_ptr<FoldInfo> fi( folder.fold(p) );
-	if ( fi->getDeltaG() <= max_dg && fi->getStructure() == (StructureID)sid ) {
-	  array[i]= fi->getDeltaG();
-	  sum_dg +=  fi->getDeltaG();
-	  i++;
-	  g = g2;
-	}
+
+     if(changed && g2.encodesFullLength()){
+       
+       //cout<< "Protein changed!" << endl;
+       Protein p = g2.translate();
+
+       DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
+       
+       auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
+       
+       if ( dhfi->getDeltaG() <= max_dg && dhfi->getStructure() == (StructureID)sid ) {
+	 array[i]= dhfi->getDeltaG();
+	 sum_dg += dhfi->getDeltaG();
+	 i++;
+	 g = g2; 
+       }
      }
     }
+
+
     clock_t duration = clock() - start;
     cout << " That took: " <<static_cast<double>(duration)/CLOCKS_PER_SEC << " seconds." << endl;
     cout << " That was: " <<static_cast<double>((duration)/CLOCKS_PER_SEC)/MAX << " seconds per protein." << endl;
@@ -94,7 +102,7 @@ int main(){
     cout << " The variance of the delta Gs is: " << variance_dg << endl;
     cout << " The standard deviation is: " << sqrt(variance_dg) << endl;
 }
-  
+ 
     return 0;
 }
 
