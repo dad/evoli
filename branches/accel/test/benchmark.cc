@@ -36,7 +36,7 @@ int main(){
   clock_t start;
   //Random::seed(t);
   // int size = 500;
-  int MAX = 10;
+  int MAX = 1000;
 
   int protein_length = 500;
   int gene_length = protein_length*3;
@@ -52,14 +52,15 @@ int main(){
   int sid = 0; 
   Random::seed(11);
   
-  ifstream fin("data/williams_contact_maps/maps.txt");
+  ifstream fin("test/data/williams_contact_maps/maps.txt");
        
-  DecoyContactFolder folder(protein_length, log_nconf, fin, "data/williams_contact_maps/");
+  DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
  
   if (!folder.good() ){
       cout<< "Error: folder is not good!" << endl;
   } else {
-    CodingDNA g = Gene::createRandomNoStops(gene_length);
+    //CodingDNA g = Gene::createRandomNoStops(gene_length);
+	CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
     Protein p = g.translate();
     cout << " Starting performance test..." << endl;
     start = clock();
@@ -89,12 +90,12 @@ int main(){
        
 
        auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
-       
+	   // cout << dhfi->getDeltaG() << " " << 
        if ( dhfi->getDeltaG() <= max_dg && dhfi->getStructure() == (StructureID)sid ) {
-	 array[i]= dhfi->getDeltaG();
-	 sum_dg += dhfi->getDeltaG();
-	 i++;
-	 g = g2; 
+		 array[i]= dhfi->getDeltaG();
+		 sum_dg += dhfi->getDeltaG();
+		 i++;
+		 g = g2; 
        }
      }
     }

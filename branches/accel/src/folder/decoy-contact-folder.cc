@@ -186,7 +186,6 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 			  //	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
 			  num_contacts++;
 			}
-			cout << num_contacts++ << endl;
 		}
 
 
@@ -235,8 +234,6 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
   DecoyFoldInfo* fi = fold(p); //DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
 
        /***************************Error Line Ends***********************/
-
-  cout << "Error honing..." << endl;            
 
   vector<double> temp_list(m_structures.size(), 0.0);
 
