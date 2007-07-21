@@ -118,12 +118,15 @@ struct TEST_CLASS( population )
 		double U = 1.0/(N*protein_length);
 		Population<CodingDNA, ProteinFreeEnergyFitness, SimpleMutator>  pop( N );
 		SimpleMutator mut(U);
-		ifstream fin("../data/rand_contact_maps/maps.txt");
+		string fname = "test/data/rand_contact_maps/maps.txt";
+		ifstream fin(fname.c_str());
+		string dir = "test/data/rand_contact_maps/";
+
 		double log_nconf = 10 * log(10.0);
-		DecoyContactFolder folder( protein_length, log_nconf, fin, "../data/rand_contact_maps/");
+		DecoyContactFolder folder( protein_length, log_nconf, fin, dir);
 		TEST_ASSERT( folder.good() );
 		if (!folder.good() ) {
-			cout << "# Couldn't initialize folder." << endl;
+		  cout << "# Couldn't initialize folder with " << fname << endl;
 			return;
 		}
 		ProteinFreeEnergyFitness fe( &folder );

@@ -34,101 +34,101 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 struct TEST_CLASS( folder_basic )
 {
-	const static int side_length = 5;
-	const static int gene_length = side_length*side_length*3;
+  const static int side_length = 5;
+  const static int gene_length = side_length*side_length*3;
 
-	void TEST_FUNCTION( init_lattice )
+  void TEST_FUNCTION( init_lattice )
 	{
-		CompactLatticeFolder folder(side_length);
-		Protein p("CSVMQGGKTVFQMPIIERVMQAYNI"); //Gene::createRandomNoStops(gene_length);
-		auto_ptr<FoldInfo> fi( folder.fold(p) );
-		TEST_ASSERT( fabs(fi->getDeltaG()-0.564) < 1e-2 );
-		TEST_ASSERT( fi->getStructure() == (StructureID)225 );
-		return;
+	CompactLatticeFolder folder(side_length);
+	Protein p("CSVMQGGKTVFQMPIIERVMQAYNI"); //Gene::createRandomNoStops(gene_length);
+	auto_ptr<FoldInfo> fi( folder.fold(p) );
+	TEST_ASSERT( fabs(fi->getDeltaG()-0.564) < 1e-2 );
+	TEST_ASSERT( fi->getStructure() == (StructureID)225 );
+	return;
 	}
-	void TEST_FUNCTION( init_decoy )
-	{
-	  ifstream fin("../data/williams_contact_maps/maps.txt");
-	  int protein_length = 500;
-	  double log_nconf = 160.0*log(10.0);
-	  DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/williams_contact_maps/");
-	  TEST_ASSERT( folder.good() );
-	  if (!folder.good() )
-			return;
-		int num_to_fold = 1;
-		for (int j=0; j<num_to_fold; j++) {
-			CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
-			Protein p = g.translate();
-			auto_ptr<FoldInfo> fi( folder.fold(p) );
-			TEST_ASSERT(fi->getStructure()>-1);
-			//cout << "folded:" << tab << fi.getStructure() << tab << fi.getDeltaG() << endl;
-		}
-		// Clean up
-		return;
+  void TEST_FUNCTION( init_decoy )
+    {
+      ifstream fin("test/data/williams_contact_maps/maps.txt");
+      int protein_length = 300;
+      double log_nconf = 160.0*log(10.0);
+      DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+      TEST_ASSERT( folder.good() );
+      if (!folder.good() )
+	return;
+      int num_to_fold = 1;
+      for (int j=0; j<num_to_fold; j++) {
+	CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
+	Protein p = g.translate();
+	auto_ptr<FoldInfo> fi( folder.fold(p) );
+	TEST_ASSERT(fi->getStructure()>-1);
+	//cout << "folded:" << tab << fi.getStructure() << tab << fi.getDeltaG() << endl;
+      }
+      // Clean up
+      return;
+    }
+  
+  void TEST_FUNCTION( decoy_known_stability ) {
+    ifstream fin("test/data/rand_contact_maps/maps.txt");
+    int protein_length = 300;
+    double log_nconf = 160.0*log(10.0);
+    int k = Random::rint(100);
+    DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/rand_contact_maps/");
+    TEST_ASSERT( folder.good() );
+    if (!folder.good() )
+      return;
+    Protein p("PRPEEEKKKREREEKRRKEDKLERIRDLPRKILKMIVEPKRRKKGETEDDDEKESKRREEMEKFKREFFTICIKLLECEEEMARRREKRREEEDIDSLRELMKDCRRFIDDPRRVEQQSQRLDFRSRRKLEDEKDDEDKRKPDFLFEFEMCEEDMRRRPLDRVKDICRVCCEMDEEEEIREEEEFFRPEEEDMKLKSFRESFKDVRRCILRKFEKSRREKSAEFLRHEIPMFSSEDEEDRKKKDRRRQRPMMRHFMKRIKEKEEERKKREFKEQEEPKPKSFKWKTEEEMEELGEQEKRV");
+    auto_ptr<FoldInfo> fi( folder.fold(p) );
+    //cout << endl << fi->getDeltaG() << " " << fi->getStructure() << endl;
+    //cout << p << endl;
+    TEST_ASSERT( fabs(fi->getDeltaG()-0.00732496)<1e-4 );
+    TEST_ASSERT( fi->getStructure() == (StructureID)0 );
+  }
+  
+  
+  void TEST_FUNCTION( contact_reader ) {
+    string seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
+    const char* fname = "1qhwA_6_CB.cmap";
+    string filename = string("test/data/williams_contact_maps/")+fname;
+    ifstream fin;
+    DecoyContactStructure structure;
+    fin.open(filename.c_str());
+    TEST_ASSERT( fin.good() );
+    if (!fin.good()) // if we can't read the contact maps, bail out
+      return;
+    structure.read(fin);
+    fin.close();
+    fin.open(filename.c_str());
+	vector<Contact> contacts = structure.getContacts();
+	int r1, r2;
+	char r1aa, r2aa;
+	for (int i=0; i<contacts.size() && !fin.eof();) {
+	  fin >> r1 >> r1aa >> r2 >> r2aa;
+	  if ( abs(r1-r2)>1 ) {
+	    TEST_ASSERT(contacts[i].first == r1);
+	    TEST_ASSERT(contacts[i].second == r2);
+	    TEST_ASSERT(seq[r1] == r1aa);
+	    TEST_ASSERT(seq[r2] == r2aa);
+	    i++;
+	  }
+	  //cout << contacts[i].first << " " << r1 << " " << contacts[i].second << " " << r2 << " " << seq[r1] << " " << r1aa << " " << seq[r2] << " " << r2aa << endl;
 	}
-
-	void TEST_FUNCTION( decoy_known_stability ) {
-		ifstream fin("../data/rand_contact_maps/maps.txt");
-		int protein_length = 500;
-		double log_nconf = 160.0*log(10.0);
-		int k = Random::rint(100);
-		DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/rand_contact_maps/");
-		TEST_ASSERT( folder.good() );
-		if (!folder.good() )
-			return;
-		Protein p("PRPEEEKKKREREEKRRKEDKLERIRDLPRKILKMIVEPKRRKKGETEDDDEKESKRREEMEKFKREFFTICIKLLECEEEMARRREKRREEEDIDSLRELMKDCRRFIDDPRRVEQQSQRLDFRSRRKLEDEKDDEDKRKPDFLFEFEMCEEDMRRRPLDRVKDICRVCCEMDEEEEIREEEEFFRPEEEDMKLKSFRESFKDVRRCILRKFEKSRREKSAEFLRHEIPMFSSEDEEDRKKKDRRRQRPMMRHFMKRIKEKEEERKKREFKEQEEPKPKSFKWKTEEEMEELGEQEKRV");
-		auto_ptr<FoldInfo> fi( folder.fold(p) );
-		//cout << endl << fi->getDeltaG() << " " << fi->getStructure() << endl;
-		//cout << p << endl;
-		TEST_ASSERT( fabs(fi->getDeltaG()-0.00732496)<1e-4 );
-		TEST_ASSERT( fi->getStructure() == (StructureID)0 );
-	}
-
-
-	void TEST_FUNCTION( contact_reader ) {
-		string seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
-		const char* fname = "1qhwA_6_CB.cmap";
-		string filename = string("../data/williams_contact_maps/")+fname;
-		ifstream fin;
-		DecoyContactStructure structure;
-		fin.open(filename.c_str());
-		TEST_ASSERT( fin.good() );
-		if (!fin.good()) // if we can't read the contact maps, bail out
-			return;
-		structure.read(fin);
-		fin.close();
-		fin.open(filename.c_str());
-		vector<Contact> contacts = structure.getContacts();
-		int r1, r2;
-		char r1aa, r2aa;
-		for (int i=0; i<contacts.size() && !fin.eof();) {
-			fin >> r1 >> r1aa >> r2 >> r2aa;
-			if ( abs(r1-r2)>1 ) {
-				TEST_ASSERT(contacts[i].first == r1);
-				TEST_ASSERT(contacts[i].second == r2);
-				TEST_ASSERT(seq[r1] == r1aa);
-				TEST_ASSERT(seq[r2] == r2aa);
-				i++;
-			}
-			//cout << contacts[i].first << " " << r1 << " " << contacts[i].second << " " << r2 << " " << seq[r1] << " " << r1aa << " " << seq[r2] << " " << r2aa << endl;
-		}
-		fin.close();
-	}
-
-	void TEST_FUNCTION( williams_test ) {
-		// Compare to 
-		// Load the real sequence
-		// Compute free energy
+	fin.close();
+  }
+  
+  void TEST_FUNCTION( williams_test ) {
+    // Compare to 
+    // Load the real sequence
+    // Compute free energy
 		string native_1qhw_seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
-
-		int protein_length = 500;
+		
+		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
-		ifstream fin("../data/williams_contact_maps/maps.txt");
-		DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/williams_contact_maps/");
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
 		TEST_ASSERT( folder.good() );
 		if (!folder.good() )
-			return;
+		  return;
 		Protein p(stable_seq);
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
 		TEST_ASSERT(fi->getStructure()==34);
@@ -136,10 +136,10 @@ struct TEST_CLASS( folder_basic )
 		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getDeltaG() << endl;
 		// Clean up
 	}
-
+	
 	void TEST_FUNCTION( sequence_for_structure )
-	{
-		CompactLatticeFolder folder(side_length);
+	  {
+	CompactLatticeFolder folder(side_length);
 		double max_dg = -1;
 		int sid = 574;
 		Random::seed(11);
@@ -153,19 +153,20 @@ struct TEST_CLASS( folder_basic )
 		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
 		return;
 	}
+
 	void TEST_FUNCTION( fold_with_history )
 	{
-		int protein_length = 500;
+		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
-		ifstream fin("../data/williams_contact_maps/maps.txt");
-		DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/williams_contact_maps/");
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
 		
 		TEST_ASSERT( folder.good() );
 		if (!folder.good() )
-			return;
+		return;
 		Protein p(stable_seq);
-
+		
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
 		//FoldInfo* real_fi = folder.fold(p);
 		//auto_ptr<FoldInfo> fi( real_fi );
@@ -176,16 +177,17 @@ struct TEST_CLASS( folder_basic )
 		// Now do some real test
 		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
 		TEST_ASSERT(auto_dhfi->getProtein() == p);
-	}
+		}
+	
 	void TEST_FUNCTION( compare_contacts )
 	{
-		int protein_length = 500;
+		int protein_length = 300;
 		double log_nconf = 160.0*log(10.0);
-		ifstream fin("../data/williams_contact_maps/maps.txt");
-		DecoyContactFolder folder(protein_length, log_nconf, fin, "../data/williams_contact_maps/");
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
 		const char* fname = "1qhwA_6_CB.cmap";
-		string filename = string("../data/williams_contact_maps/")+fname;
+		string filename = string("test/data/williams_contact_maps/")+fname;
 		fin.open(filename.c_str());
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps, bail out
@@ -214,7 +216,7 @@ struct TEST_CLASS( folder_basic )
 		DecoyHistoryFoldInfo *dhfi = NULL;
 		dhfi = folder.foldWithHistory(p, dhfi);
 		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
-
+		
 		//vector<vector<StructureID> >& lookup_table = folder.getStructureLookupTable();
 		// compare structures against contact lookups
 		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
@@ -225,7 +227,7 @@ struct TEST_CLASS( folder_basic )
 		for ( int i = 0; i < 1000; i++) {
 		  StructureID sid = (StructureID)Random::rint(1000);
 		  const DecoyContactStructure* structure = folder.getStructure(sid);
-		// Within each structure, pick 10 contacts at random
+		  // Within each structure, pick 10 contacts at random
 		  for (int j = 0; j < 10; j++) {
 		    const vector<Contact> contacts = structure->getContacts();
 		    int cid = Random::rint(contacts.size());
@@ -239,18 +241,18 @@ struct TEST_CLASS( folder_basic )
 		    TEST_ASSERT(found);
 		  }
 		}
-
+	
 		// Take first contact residue, look up in table
 		// Confirm that the structure ID exists in the table.
-
 		
-
-
+		
+		
+		
 		//FoldInfo* real_fi = folder.fold(p);
 		//auto_ptr<FoldInfo> fi( real_fi );
 	}
-
 };
+	
 
 
 #endif // _T_FOLDER_H__
