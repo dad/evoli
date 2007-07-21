@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <time.h>
 
-char calc_frac(Protein x, int y){
+/*char calc_frac(Protein x, int y){
   string aa = "ACDEFGHIKLMNPQRSTVWY";
  
   for (int i = 0; i < 20; i++){
@@ -29,12 +29,12 @@ char calc_frac(Protein x, int y){
      }
   cout << "\n"; 
 }
-
+*/
 int main(){
   long t;
   time(&t);
   clock_t start;
-  Random::seed(t);
+  //Random::seed(t);
   // int size = 500;
   int MAX = 10;
 
@@ -73,8 +73,21 @@ int main(){
        //cout<< "Protein changed!" << endl;
        Protein p = g2.translate();
 
-       DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
+       //
+
+       /***************************Error Line Begins***********************/
+
+       DecoyHistoryFoldInfo *dhfi = NULL;
+
+       dhfi = folder.foldWithHistory(p, dhfi);
        
+
+       //DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
+
+
+       /***************************Error Line Ends***********************/
+       
+
        auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
        
        if ( dhfi->getDeltaG() <= max_dg && dhfi->getStructure() == (StructureID)sid ) {

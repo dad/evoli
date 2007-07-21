@@ -227,9 +227,19 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 	return new DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
 }
 
-DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein& p, const DecoyHistoryFoldInfo* history) const {
+DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, const DecoyHistoryFoldInfo* history) const {
+
+       /***************************Error Line Begins***********************/
+  //does fold need to be called with a member? Or is that not necessary in the class?
+
   DecoyFoldInfo* fi = fold(p); //DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
+
+       /***************************Error Line Ends***********************/
+
+  cout << "Error honing..." << endl;            
+
   vector<double> temp_list(m_structures.size(), 0.0);
+
   DecoyHistoryFoldInfo* dhfi = new DecoyHistoryFoldInfo(*fi, p, temp_list);
   return dhfi;
 }
