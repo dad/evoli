@@ -350,10 +350,14 @@ struct TEST_CLASS( folder_basic )
 		for (int i=0; i<10; i++) {
 		  CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
 		  Protein p = g.translate();
+		  cout << p << endl;
 		  DecoyHistoryFoldInfo *dhfi1 = folder.foldWithHistory(p, NULL);
-		  auto_ptr<DecoyHistoryFoldInfo> auto_dhfi1(dhfi1);
+		  cout << dhfi1 <<"\n\n"<< endl;//Error checking
+		  auto_ptr<DecoyHistoryFoldInfo> auto_dhfi1(dhfi1);	
+		  cout << dhfi1 <<"\n\n"<< endl;//Error checking
 		  DecoyHistoryFoldInfo *dhfi2 = folder.foldWithHistory(p, dhfi1);
-		  TEST_ASSERT(dhfi2 != NULL);
+		  cout << dhfi2 <<"\n\n"<< endl;//Error checking
+		  TEST_ASSERT(dhfi2 != NULL);		 
 		  auto_ptr<DecoyHistoryFoldInfo> auto_dhfi2(dhfi2);
 		  const vector<double>& energies1 = dhfi1->getEnergies();
 		  const vector<double>& energies2 = dhfi2->getEnergies();
