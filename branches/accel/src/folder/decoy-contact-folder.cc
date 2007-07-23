@@ -130,16 +130,18 @@ bool DecoyContactFolder::good() const {
 
 double DecoyContactFolder::getEnergy(const Protein& s, StructureID sid) const {
 	double G = 0;
+	vector<unsigned int> aa_indices(s.size());
 	if (sid >= m_structures.size()) {
 		return 999999;
 	}
+	bool valid = getAminoAcidIndices(s, aa_indices);
 	const vector<Contact> &pair_list = m_structures[sid]->getContacts();
 	vector<Contact>::const_iterator it=pair_list.begin();
 	for ( ; it!=pair_list.end(); it++ )	{
 		int s1 = (*it).first;
 		int s2 = (*it).second;
 		if (s1 < m_length && s2 < m_length) {
-			double contact_G = contactEnergy( s[s1], s[s2] );
+			double contact_G = contactEnergy( aa_indices[s1], aa_indices[s2] );
 			G += contact_G;
 			//cout << "(" << s1 << ", " << s2 << ") -> " << GeneticCodeUtil::residues[s[s1]] 
 			//	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
@@ -227,7 +229,7 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 
 DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, const DecoyHistoryFoldInfo* history) const {
   // Right now, this just calls fold().  That's slow!
-  DecoyFoldInfo* fi = fold(p); //DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
+  //DecoyFoldInfo* fi = fold(p); //DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
   // Instead, it should do everything fold() does,
   // except instead of iterating over all structures,
   // and computing their energies, it should iterate only
@@ -240,12 +242,49 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
   vector<unsigned int> aa_indices(p.size());
   double sumG = 0.0;
   double sumsqG = 0.0;
+
+  // What if there's no history?
+  // Make a new DHFI
+  if (history == NULL) {
+	bool valid = getAminoAcidIndices(p, aa_indices);
+	vector<double> energies(m_structures.size(), 0.0);
+	for ( unsigned int sid = 0; sid < m_structures.size(); sid++) {
+	  double G = getEnergy(p, sid);
+	  energies[sid] = G;
+	  if ( G < minG ) {
+		minG = G;
+		minIndex = sid;
+	  }
+	  // add energy to partition sum
+	  sumG += G;
+	  sumsqG += G*G;
+	}
+	
+	// remove min. energy
+	sumG -= minG;
+	sumsqG -= minG*minG;
+	
+	// compute statistics
+	unsigned int num_confs = m_structures.size() - 1;
+	double mean_G = sumG/num_confs;
+	double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
+	// calculate free energy of folding
+	double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
+	
+	return new DecoyHistoryFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG, p, energies);
+  }
+  // Skip other stuff.
+  return NULL;
+  /*
   
   bool valid = getAminoAcidIndices(p, aa_indices);
   if (!valid) {
+	// Warning: this will crash if history == NULL!  Change it.
     return new DecoyHistoryFoldInfo(*history);
   }
 
+  
+  
   
   for ( unsigned int sid = 0; sid < m_structures.size(); sid++) {
     double G = 0;
@@ -287,14 +326,6 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
   // calculate free energy of folding
   double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
   
-  /*cout << "minG:" << minG << endl;
-    cout << "mean_G:" << mean_G << endl;
-    cout << "var_G:" << var_G << endl;
-    cout << "dG:" << dG << endl;
-    cout << "(var_G - 2*kT*mean_G)/(2.0*kT): " << ((var_G - 2*kT*mean_G)/(2.0*kT)) << endl;
-    cout << "kT ln N: " << kT * m_log_num_conformations << endl;
-  */
-  
   // increment folded count
   m_num_folded += 1;
   // Figure out changed aa
@@ -318,6 +349,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
   //return new DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
   DecoyHistoryFoldInfo* dhfi = new DecoyHistoryFoldInfo(*fi, p, temp_list);
   return dhfi;
+*/
 }
 
 
