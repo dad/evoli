@@ -98,9 +98,14 @@ void DecoyContactFolder::initializeStructuresForResidues() {
 	int num_contacts = 0;
 	for ( ; it!=pair_list.end(); it++ )	{
 	  int s1 = (*it).first;
-	  m_structures_for_residue[s1].push_back(sid);
 	  int s2 = (*it).second;
-	  m_structures_for_residue[s2].push_back(sid);
+	  // cout << s1 << " "<< s2 << " " << m_length << endl;
+	  if (s1 < m_length) {
+		m_structures_for_residue[s1].push_back(sid);
+	  }
+	  if (s2 < m_length) {
+		m_structures_for_residue[s2].push_back(sid);
+	  }
 	}    
   }
 }
@@ -266,4 +271,9 @@ void ContactMapUtil::readContactMapsFromFile(ifstream& fin, const string& dir, v
 			}
 		}
 	} while (!fin.eof());
+}
+
+const vector<StructureID> DecoyContactFolder::getStructuresWithResidueContact(uint residue_number) const {
+  //cout << residue_number << " " << m_structures_for_residue.size() << endl;
+    return m_structures_for_residue[residue_number];
 }

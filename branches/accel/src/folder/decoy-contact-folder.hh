@@ -231,23 +231,22 @@ public:
 	 **/
   virtual bool good() const;
 
-  const DecoyContactStructure* getStructure(StructureID sid) const { return m_structures[sid]; }
-
-  const vector<StructureID> getStructuresWithResidueContact(uint residue_number) const {
-    return m_structures_for_residue[residue_number];
+  const DecoyContactStructure* getStructure(StructureID sid) const {
+	if (sid < m_structures.size()) {
+	  return m_structures[sid]; 
+	}
+	else {
+	  return NULL;
+	}
   }
 
+  uint getNumStructures() const { return m_structures.size(); }
 
-  /*vector <Contact>& getContacts() const { return m_contacts; }
-  virtual const vector<Contact>& getContacts() const { return m_contacts; }
-  */
+  /**
+   * This function returns all structures with contacts involving the specified residue.
+   **/
+  const vector<StructureID> getStructuresWithResidueContact(uint residue_number) const;
 };
-
-  /*
-  const DecoyContactStructure* getStructure(StructureID sid) const {
-    return m_structures[sid];
-    //  int k = Random::rint(100);
-    }*/
 
 struct ContactMapUtil {
 	static void readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs);
