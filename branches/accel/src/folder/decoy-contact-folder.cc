@@ -273,7 +273,9 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	
 	return new DecoyHistoryFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG, p, energies);
   }
-  // Skip other stuff.
+  else {
+	// Now actually implement interesting logic.
+  }
   return NULL;
   /*
   

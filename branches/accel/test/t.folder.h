@@ -195,27 +195,13 @@ struct TEST_CLASS( folder_basic )
 		if (!folder.good())
 			return;
 
-		/*
-		const char* fname = "1qhwA_6_CB.cmap";
-		string filename = string("test/data/williams_contact_maps/")+fname;
-		fin.open(filename.c_str());
-
-		return;
-
-		DecoyContactStructure structure;
-		structure.read(fin);
-		fin.close();
-		fin.open(filename.c_str());
-		*/
-
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
-		DecoyHistoryFoldInfo *dhfi = NULL;
-		dhfi = folder.foldWithHistory(p, dhfi);
+		DecoyHistoryFoldInfo *dhfi = folder.foldWithHistory(p, NULL);
 		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
 		
 		//vector<vector<StructureID> >& lookup_table = folder.getStructureLookupTable();
 		// compare structures against contact lookups
-		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
+		TEST_ASSERT(abs(fi->getDeltaG()- auto_dhfi->getDeltaG()) < 1e-6);
 		//vector<DecoyContactStructure*>& structures = folder.getStructures();
 		
 		// Assume existence of a lookup table
@@ -345,6 +331,36 @@ struct TEST_CLASS( folder_basic )
 		  // calculate free energy of folding
 		  double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * log_nconf;
 		  TEST_ASSERT(abs(dG - realdG) < 1e-6);
+		}
+	}
+
+	void TEST_FUNCTION( with_some_history )
+	{
+	  int protein_length = 500;
+		double log_nconf = 160.0*log(10.0);
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		TEST_ASSERT( fin.good() );
+		if (!fin.good()) // if we can't read the contact maps, bail out
+			return;
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		TEST_ASSERT(folder.good());
+		if (!folder.good())
+			return;
+
+		for (int i=0; i<10; i++) {
+		  CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
+		  Protein p = g.translate();
+		  DecoyHistoryFoldInfo *dhfi1 = folder.foldWithHistory(p, NULL);
+		  auto_ptr<DecoyHistoryFoldInfo> auto_dhfi1(dhfi1);
+		  DecoyHistoryFoldInfo *dhfi2 = folder.foldWithHistory(p, dhfi1);
+		  TEST_ASSERT(dhfi2 != NULL);
+		  auto_ptr<DecoyHistoryFoldInfo> auto_dhfi2(dhfi2);
+		  const vector<double>& energies1 = dhfi1->getEnergies();
+		  const vector<double>& energies2 = dhfi2->getEnergies();
+		  TEST_ASSERT(energies1.size() == energies2.size());
+		  for (int j=0; j<energies1.size(); j++) {
+			TEST_ASSERT(abs(energies1[j] - energies2[j]) < 1e-6);
+		  }
 		}
 	}
 };
