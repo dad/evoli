@@ -132,6 +132,9 @@ protected:
 	//=MJ85TableVI[residue1][residue2]; }
 
 public:
+	// Constants
+	static double BAD_ENERGY;
+
 	/**
 	 * Create DecoyContactFolder using already existing structure objects.
 	 *
@@ -176,6 +179,11 @@ public:
 	@return The number of proteins that have been folded so far with this Folder instance.
 	*/
 	uint getNumFolded() const { return m_num_folded; }
+
+	/**
+	@return The number of structures into which proteins can fold.
+	*/
+	uint getNumStructures() const { return m_structures.size(); }
 
 	/**
 	This function assesses whether the folder has been properly initialized.

@@ -116,8 +116,8 @@ public:
 			else {
 				Protein p = g2.translate();
 				fdata = auto_ptr<FoldInfo>( b.fold(p) );
-				//cout << fdata->getStructure() << "\t" << fdata->getDeltaG() << "\t" << g << endl;
 				if (fdata->getStructure() == struct_id && fdata->getDeltaG() <= G-0.001) {
+					//cout << fdata->getStructure() << "\t" << fdata->getDeltaG() << "\t" << g << endl;
 					// we found an improved sequence. grab it, and reset failure count
 					g = g2;
 					G = fdata->getDeltaG();
@@ -188,7 +188,7 @@ public:
 			else {
 				Protein p = g2.translate();
 				fdata = auto_ptr<FoldInfo>( b.fold(p) );
-				//cout << fdata.first << "\t" << fdata.second << "\t" << G << endl;
+				// cout << fdata->getDeltaG() << "\t" << fdata->getStructure() << "\t" << G << endl;
 				if (fdata->getDeltaG() <= G-0.001) {
 					// we found an improved sequence. grab it, and reset failure count
 					g = g2;

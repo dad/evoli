@@ -123,7 +123,7 @@ struct TEST_CLASS( folder_basic )
 		string native_1qhw_seq = "STLRFVAVGDWGGVPNAPFHTAREMANAKEIARTVQIMGADFIMSLGDNFYFTGVHDANDKRFQETFEDVFSDRALRNIPWYVLAGNHDHLGNVSAQIAYSKISKRWNFPSPYYRLRFKVPRSNITVAIFMLDTVMLCGNSDDFVSQQPEMPRDLGVARTQLSWLKKQLAAAKEDYVLVAGHYPIWSIAEHGPTRCLVKNLRPLLAAYGVTAYLCGHDHNLQYLQDENGVGYVLSGAGNFMDPSVRHQRKVPNGYLRFHYGSEDSLGGFTYVEIGSKEMSITYVEASGKSLFKTSLPRRP";
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
 
-		int protein_length = 300;
+		int protein_length = stable_seq.size();
 		double log_nconf = 160.0*log(10.0);
 		ifstream fin("test/data/williams_contact_maps/maps.txt");
 		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
@@ -133,8 +133,6 @@ struct TEST_CLASS( folder_basic )
 		Protein p(stable_seq);
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
 		TEST_ASSERT(fi->getStructure()==34);
-		//cout << "Williams:" << endl;
-		//cout << "folded:" << tab << fi.getStructure() << tab << fi.getDeltaG() << endl;
 		// Clean up
 	}
 
@@ -148,12 +146,78 @@ struct TEST_CLASS( folder_basic )
 		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		//cout << "num folded: " << (folder.getNumFolded() - nfolded) << endl;
 		Protein p = g.translate();
-		//cout << "xx" << p << endl;
 		auto_ptr<FoldInfo> fi( folder.fold(p) );
 		TEST_ASSERT( fi->getDeltaG() <= max_dg );
 		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
 		return;
 	}
+
+	bool getAminoAcidIndices(const Protein& p, vector<unsigned int>& aa_indices)
+	{
+		int index = 0;
+		for (unsigned int i=0; i<p.size() && index >= 0; i++) {
+			index = GeneticCodeUtil::aminoAcidLetterToIndex(p[i]);
+			aa_indices[i] = index;
+			//cout << index << " " << i << " " << p[i] << endl;
+		}
+		return index >= 0;
+	}
+
+	void TEST_FUNCTION( get_energy ) {
+	  int protein_length = 500;
+		double log_nconf = 160.0*log(10.0);
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		TEST_ASSERT( fin.good() );
+		if (!fin.good()) // if we can't read the contact maps, bail out
+			return;
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		TEST_ASSERT(folder.good());
+		if (!folder.good())
+			return;
+		// Test whether energies yield same value as fold()
+
+		for (int i = 0; i<100; i++) {
+
+		  CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
+		  Protein p = g.translate();
+
+		  auto_ptr<FoldInfo> fi( folder.fold( p ) );
+		  double realdG = fi->getDeltaG();
+
+		  double kT = 0.6;
+		  double minG = 1e50;
+		  int minIndex = -1;
+		  vector<unsigned int> aa_indices(p.size());
+		  double sumG = 0.0;
+		  double sumsqG = 0.0;
+
+		  bool valid = getAminoAcidIndices(p, aa_indices);
+		  for ( unsigned int sid = 0; sid < folder.getNumStructures(); sid++) {
+			double G = folder.getEnergy(p, sid);
+			// check if binding energy is lower than any previously calculated one
+			if ( G < minG ) {
+			  minG = G;
+			  minIndex = sid;
+			}
+
+			// add energy to partition sum
+			sumG += G;
+			sumsqG += G*G;
+		  }
+
+		  // remove min. energy
+		  sumG -= minG;
+		  sumsqG -= minG*minG;
+		
+		  unsigned int num_confs = folder.getNumStructures() -1;
+		  double mean_G = sumG/num_confs;
+		  double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
+		  // calculate free energy of folding
+		  double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * log_nconf;
+		  TEST_ASSERT(abs(dG - realdG) < 1e-6);
+		}
+	}
+
 };
 
 

@@ -50,6 +50,7 @@ int main() {
 	int nfolded = folder.getNumFolded();
 	CodingDNA g = FolderUtil::getSequenceForStructure( folder, 3*protein_length, max_dg, sid);
 	cout << "# Found initial sequence: " << folder.fold(g.translate())->getDeltaG() << endl;;
+
 	CodingDNA g2 = g;
 	Polymerase poly(0.001);
 	// Evolve under low mutation pressure

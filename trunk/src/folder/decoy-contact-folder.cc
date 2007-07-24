@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <cmath>
 #include "genetic-code.hh"
 
+double DecoyContactFolder::BAD_ENERGY = 999999.0;
+
 void DecoyContactStructure::read(istream& fin) {
 	int r1, r2;
 	string r1aa, r2aa;
@@ -87,15 +89,17 @@ bool DecoyContactFolder::good() const {
 double DecoyContactFolder::getEnergy(const Protein& s, StructureID sid) const {
 	double G = 0;
 	if (sid >= m_structures.size()) {
-		return 999999;
+		return DecoyContactFolder::BAD_ENERGY;
 	}
+	vector<unsigned int> aa_indices(s.size());
+	getAminoAcidIndices(s, aa_indices);
 	const vector<Contact> &pair_list = m_structures[sid]->getContacts();
 	vector<Contact>::const_iterator it=pair_list.begin();
 	for ( ; it!=pair_list.end(); it++ )	{
 		int s1 = (*it).first;
 		int s2 = (*it).second;
 		if (s1 < m_length && s2 < m_length) {
-			double contact_G = contactEnergy( s[s1], s[s2] );
+			double contact_G = contactEnergy( aa_indices[s1], aa_indices[s2] );
 			G += contact_G;
 			//cout << "(" << s1 << ", " << s2 << ") -> " << GeneticCodeUtil::residues[s[s1]] 
 			//	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
