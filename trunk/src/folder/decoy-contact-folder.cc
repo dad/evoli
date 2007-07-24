@@ -136,13 +136,7 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 			int s2 = (*it).second;
 			if (s1 < m_length && s2 < m_length) {
 				double contact_G = contactEnergy( aa_indices[s1], aa_indices[s2] );
-				// DAD: debugging
-				/*if (sid == 24) {
-					cout << num_contacts << "\t" << s1 << "\t" << s2 << "\t" << GeneticCodeUtil::residueLetters[s[s1]+1] << "\t" << GeneticCodeUtil::residueLetters[s[s2]+1] << "\t" << contact_G << endl;
-					}*/
 				G += contact_G;
-				//cout << "(" << s1 << ", " << s2 << ") -> " << GeneticCodeUtil::residues[s[s1]] 
-				//	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
 				num_contacts++;
 			}
 		}
@@ -153,8 +147,6 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 			minIndex = sid;
 		}
 		// add energy to partition sum
-        // DAD: debugging
-		//cout << G << " energy for str. " << sid << " (" << num_contacts << " contacts of " << pair_list.size() << ")" << endl;
 		sumG += G;
 		sumsqG += G*G;
 	}
