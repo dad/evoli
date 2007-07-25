@@ -57,8 +57,8 @@ public:
 	int distance(const Sequence& s2) const {
 		int diffs = 0;
 		const Sequence& s = *this;
-		int min_index = min(length(), s.length());
-		int max_index = max(length(), s.length());
+		int min_index = min(s.length(), s2.length());
+		int max_index = max(s.length(), s2.length());
 		for (int i=0; i<min_index; i++) {
 			if (s[i] != s2[i]) {
 				diffs++;
@@ -66,6 +66,19 @@ public:
 		}
 		return diffs + (max_index - min_index);
 	}
+
+  vector<uint> getDifferences(const Sequence& s2) const {
+	vector<uint> diffs;
+		const Sequence& s = *this;
+		int min_index = min(s.length(), s2.length());
+		// Note: this does not treat nonoverlapping sequence as differences.
+		for (uint i=0; i<min_index; i++) {
+			if (s[i] != s2[i]) {
+			  diffs.push_back(i);
+			}
+		}
+		return diffs;
+  }
 };
 
 #endif //SEQUENCE_HH

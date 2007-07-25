@@ -273,22 +273,64 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	
 	return new DecoyHistoryFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG, p, energies);
   }
-// Now actually implement interesting logic.
+  // Now actually implement interesting logic.
   else {
-    Protein q = history->getProtein()
-    if (p != q){
-      for (uint i = 0; i < p.size; i++){
-	if(p[i]!= q[i]){
-	  for(uint j = 0; j < m_structures_for_residue.size; j++){
-	    if(p[i] == m_structures_for_residue[j]{
-	      return m_structures_for_residue[j];
-
-
-	      //		double contact_G = contactEnergy( aa_indices[s1], aa_indices[s2] );
- [j]{
-	    }
+	// First find the residue at which there's a difference
+	// Note: what do you do if there's more than one difference?
+    const Protein& q = history->getProtein();
+	// vector<uint> getDifferences(const Sequence& p, const Sequence& q) {...}
+	vector<uint> diff_indices = p.getDifferences(q);
+	uint diffs = diff_indices.size();
+	if (diffs > 1) {
+	  // just fold without any acceleration
+	}
+	if (diffs == 1) {
+	  // do some interesting logic
+	  vector<double> energies = history->getEnergies();
+	  uint changed_index = diff_indices[0];
+	  const vector<StructureID>& bad_structures = m_structures_for_residue[changed_index];
+	  vector<StructureID>::const_iterator iter = bad_structures.begin();
+	  for (; iter != bad_structures.end(); iter++) {
+		StructureID sid = *iter;
+		// compute energy for structure sid
+		// replace energies[sid] with that new energy.
 	  }
-{
+	  // Now we're ready to finish up.
+	  for ( uint sid=0; sid<energies.size(); sid++) {
+		double G = energies[sid];
+		if ( G < minG ) {
+		  minG = G;
+		  minIndex = sid;
+		}
+		// add energy to partition sum
+		sumG += G;
+		sumsqG += G*G;
+	  }
+	  
+	  // remove min. energy
+	  sumG -= minG;
+	  sumsqG -= minG*minG;
+	
+	  // compute statistics
+	  unsigned int num_confs = m_structures.size() - 1;
+	  double mean_G = sumG/num_confs;
+	  double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
+	  // calculate free energy of folding
+	  double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
+	
+	  return new DecoyHistoryFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG, p, energies);
+	}
+	/*    if (p != q) {
+      for (uint i = 0; i < p.size; i++){
+		if(p[i]!= q[i]){
+		  for(uint j = 0; j < m_structures_for_residue.size; j++){
+			if(p[i] == m_structures_for_residue[j]{
+			  return m_structures_for_residue[j];
+			}
+			   
+			   }
+	  }
+
 
 	    
 	  }
@@ -332,36 +374,10 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
     
     return new DecoyHistoryFoldInfo(p, history);
     return dhfi;
-
-void DecoyContactFolder::initializeStructuresForResidues() {
-  // Set up cache of structures.
-  // Allocate list of structure lists
-  m_structures_for_residue.resize(m_length);
- // For each structure ID,
-  // get the structure
-  // run through the contacts
-  // for both the first and second residue in the contact,
-  // add the structure ID to the corresponding location.
-  
-  for ( unsigned int sid = 0; sid < m_structures.size(); sid++) {
-	const vector<Contact> &pair_list = m_structures[sid]->getContacts();
-	vector<Contact>::const_iterator it = pair_list.begin();
-	int num_contacts = 0;
-	for ( ; it!=pair_list.end(); it++ )	{
-	  int s1 = (*it).first;
-	  int s2 = (*it).second;
-	  // cout << s1 << " "<< s2 << " " << m_length << endl;
-	  if (s1 < m_length) {
-		m_structures_for_residue[s1].push_back(sid);
-	  }
-	  if (s2 < m_length) {
-		m_structures_for_residue[s2].push_back(sid);
-	  }
-	}    
-  }
-}
+	*/
   }
   return NULL;
+}
   /*
     
   bool valid = getAminoAcidIndices(p, aa_indices);
@@ -436,8 +452,6 @@ void DecoyContactFolder::initializeStructuresForResidues() {
   //return new DecoyFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG);
   
 */
-}
-
 
 
 void ContactMapUtil::readContactMapsFromFile(ifstream& fin, const string& dir, vector<DecoyContactStructure*>& structs) {

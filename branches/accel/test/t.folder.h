@@ -263,7 +263,7 @@ struct TEST_CLASS( folder_basic )
 		  TEST_ASSERT(dhfi->getProtein() == p);
 		  const vector<double>& energies = dhfi->getEnergies();
 		  TEST_ASSERT(energies.size() == folder.getNumStructures());
-		  cout << fi->getDeltaG() << " " << auto_dhfi->getDeltaG() << endl;
+		  // cout << fi->getDeltaG() << " " << auto_dhfi->getDeltaG() << endl;
 		  TEST_ASSERT(abs(fi->getDeltaG()-auto_dhfi->getDeltaG()) < 1e-6);
 		}
 	}
@@ -356,16 +356,18 @@ void TEST_FUNCTION( with_some_history )
 		  DecoyHistoryFoldInfo *dhfi2 = folder.foldWithHistory(p, dhfi1);
 		  cout << dhfi2 <<"\n\n"<< endl;//Error checking
 		  TEST_ASSERT(dhfi2 != NULL);		 
-		  auto_ptr<DecoyHistoryFoldInfo> auto_dhfi2(dhfi2);
-		  const vector<double>& energies1 = dhfi1->getEnergies();
-		  const vector<double>& energies2 = dhfi2->getEnergies();
-		  TEST_ASSERT(energies1.size() == energies2.size());
-		  for (int j=0; j<energies1.size(); j++) {
-			TEST_ASSERT(abs(energies1[j] - energies2[j]) < 1e-6);
+		  if (dhfi2 != NULL){
+			auto_ptr<DecoyHistoryFoldInfo> auto_dhfi2(dhfi2);
+			const vector<double>& energies1 = dhfi1->getEnergies();
+			const vector<double>& energies2 = dhfi2->getEnergies();
+			TEST_ASSERT(energies1.size() == energies2.size());
+			for (int j=0; j<energies1.size(); j++) {
+			  TEST_ASSERT(abs(energies1[j] - energies2[j]) < 1e-6);
+			}
 		  }
 		}
-		}
-	
+	}
+ 
 };
 
 
