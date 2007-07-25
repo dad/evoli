@@ -111,8 +111,7 @@ public:
 };
 
 /** \brief  The DecoyContactFolder implements the protein folding model of P. D. Williams
- * et al., PLoS Comp. Biol. 2:e69.
- *
+ * et al., PLoS Comp. Biol. 2:e69. 
  * This folder implementation folds proteins using a set of decoy structures given as
  * contact maps. The folder can either read the contact maps from disk or accept
  * ready-made objects of type @ref ContactStructure.
