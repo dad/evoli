@@ -333,7 +333,38 @@ struct TEST_CLASS( folder_basic )
 		  TEST_ASSERT(abs(dG - realdG) < 1e-6);
 		}
 	}
+void TEST_FUNCTION( with_some_history )
+	{
+	  int protein_length = 500;
+		double log_nconf = 160.0*log(10.0);
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		TEST_ASSERT( fin.good() );
+		if (!fin.good()) // if we can't read the contact maps, bail out
+			return;
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		TEST_ASSERT(folder.good());
+		if (!folder.good())
+			return;
 
+		for (int i=0; i<10; i++) {
+		  CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
+		  Protein p = g.translate();
+		  DecoyHistoryFoldInfo *dhfi1 = folder.foldWithHistory(p, NULL);
+		  cout << dhfi1 <<"\n\n"<< endl;//Error checking
+		  auto_ptr<DecoyHistoryFoldInfo> auto_dhfi1(dhfi1);	
+		  cout << dhfi1 <<"\n\n"<< endl;//Error checking
+		  DecoyHistoryFoldInfo *dhfi2 = folder.foldWithHistory(p, dhfi1);
+		  cout << dhfi2 <<"\n\n"<< endl;//Error checking
+		  TEST_ASSERT(dhfi2 != NULL);		 
+		  auto_ptr<DecoyHistoryFoldInfo> auto_dhfi2(dhfi2);
+		  const vector<double>& energies1 = dhfi1->getEnergies();
+		  const vector<double>& energies2 = dhfi2->getEnergies();
+		  TEST_ASSERT(energies1.size() == energies2.size());
+		  for (int j=0; j<energies1.size(); j++) {
+			TEST_ASSERT(abs(energies1[j] - energies2[j]) < 1e-6);
+		  }
+		}
+		}
 	
 };
 
