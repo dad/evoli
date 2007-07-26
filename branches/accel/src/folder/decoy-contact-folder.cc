@@ -294,46 +294,42 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 		StructureID sid = *iter;
 		// compute energy for structure sid
 		// replace energies[sid] with that new energy.
-	  }
-	  // Now we're ready to finish up.
-	  for ( uint sid=0; sid<energies.size(); sid++) {
-		double G = energies[sid];
-		if ( G < minG ) {
-		  minG = G;
-		  minIndex = sid;
+		// Now we're ready to finish up.
+		for ( uint sid=0; sid<energies.size(); sid++) {
+		  double G = energies[sid];
+		  if ( G < minG ) {
+		    minG = G;
+		    minIndex = sid;
+		  }
+		  // add energy to partition sum
+		  sumG += G;
+		  sumsqG += G*G;
 		}
-		// add energy to partition sum
-		sumG += G;
-		sumsqG += G*G;
+		// remove min. energy
+		sumG -= minG;
+		sumsqG -= minG*minG;
+		
+		// compute statistics
+		unsigned int num_confs = m_structures.size() - 1;
+		double mean_G = sumG/num_confs;
+		double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
+		// calculate free energy of folding
+		double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
 	  }
-	  
-	  // remove min. energy
-	  sumG -= minG;
-	  sumsqG -= minG*minG;
+	  return new DecoyHistoryFoldInfo(*history);
+	}
+	else {
+	  return new DecoyHistoryFoldInfo(*history);
+	}
 	
-	  // compute statistics
-	  unsigned int num_confs = m_structures.size() - 1;
-	  double mean_G = sumG/num_confs;
-	  double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
-	  // calculate free energy of folding
-	  double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
-	  
-	  DecoyHistoryFoldInfo* dhfi = foldWithHistory(p, history);
-	  return dhfi;
 
-	    
-	}/*
-	     double mean_G = sumG/num_confs;                                       |    cout << " Starting performance test..." << endl;
-	     double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);      |    start = clockndex is a part of a contact,   |       DecoyHistoryFoldInfo *dhfi = NULL;
 
-	  return p[i]
-	} 
 	//If aa indices are not equal, and aa index is a part of a contact, 
 	//return aa index and contact energy
 
       }
 
-      m_structures[sid]->getContacts();
+  /*    m_structures[sid]->getContacts();
     
     }
     bool valid = getAminoAcidIndices(p, aa_indices);
@@ -361,18 +357,19 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
     // calculate free energy of folding
     double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
     
-    return new DecoyHistoryFoldInfo(p, history);
-    return dhfi;
+    return new DecoyHistoryFoldInfo(*history);
 	*/
-  }
   return NULL;
 }
+
+
+
   /*
     
   bool valid = getAminoAcidIndices(p, aa_indices);
   if (!valid) {
 	// Warning: this will crash if history == NULL!  Change it.
-    return new DecoyHistoryFoldInfo(*history);
+    
   }
 
   
