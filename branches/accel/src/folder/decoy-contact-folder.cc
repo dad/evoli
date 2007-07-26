@@ -282,7 +282,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	vector<uint> diff_indices = p.getDifferences(q);
 	uint diffs = diff_indices.size();
 	if (diffs > 1) {
-	  // just fold without any acceleration
+	  DecoyFoldInfo* fi = fold(p);// just fold without any acceleration
 	}
 	if (diffs == 1) {
 	  // do some interesting logic
@@ -317,23 +317,12 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	  double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
 	  // calculate free energy of folding
 	  double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
-	
-	  return new DecoyHistoryFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG, p, energies);
-	}
-	/*    if (p != q) {
-      for (uint i = 0; i < p.size; i++){
-		if(p[i]!= q[i]){
-		  for(uint j = 0; j < m_structures_for_residue.size; j++){
-			if(p[i] == m_structures_for_residue[j]{
-			  return m_structures_for_residue[j];
-			}
-			   
-			   }
-	  }
-
+	  
+	  DecoyHistoryFoldInfo* dhfi = foldWithHistory(p, history);
+	  return dhfi;
 
 	    
-	  }
+	}/*
 	     double mean_G = sumG/num_confs;                                       |    cout << " Starting performance test..." << endl;
 	     double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);      |    start = clockndex is a part of a contact,   |       DecoyHistoryFoldInfo *dhfi = NULL;
 
@@ -435,7 +424,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
   
 
 
-  //if (changed)
+
 
 
 

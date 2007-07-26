@@ -77,7 +77,7 @@ public:
   }
   DecoyHistoryFoldInfo( bool fold_is_stable, bool fold_is_target, double fe, StructureID sid, double mean_G, double var_G, double min_G, const Protein& p, vector<double>& energy_list)
     : DecoyFoldInfo( fold_is_stable, fold_is_target, fe, sid, mean_G, var_G, min_G), m_p(p)
-	{
+ 	{
 	  m_energy_list = energy_list;
 	}
 
