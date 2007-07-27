@@ -219,6 +219,8 @@ public:
 	 **/ 
 	double getEnergy(const Protein& s, StructureID sid) const;
 
+	double getEnergy(const vector<uint>& aa_indices, StructureID sid) const;
+
 	/**
 	@return The number of proteins that have been folded so far with this Folder instance.
 	*/

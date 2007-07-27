@@ -36,7 +36,7 @@ int main(){
   clock_t start;
   //Random::seed(t);
   // int size = 500;
-  int MAX = 10000;
+  int MAX = 1000;
 
   int protein_length = 500;
   int gene_length = protein_length*3;
@@ -64,6 +64,7 @@ int main(){
     Protein p = g.translate();
     cout << " Starting performance test..." << endl;
     start = clock();
+	DecoyHistoryFoldInfo *dhfi = NULL;
     for (int i=0; i< MAX;) {    
       SimpleMutator mut(0.001);
       CodingDNA g2 = g;
@@ -78,10 +79,12 @@ int main(){
 
        /***************************Error Line Begins***********************/
 
-       DecoyHistoryFoldInfo *dhfi = NULL;
 
-       dhfi = folder.foldWithHistory(p, dhfi);
-       
+       DecoyHistoryFoldInfo* new_dhfi = folder.foldWithHistory(p, dhfi);
+	   if (new_dhfi != NULL) {
+		 delete dhfi;
+		 dhfi = new_dhfi;
+	   }
 
        //DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
 
@@ -89,7 +92,7 @@ int main(){
        /***************************Error Line Ends***********************/
        
 
-       auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
+       //auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
 	   // cout << dhfi->getDeltaG() << " " << 
        if ( dhfi->getDeltaG() <= max_dg && dhfi->getStructure() == (StructureID)sid ) {
 		 array[i]= dhfi->getDeltaG();

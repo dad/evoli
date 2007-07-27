@@ -350,11 +350,11 @@ void TEST_FUNCTION( with_some_history )
 		  CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
 		  Protein p = g.translate();
 		  DecoyHistoryFoldInfo *dhfi1 = folder.foldWithHistory(p, NULL);
-		  cout << dhfi1 <<"\n\n"<< endl;//Error checking
+		  //cout << dhfi1 <<"\n\n"<< endl;//Error checking
 		  auto_ptr<DecoyHistoryFoldInfo> auto_dhfi1(dhfi1);	
-		  cout << dhfi1 <<"\n\n"<< endl;//Error checking
+		  //cout << dhfi1 <<"\n\n"<< endl;//Error checking
 		  DecoyHistoryFoldInfo *dhfi2 = folder.foldWithHistory(p, dhfi1);
-		  cout << dhfi2 <<"\n\n"<< endl;//Error checking
+		  //cout << dhfi2 <<"\n\n"<< endl;//Error checking
 		  TEST_ASSERT(dhfi2 != NULL);		 
 		  if (dhfi2 != NULL){
 			auto_ptr<DecoyHistoryFoldInfo> auto_dhfi2(dhfi2);
