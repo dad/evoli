@@ -364,9 +364,13 @@ void TEST_FUNCTION( with_some_history )
 			for (int j=0; j<energies1.size(); j++) {
 			  TEST_ASSERT(abs(energies1[j] - energies2[j]) < 1e-6);
 			}
+			TEST_ASSERT(abs(dhfi1->getDeltaG() - dhfi2->getDeltaG()) < 1e-6);
 		  }
 		}
 	}
+// New test: make sure invalidated structures are added only once.
+
+// New test:  
  
 };
 

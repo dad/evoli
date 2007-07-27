@@ -44,7 +44,7 @@ int main(){
   double max_dg = 0;
   double sum_dg;
   double mean_dg;
-  double sum_sqdev_dg;  
+  double sum_sq_dg;  
   double variance_dg;
   
   vector<Contact> m_contacts;
@@ -61,45 +61,45 @@ int main(){
   } else {
     //CodingDNA g = Gene::createRandomNoStops(gene_length);
 	CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+	CodingDNA g2 = g;
     Protein p = g.translate();
+	DecoyHistoryFoldInfo *dhfi = NULL;
+	SimpleMutator mut(0.0001);
     cout << " Starting performance test..." << endl;
     start = clock();
     
     for (int i=0; i< MAX;) {    
-      SimpleMutator mut(0.001);
-      CodingDNA g2 = g;
+      g2 = g;
       bool changed = mut.mutate(g2);
-
-     if(changed && g2.encodesFullLength()){
-       
-       //cout<< "Protein changed!" << endl;
-       Protein p = g2.translate();
-
-       //
-
-       /***************************Error Line Begins***********************/
-
-       DecoyHistoryFoldInfo *dhfi = NULL;
-       DecoyHistoryFoldInfo* new_dhfi = folder.foldWithHistory(p, dhfi);
-	   if (new_dhfi != NULL) {
-		 delete dhfi;
-		 dhfi = new_dhfi;
-	   }
-
-       //DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
-
-
-       /***************************Error Line Ends***********************/
-       
-
-       //auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
-	   // cout << dhfi->getDeltaG() << " " << 
-	   if ( dhfi->getDeltaG() <= max_dg && dhfi->getStructure() == (StructureID)sid ) {		 //array[i]= dhfi->getDeltaG();
-		 sum_dg += dhfi->getDeltaG();
-		 i++;
-		 g = g2; 
-	   }
-     }
+	  if(changed && g2.encodesFullLength()){
+		Protein p = g2.translate();
+		
+		//
+		
+		/***************************Error Line Begins***********************/
+		
+		DecoyHistoryFoldInfo* new_dhfi = folder.foldWithHistory(p, dhfi);
+		if (new_dhfi != NULL) {
+		  delete dhfi;
+		  dhfi = new_dhfi;
+		}
+		//DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
+		
+		
+		/***************************Error Line Ends***********************/
+		
+		
+		//auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
+		cout << dhfi->getDeltaG() << endl;
+		if ( dhfi->getDeltaG() <= max_dg && dhfi->getStructure() == (StructureID)sid ) {		 //array[i]= dhfi->getDeltaG();
+		  sum_dg += dhfi->getDeltaG();
+		  sum_sq_dg += dhfi->getDeltaG()*dhfi->getDeltaG();
+		  array[i] = dhfi->getDeltaG();
+		  i++;
+		  g = g2; 
+		  cout << i << endl;
+		}
+	  }
     }
   
 
@@ -110,6 +110,7 @@ int main(){
     cout << " The sum of the delta Gs is: " << sum_dg << endl;
     mean_dg = sum_dg/MAX;
     cout << " The mean of the delta Gs is: " << mean_dg << endl;
+	double sum_sqdev_dg = 0.0;
     for (int i = 0; i <= MAX; i++){
       sum_sqdev_dg += pow(array[i]- mean_dg,2);
 	}

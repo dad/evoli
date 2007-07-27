@@ -161,6 +161,7 @@ struct TEST_CLASS( protein_gene_basic )
 	  }
 
 	}
+	// Test getDifferences()
 };
 
 

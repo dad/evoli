@@ -101,9 +101,11 @@ void DecoyContactFolder::initializeStructuresForResidues() {
 	  int s2 = (*it).second;
 	  // cout << s1 << " "<< s2 << " " << m_length << endl;
 	  if (s1 < m_length) {
+		// If sid not already in list, then add, otherwise do nothing.
 		m_structures_for_residue[s1].push_back(sid);
 	  }
 	  if (s2 < m_length) {
+		// If sid not already in list, then add, otherwise do nothing.
 		m_structures_for_residue[s2].push_back(sid);
 	  }
 	}    
@@ -300,84 +302,51 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	vector<double> energies = history->getEnergies();
 	vector<uint> diff_indices = p.getDifferences(q);
 	uint diffs = diff_indices.size();
-	if (diffs > 1) {
-	  DecoyFoldInfo* fi = fold(p);// just fold without any acceleration
-	}
-	if (diffs == 1) {
-	  // do some interesting logic
-	  uint changed_index = diff_indices[0];
-	  const vector<StructureID>& bad_structures = m_structures_for_residue[changed_index];
-	  vector<StructureID>::const_iterator iter = bad_structures.begin();
-	  for (; iter != bad_structures.end(); iter++) {
-		StructureID sid = *iter;
-		energies[sid] = getEnergy(aa_indices, sid);
-		// compute energy for structure sid
-		// replace energies[sid] with that new energy.
-		// Now we're ready to finish up.
-		for ( uint sid=0; sid<energies.size(); sid++) {
-		  double G = energies[sid];
-		  if ( G < minG ) {
-		    minG = G;
-		    minIndex = sid;
-		  }
-		  // add energy to partition sum
-		  sumG += G;
-		  sumsqG += G*G;
-		}
-		// remove min. energy
-		sumG -= minG;
-		sumsqG -= minG*minG;
-		
-		// compute statistics
-		unsigned int num_confs = m_structures.size() - 1;
-		double mean_G = sumG/num_confs;
-		double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
-		// calculate free energy of folding
-		double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
-	  }
+	//cout << diffs << endl;
+	if (diffs == 0) {
 	  return new DecoyHistoryFoldInfo(*history);
 	}
 	else {
-	  return new DecoyHistoryFoldInfo(*history);
+	  // do some interesting logic
+	  vector<uint>::iterator site_changed = diff_indices.begin();
+	  for (; site_changed != diff_indices.end(); site_changed++) {
+		uint changed_index = *site_changed;
+		const vector<StructureID>& bad_structures = m_structures_for_residue[changed_index];
+		vector<StructureID>::const_iterator iter = bad_structures.begin();
+		for (; iter != bad_structures.end(); iter++) {
+		  StructureID sid = *iter;
+		  energies[sid] = getEnergy(aa_indices, sid);
+		  cout << sid << " " << energies[sid] << endl;
+		// compute energy for structure sid
+		// replace energies[sid] with that new energy.
+		}
+	  }
+	  // Now we're ready to finish up.
+	  for ( uint sid=0; sid<energies.size(); sid++) {
+		double G = energies[sid];
+		if ( G < minG ) {
+		  minG = G;
+		  minIndex = sid;
+		}
+		// add energy to partition sum
+		sumG += G;
+		sumsqG += G*G;
+	  }
+	  // remove min. energy
+	  sumG -= minG;
+	  sumsqG -= minG*minG;
+	  
+	  // compute statistics
+	  unsigned int num_confs = m_structures.size() - 1;
+	  double mean_G = sumG/num_confs;
+	  double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
+	  // calculate free energy of folding
+	  double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
+	  cout << dG << " " << var_G << endl;
+	  // update the history
+	  return new DecoyHistoryFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG, p, energies);
 	}
-	
-
-
-	//If aa indices are not equal, and aa index is a part of a contact, 
-	//return aa index and contact energy
-
-      }
-
-  /*    m_structures[sid]->getContacts();
-    
-    }
-    bool valid = getAminoAcidIndices(p, aa_indices);
-    vector<double> energies(m_structures_for_residue.size(), 0.0);
-    for ( unsigned int sid = 0; sid < m_structures_for_residue.size(); sid++) {
-      double G = getEnergy(p, sid);
-      energies[sid] = G;
-      if ( G < minG ) {
-	minG = G;
-	minIndex = sid;
-      }
-      // add energy to partition sum
-      sumG += G;
-      sumsqG += G*G;
-    }
-    
-    // remove min. energy
-    sumG -= minG;
-    sumsqG -= minG*minG;
-    
-    // compute statistics
-    unsigned int num_confs = m_structures.size() - 1;
-    double mean_G = sumG/num_confs;
-    double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
-    // calculate free energy of folding
-    double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
-    
-    return new DecoyHistoryFoldInfo(*history);
-	*/
+  }
   return NULL;
 }
 
