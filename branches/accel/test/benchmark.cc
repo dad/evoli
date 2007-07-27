@@ -64,7 +64,7 @@ int main(){
     Protein p = g.translate();
     cout << " Starting performance test..." << endl;
     start = clock();
-	DecoyHistoryFoldInfo *dhfi = NULL;
+    
     for (int i=0; i< MAX;) {    
       SimpleMutator mut(0.001);
       CodingDNA g2 = g;
@@ -79,7 +79,7 @@ int main(){
 
        /***************************Error Line Begins***********************/
 
-
+       DecoyHistoryFoldInfo *dhfi = NULL;
        DecoyHistoryFoldInfo* new_dhfi = folder.foldWithHistory(p, dhfi);
 	   if (new_dhfi != NULL) {
 		 delete dhfi;
@@ -94,15 +94,14 @@ int main(){
 
        //auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
 	   // cout << dhfi->getDeltaG() << " " << 
-       if ( dhfi->getDeltaG() <= max_dg && dhfi->getStructure() == (StructureID)sid ) {
-		 array[i]= dhfi->getDeltaG();
+	   if ( dhfi->getDeltaG() <= max_dg && dhfi->getStructure() == (StructureID)sid ) {		 //array[i]= dhfi->getDeltaG();
 		 sum_dg += dhfi->getDeltaG();
 		 i++;
 		 g = g2; 
-       }
+	   }
      }
     }
-
+  
 
     clock_t duration = clock() - start;
     cout << " That took: " <<static_cast<double>(duration)/CLOCKS_PER_SEC << " seconds." << endl;
@@ -118,9 +117,9 @@ int main(){
     variance_dg = sum_sqdev_dg/(MAX-1);
     cout << " The variance of the delta Gs is: " << variance_dg << endl;
     cout << " The standard deviation is: " << sqrt(variance_dg) << endl;
-}
- 
-    return 0;
+  }
+
+  return 0;
 }
 
 	
