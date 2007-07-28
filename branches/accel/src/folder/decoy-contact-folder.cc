@@ -101,9 +101,11 @@ void DecoyContactFolder::initializeStructuresForResidues() {
 	  int s2 = (*it).second;
 	  // cout << s1 << " "<< s2 << " " << m_length << endl;
 	  if (s1 < m_length) {
-	    for (int i = 0; i < m_length; ) {
+	    int i = 0;
+	    for (; i < m_length; ) {
 	      for (int j = 0; j < m_structures.size(); j++ ) {
 		if( m_structures_for_residue[i][j] == sid){
+		  return;
 		} 
 		else {
 		  i++;
@@ -115,16 +117,18 @@ void DecoyContactFolder::initializeStructuresForResidues() {
 	      }
 	    }
 	  }
-	  if (s2 < m_length) { 
-	    for (int i = 0; i < m_length; ) {
+	  if (s2 < m_length) {
+	    int i = 0;
+	    for (; i < m_length; ) {
 	     for (int j = 0; j < m_structures.size(); j++ ) {
 		if( m_structures_for_residue[i][j] == sid){
+		  return;
 		} 
 		else {
 		  i++;
 		}
 	      }
-	      if (i == m_length){
+	     if (i == m_length){
 		// If sid not already in list, then add, otherwise do nothing.
 		m_structures_for_residue[s1].push_back(sid);
 	      }
