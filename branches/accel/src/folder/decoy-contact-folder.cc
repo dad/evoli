@@ -74,7 +74,25 @@ DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstrea
 }
 
 
+bool inList(const StructureID& sid, const vector<StructureID>& list, int residue_number) {
 
+  //void DecoyContactStructure::inList(StructureID sid, const vector<Contact> m_structures_for_residue[uint residue_number]) {
+  //(s1 < m_length) {
+  int i = 0;  
+
+  while(i < list.size() && list.getStructuresWithResidueContact(residue_number) != sid) { 
+    i++;
+  }
+  if (i == list.size()){
+    return false;
+ }
+  else{
+    return true;
+  }
+	  
+}
+		
+	
 
 
 /*******************************Beginning of Structures For Residue Implementation*************************************************/
@@ -93,48 +111,21 @@ void DecoyContactFolder::initializeStructuresForResidues() {
   // add the structure ID to the corresponding location.
   
   for (unsigned int sid = 0; sid < m_structures.size(); sid++) {
-	const vector<Contact> &pair_list = m_structures[sid]->getContacts();
-	vector<Contact>::const_iterator it = pair_list.begin();
-	int num_contacts = 0;
-	for ( ; it!=pair_list.end(); it++ )	{
-	  int s1 = (*it).first;
-	  int s2 = (*it).second;
-	  // cout << s1 << " "<< s2 << " " << m_length << endl;
-	  if (s1 < m_length) {
-	    int i = 0;
-	    for (; i < m_length; ) {
-	      for (int j = 0; j < m_structures.size(); j++ ) {
-		if( m_structures_for_residue[i][j] == sid){
-		  return;
-		} 
-		else {
-		  i++;
-		}
-	      }
-	      if (i == m_length){
-		// If sid not already in list, then add, otherwise do nothing.
-		m_structures_for_residue[s1].push_back(sid);
-	      }
-	    }
-	  }
-	  if (s2 < m_length) {
-	    int i = 0;
-	    for (; i < m_length; ) {
-	     for (int j = 0; j < m_structures.size(); j++ ) {
-		if( m_structures_for_residue[i][j] == sid){
-		  return;
-		} 
-		else {
-		  i++;
-		}
-	      }
-	     if (i == m_length){
-		// If sid not already in list, then add, otherwise do nothing.
-		m_structures_for_residue[s1].push_back(sid);
-	      }
-	    }
-	  }
-	}
+    const vector<Contact> &pair_list = m_structures[sid]->getContacts();
+    vector<Contact>::const_iterator it = pair_list.begin();
+    int num_contacts = 0;
+    for ( ; it!=pair_list.end(); it++ )	{
+      int s1 = (*it).first;
+      int s2 = (*it).second;
+      if (s1 < m_length && !inList(sid, m_structures_for_residue, s1)){
+	m_structures_for_residue[s1].push_back(sid);
+      }	   
+	  
+      if (s1 < m_length && !inList(sid, m_structures_for_residue, s2)){
+	m_structures_for_residue[s2].push_back(sid);
+      }	   
+	  
+    }
   }
 }
 
@@ -176,14 +167,14 @@ double DecoyContactFolder::getEnergy(const Protein& s, StructureID sid) const {
 	}
 	return G;
 }
-
+//getStructuresWithResidueContact(uint residue_number)
 double DecoyContactFolder::getEnergy(const vector<uint>& aa_indices, StructureID sid) const {
 	double G = 0;
 	if (sid >= m_structures.size()) {
 		return 999999;
 	}
 	const vector<Contact> &pair_list = m_structures[sid]->getContacts();
-	vector<Contact>::const_iterator it=pair_list.begin();
+	vector<Contact>::const_iterator it = pair_list.begin();
 	for ( ; it!=pair_list.end(); it++ )	{
 		int s1 = (*it).first;
 		int s2 = (*it).second;

@@ -370,7 +370,7 @@ void TEST_FUNCTION( with_some_history )
 	}
 // New test: make sure invalidated structures are added only once.
 
-// New test:  
+// New test: inList function.  
  
 };
 
