@@ -74,13 +74,13 @@ DecoyContactFolder::DecoyContactFolder(int length, double log_num_confs, ifstrea
 }
 
 
-bool inList(const StructureID& sid, const vector<StructureID>& list, int residue_number) {
+bool inList(const StructureID& sid, const vector<StructureID>& list) {
 
   //void DecoyContactStructure::inList(StructureID sid, const vector<Contact> m_structures_for_residue[uint residue_number]) {
   //(s1 < m_length) {
   int i = 0;  
 
-  while(i < list.size() && list.getStructuresWithResidueContact(residue_number) != sid) { 
+  while(i < list.size() && list[i] != sid) { 
     i++;
   }
   if (i == list.size()){
@@ -117,11 +117,11 @@ void DecoyContactFolder::initializeStructuresForResidues() {
     for ( ; it!=pair_list.end(); it++ )	{
       int s1 = (*it).first;
       int s2 = (*it).second;
-      if (s1 < m_length && !inList(sid, m_structures_for_residue, s1)){
+      if (s1 < m_length && !inList(sid, m_structures_for_residue[s1])){
 	m_structures_for_residue[s1].push_back(sid);
       }	   
 	  
-      if (s1 < m_length && !inList(sid, m_structures_for_residue, s2)){
+      if (s2 < m_length && !inList(sid, m_structures_for_residue[s2])){
 	m_structures_for_residue[s2].push_back(sid);
       }	   
 	  
