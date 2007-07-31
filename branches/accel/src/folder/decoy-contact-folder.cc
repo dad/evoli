@@ -78,18 +78,12 @@ bool inList(const StructureID& sid, const vector<StructureID>& list) {
 
   //void DecoyContactStructure::inList(StructureID sid, const vector<Contact> m_structures_for_residue[uint residue_number]) {
   //(s1 < m_length) {
-  int i = 0;  
-
-  while(i < list.size() && list[i] != sid) { 
-    i++;
+  for (uint i=0; i<list.size(); i++) {
+    if (list[i] == sid) {
+      return true;
+    }
   }
-  if (i == list.size()){
-    return false;
- }
-  else{
-    return true;
-  }
-	  
+  return false;
 }
 		
 	
@@ -332,7 +326,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 		for (; iter != bad_structures.end(); iter++) {
 		  StructureID sid = *iter;
 		  energies[sid] = getEnergy(aa_indices, sid);
-		  cout << sid << " " << energies[sid] << endl;
+		  //cout << sid << " " << energies[sid] << endl;
 		// compute energy for structure sid
 		// replace energies[sid] with that new energy.
 		}
@@ -358,7 +352,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	  double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
 	  // calculate free energy of folding
 	  double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
-	  cout << dG << " " << var_G << endl;
+	  //cout << dG << " " << var_G << endl;
 	  // update the history
 	  return new DecoyHistoryFoldInfo(dG<m_deltaG_cutoff, minIndex==m_target_sid, dG, minIndex, mean_G, var_G, minG, p, energies);
 	}

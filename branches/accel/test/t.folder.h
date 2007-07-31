@@ -155,7 +155,7 @@ struct TEST_CLASS( folder_basic )
 		// Clean up
 	}
 
-	void TEST_FUNCTION( fold_with_history )
+ 	void TEST_FUNCTION( with_valid_history )
 	{
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
 		int protein_length = stable_seq.size();
@@ -169,15 +169,22 @@ struct TEST_CLASS( folder_basic )
 		Protein p(stable_seq);
 		
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
+		auto_ptr<DecoyFoldInfo> dfi( folder.fold( p ) );
 		return;
 		//FoldInfo* real_fi = folder.fold(p);
 		//auto_ptr<FoldInfo> fi( real_fi );
-		DecoyHistoryFoldInfo *dhfi = NULL;
-		dhfi = folder.foldWithHistory(p, dhfi);
-		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
-		// Now do some real test
-		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
-		TEST_ASSERT(auto_dhfi->getProtein() == p);
+		DecoyHistoryFoldInfo *dhfi1 = NULL;
+		dhfi1 = folder.foldWithHistory(p, dhfi1);
+		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi1(dhfi1);
+	
+		DecoyHistoryFoldInfo *dhfi2 = folder.foldWithHistory(p, dhfi1);
+		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi2(dhfi2);
+		
+		TEST_ASSERT(fi->getDeltaG() == auto_dhfi2->getDeltaG());
+
+		TEST_ASSERT(dfi->getDeltaG() == auto_dhfi2->getDeltaG());
+
+		TEST_ASSERT(auto_dhfi2->getProtein() == p);
 	}
 	
 	void TEST_FUNCTION( compare_contacts )
@@ -333,7 +340,7 @@ struct TEST_CLASS( folder_basic )
 		  TEST_ASSERT(abs(dG - realdG) < 1e-6);
 		}
 	}
-void TEST_FUNCTION( with_some_history )
+	void TEST_FUNCTION( with_some_history )
 	{
 	  int protein_length = 500;
 		double log_nconf = 160.0*log(10.0);
@@ -366,12 +373,15 @@ void TEST_FUNCTION( with_some_history )
 			}
 			TEST_ASSERT(abs(dhfi1->getDeltaG() - dhfi2->getDeltaG()) < 1e-6);
 		  }
+		
 		}
 	}
+ 
 // New test: make sure invalidated structures are added only once.
 
 // New test: inList function.  
- 
+
+//New test to ensure that dhfi and dfi are the same. 
 };
 
 

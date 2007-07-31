@@ -63,41 +63,47 @@ int main(){
 	CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 	CodingDNA g2 = g;
     Protein p = g.translate();
-	DecoyHistoryFoldInfo *dhfi = NULL;
-	SimpleMutator mut(0.0001);
+    auto_ptr<DecoyFoldInfo> dfi(folder.fold(p));
+    DecoyHistoryFoldInfo *dhfi = NULL;
+    //auto_ptr<DecoyHistoryFoldInfo> dhfi(folder.foldWithHistory(p, dhfi));
+    cout << "Starting dG = " << dfi->getDeltaG() << endl;
+    SimpleMutator mut(0.0001);
     cout << " Starting performance test..." << endl;
     start = clock();
     
     for (int i=0; i< MAX;) {    
       g2 = g;
       bool changed = mut.mutate(g2);
-	  if(changed && g2.encodesFullLength()){
-		Protein p = g2.translate();
+      if(changed && g2.encodesFullLength()){
+	Protein p = g2.translate();
 		
-		//
-		
+	auto_ptr<DecoyFoldInfo> dfi(folder.fold(p));
+	cout << "New dG = " << dfi->getDeltaG() << endl;
+
+	
 		/***************************Error Line Begins***********************/
 		
-		DecoyHistoryFoldInfo* new_dhfi = folder.foldWithHistory(p, dhfi);
-		if (new_dhfi != NULL) {
-		  delete dhfi;
-		  dhfi = new_dhfi;
-		}
-		//DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
-		
+	DecoyHistoryFoldInfo* new_dhfi = folder.foldWithHistory(p, dhfi);
+       	if (new_dhfi != NULL) {
+	  delete dhfi;
+	  dhfi = new_dhfi;
+	}
+		//	DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
+		cout << "FWH dG = " << dhfi->getDeltaG() << endl;
+		//	cout << "NFWH dG = " << new_dhfi->getDeltaG() << endl;
+	      
 		
 		/***************************Error Line Ends***********************/
 		
 		
 		//auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
-		cout << dhfi->getDeltaG() << endl;
+		//cout << dhfi->getDeltaG() << endl;
 		if ( dhfi->getDeltaG() <= max_dg && dhfi->getStructure() == (StructureID)sid ) {		 //array[i]= dhfi->getDeltaG();
 		  sum_dg += dhfi->getDeltaG();
 		  sum_sq_dg += dhfi->getDeltaG()*dhfi->getDeltaG();
 		  array[i] = dhfi->getDeltaG();
 		  i++;
 		  g = g2; 
-		  cout << i << endl;
 		}
 	  }
     }
