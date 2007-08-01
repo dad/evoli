@@ -284,7 +284,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	vector<double> energies(m_structures.size(), 0.0);
 	for (unsigned int sid = 0; sid < m_structures.size(); sid++) {
 	  double G = getEnergy(p, sid);
-	  cout << "old: sid=" << sid << " energy=" << G << endl; 
+	  //cout << "null: sid=" << sid << " energy=" << G << endl; 
 	  energies[sid] = G;
 
 	  if ( G < minG ) {
@@ -327,6 +327,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	}
 	else {
 	  // do some interesting logic
+	  bool valid = getAminoAcidIndices(p, aa_indices);
 	  vector<uint>::iterator site_changed = diff_indices.begin();
 	  for (; site_changed != diff_indices.end(); site_changed++) {
 		uint changed_index = *site_changed;
@@ -339,7 +340,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 		  // compute energy for structure sid
 		  // replace energies[sid] with that new energy.
 		  energies[sid] = getEnergy(aa_indices, sid);
-		  cout << "new: ind=" << changed_index << " sid=" << sid << " energy=" << energies[sid] << endl;
+		  //cout << "new: ind=" << changed_index << " sid=" << sid << " energy=" << energies[sid] << endl;
 		}
 	  }
 	  // Now we're ready to finish up.

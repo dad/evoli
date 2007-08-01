@@ -212,16 +212,21 @@ struct TEST_CLASS( folder_basic )
 
  	void TEST_FUNCTION( with_history_and_one_mutation )
 	{
-		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
-		int protein_length = stable_seq.size();
-		double log_nconf = 160.0*log(10.0);
+	  //cout << "with_history_and_one_mutation" << endl;
+	  uint protein_length = 500;
+		double log_nconf = 100.0*log(10.0);
 		ifstream fin("test/data/williams_contact_maps/maps.txt");
 		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
 		
 		TEST_ASSERT( folder.good() );
 		if (!folder.good() )
 		  return;
-		Protein p(stable_seq);
+		double max_dg = 10.0;
+		StructureID sid = 0;
+		uint gene_length = protein_length*3;
+	  
+		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		Protein p = g.translate();
 		
 		// get history
 		auto_ptr<DecoyHistoryFoldInfo> dhfi(folder.foldWithHistory(p, NULL));
@@ -231,7 +236,7 @@ struct TEST_CLASS( folder_basic )
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
 		// with history
 		auto_ptr<DecoyHistoryFoldInfo> dhfi2( folder.foldWithHistory(p, dhfi.get()) );
-		cout << fi->getDeltaG() << " " << dhfi2->getDeltaG() << endl;
+		//cout << fi->getDeltaG() << " " << dhfi->getDeltaG() << " " << dhfi2->getDeltaG() << endl;
 		TEST_ASSERT(abs(fi->getDeltaG() - dhfi2->getDeltaG()) < 1e-6);
 	}
 
