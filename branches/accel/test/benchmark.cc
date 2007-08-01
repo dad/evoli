@@ -80,17 +80,16 @@ int main(){
 	auto_ptr<DecoyFoldInfo> dfi(folder.fold(p));
 	cout << "New dG = " << dfi->getDeltaG() << endl;
 
-	
-		/***************************Error Line Begins***********************/
+	/***************************Error Line Begins***********************/
 		
 	DecoyHistoryFoldInfo* new_dhfi = folder.foldWithHistory(p, dhfi);
        	if (new_dhfi != NULL) {
 	  delete dhfi;
 	  dhfi = new_dhfi;
 	}
-		//	DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
-		cout << "FWH dG = " << dhfi->getDeltaG() << endl;
-		//	cout << "NFWH dG = " << new_dhfi->getDeltaG() << endl;
+	//	DecoyHistoryFoldInfo* dhfi = folder.foldWithHistory(p, dhfi);
+	cout << "FWH dG = " << dhfi->getDeltaG() << endl;
+	//	cout << "NFWH dG = " << new_dhfi->getDeltaG() << endl;
 	      
 		
 		/***************************Error Line Ends***********************/

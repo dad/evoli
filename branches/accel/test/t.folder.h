@@ -155,7 +155,7 @@ struct TEST_CLASS( folder_basic )
 		// Clean up
 	}
 
- 	void TEST_FUNCTION( with_valid_history )
+ 	void TEST_FUNCTION( fold_with_history )
 	{
 		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
 		int protein_length = stable_seq.size();
@@ -169,23 +169,51 @@ struct TEST_CLASS( folder_basic )
 		Protein p(stable_seq);
 		
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
-		auto_ptr<DecoyFoldInfo> dfi( folder.fold( p ) );
 		return;
+
 		//FoldInfo* real_fi = folder.fold(p);
 		//auto_ptr<FoldInfo> fi( real_fi );
-		DecoyHistoryFoldInfo *dhfi1 = NULL;
-		dhfi1 = folder.foldWithHistory(p, dhfi1);
-		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi1(dhfi1);
-	
-		DecoyHistoryFoldInfo *dhfi2 = folder.foldWithHistory(p, dhfi1);
-		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi2(dhfi2);
+
+		DecoyHistoryFoldInfo *dhfi = NULL;
+		dhfi = folder.foldWithHistory(p, dhfi);
+		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
 		
-		TEST_ASSERT(fi->getDeltaG() == auto_dhfi2->getDeltaG());
+		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
 
-		TEST_ASSERT(dfi->getDeltaG() == auto_dhfi2->getDeltaG());
-
-		TEST_ASSERT(auto_dhfi2->getProtein() == p);
+		TEST_ASSERT(auto_dhfi->getProtein() == p);
 	}
+
+ 	void TEST_FUNCTION( with_history_twice )
+	{
+		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
+		int protein_length = stable_seq.size();
+		double log_nconf = 160.0*log(10.0);
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		
+		TEST_ASSERT( folder.good() );
+		if (!folder.good() )
+		  return;
+		Protein p(stable_seq);
+		
+		auto_ptr<FoldInfo> fi( folder.fold( p ) );
+
+		//FoldInfo* real_fi = folder.fold(p);
+		//auto_ptr<FoldInfo> fi( real_fi );
+
+		DecoyHistoryFoldInfo *dhfi = NULL;
+		dhfi = folder.foldWithHistory(p, dhfi);
+
+		dhfi = folder.foldWithHistory(p, dhfi);
+	
+		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
+		
+		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
+
+		TEST_ASSERT(auto_dhfi->getProtein() == p);
+	}
+
+
 	
 	void TEST_FUNCTION( compare_contacts )
 	{

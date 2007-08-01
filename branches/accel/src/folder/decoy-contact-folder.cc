@@ -155,15 +155,13 @@ double DecoyContactFolder::getEnergy(const Protein& s, StructureID sid) const {
 		if (s1 < m_length && s2 < m_length) {
 			double contact_G = contactEnergy( aa_indices[s1], aa_indices[s2] );
 			G += contact_G;
-			//cout << "(" << s1 << ", " << s2 << ") -> " << GeneticCodeUtil::residues[s[s1]] 
-			//	 << ":" << GeneticCodeUtil::residues[s[s2]] << " " << contact_G << " " << G << endl << flush;
 		}
 	}
 	return G;
 }
 //getStructuresWithResidueContact(uint residue_number)
 double DecoyContactFolder::getEnergy(const vector<uint>& aa_indices, StructureID sid) const {
-	double G = 0;
+  double G;
 	if (sid >= m_structures.size()) {
 		return 999999;
 	}
@@ -195,14 +193,14 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
   if (!valid) {
     return new DecoyFoldInfo(false, false, 9999, -1, 9999, 9999, 9999);
   }
-  for ( unsigned int sid = 0; sid < m_structures.size(); sid++) {
+  for ( unsigned int sid = 0;;/*; sid < m_structures.size(); sid++*/) {
     double G = 0;
     // calculate binding energy of this fold
     
     /* change into a function*/	
     
     const vector<Contact> &pair_list = m_structures[sid]->getContacts();
-    vector<Contact>::const_iterator it=pair_list.begin();
+    vector<Contact>::const_iterator it = pair_list.begin();
     
     int num_contacts = 0;
     
@@ -211,6 +209,8 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
       int s2 = (*it).second;
       if (s1 < m_length && s2 < m_length) {
 	double contact_G = contactEnergy( aa_indices[s1], aa_indices[s2] );
+	//	cout << "Fold G for contacts: " << s1 << "and " << s2 
+	//   << "for SID: " << sid << " is: " << G << endl;
 	G += contact_G;
 	num_contacts++;
       }
@@ -219,7 +219,7 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 
 		/*end of function*/
 
-
+    //cout << "fold: " << G << " sid = " << sid << endl;
 
 		// check if binding energy is lower than any previously calculated one
 		if ( G < minG )
@@ -243,14 +243,6 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 	double var_G = (sumsqG - (sumG*sumG)/num_confs)/(num_confs-1.0);
 	// calculate free energy of folding
 	double dG = minG + (var_G - 2*kT*mean_G)/(2*kT) + kT * m_log_num_conformations;
-
-	/*cout << "minG:" << minG << endl;
-	cout << "mean_G:" << mean_G << endl;
-	cout << "var_G:" << var_G << endl;
-	cout << "dG:" << dG << endl;
-	cout << "(var_G - 2*kT*mean_G)/(2.0*kT): " << ((var_G - 2*kT*mean_G)/(2.0*kT)) << endl;
-	cout << "kT ln N: " << kT * m_log_num_conformations << endl;
-	*/
 	
 	// increment folded count
 	m_num_folded += 1;
@@ -265,7 +257,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
   // and computing their energies, it should iterate only
   // over structures corresponding to the changed amino acid.
   // BTW, you have to figure out what that amino acid is.
-
+  
   double kT = 0.6;
   double minG = 1e50;
   int minIndex = -1;
@@ -273,14 +265,23 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
   double sumG = 0.0;
   double sumsqG = 0.0;
 
+  // history = NULL;
   // What if there's no history?
   // Make a new DHFI
   if (history == NULL) {
 	bool valid = getAminoAcidIndices(p, aa_indices);
+
+	//double G = 0;
+
+
 	vector<double> energies(m_structures.size(), 0.0);
 	for (unsigned int sid = 0; sid < m_structures.size(); sid++) {
 	  double G = getEnergy(p, sid);
+	  cout << "For Sid: " << sid << " G= " << G << endl;
+
 	  energies[sid] = G;
+	  //cout <<"fwh null: " <<  G << " sid = " << sid << endl;
+
 	  if ( G < minG ) {
 		minG = G;
 		minIndex = sid;
@@ -308,32 +309,40 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	// First find the residue at which there's a difference
 	// Note: what do you do if there's more than one difference?
     const Protein& q = history->getProtein();
+    //	  double G = getEnergy(q, sid);
 	// vector<uint> getDifferences(const Sequence& p, const Sequence& q) {...}
 	vector<double> energies = history->getEnergies();
 	vector<uint> diff_indices = p.getDifferences(q);
 	uint diffs = diff_indices.size();
-	//cout << diffs << endl;
+	//cout << "Diffs are: " << diffs << endl;
 	if (diffs == 0) {
-	  return new DecoyHistoryFoldInfo(*history);
+	  DecoyHistoryFoldInfo* new_hist = new DecoyHistoryFoldInfo(*history);
+	  //cout << "diffs == 0" << endl;
+	  //cout << new_hist->getDeltaG() << " " << history->getDeltaG() << endl;
+	  return new_hist;
 	}
 	else {
 	  // do some interesting logic
 	  vector<uint>::iterator site_changed = diff_indices.begin();
 	  for (; site_changed != diff_indices.end(); site_changed++) {
 		uint changed_index = *site_changed;
+		
+		//cout << " Changed index is: "<< changed_index << endl;
 		const vector<StructureID>& bad_structures = m_structures_for_residue[changed_index];
 		vector<StructureID>::const_iterator iter = bad_structures.begin();
 		for (; iter != bad_structures.end(); iter++) {
 		  StructureID sid = *iter;
 		  energies[sid] = getEnergy(aa_indices, sid);
-		  //cout << sid << " " << energies[sid] << endl;
-		// compute energy for structure sid
-		// replace energies[sid] with that new energy.
+		 //cout << "Sid " << sid << " Energy= " << energies[sid] << endl;
+		  
+		  // compute energy for structure sid
+		  // replace energies[sid] with that new energy.
 		}
 	  }
 	  // Now we're ready to finish up.
 	  for ( uint sid=0; sid<energies.size(); sid++) {
 		double G = energies[sid];
+		//cout << "fwh: " << energies[sid] << " sid = " << sid << endl;
 		if ( G < minG ) {
 		  minG = G;
 		  minIndex = sid;
@@ -344,7 +353,9 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	  }
 	  // remove min. energy
 	  sumG -= minG;
+	  // cout << "MinG = " << minG << endl;
 	  sumsqG -= minG*minG;
+	  // cout << "SumsqG = " << sumsqG << endl;
 	  
 	  // compute statistics
 	  unsigned int num_confs = m_structures.size() - 1;

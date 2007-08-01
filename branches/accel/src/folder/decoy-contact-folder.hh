@@ -80,6 +80,8 @@ public:
  	{
 	  m_energy_list = energy_list;
 	}
+  //DecoyHistoryFoldInfo( const DecoyHistoryFoldInfo& dhfi ) : m_energy_list(dhfi.m_energy_list), m_p(dhfi.m_p) {
+  //}
 
   virtual ~DecoyHistoryFoldInfo() {}
 
@@ -171,7 +173,7 @@ protected:
 	* @return The contact energy between the two residues.
 	**/
 	double contactEnergy( int residue1, int residue2 ) const {
-		return ProteinContactEnergies::ProteinContactEnergies::WilliamsPLoSCB2006[residue1][residue2]; }
+	  return ProteinContactEnergies::ProteinContactEnergies::WilliamsPLoSCB2006[residue1][residue2]; }
 	//=MJ85TableVI[residue1][residue2]; }
 
 public:
@@ -217,9 +219,11 @@ public:
 	 * @param sid The structure ID of the target conformation.
 	 * @return The contact energy of a sequence in the target conformation.
 	 **/ 
-	double getEnergy(const Protein& s, StructureID sid) const;
+  double getEnergy(const Protein& p, StructureID sid) const;
 
-	double getEnergy(const vector<uint>& aa_indices, StructureID sid) const;
+  //return ProteinContactEnergies::ProteinContactEnergies::WilliamsPLoSCB2006[residue1][residue2]; }
+
+  double getEnergy(const vector<uint>& aa_indices, StructureID sid) const;
 
 	/**
 	@return The number of proteins that have been folded so far with this Folder instance.
