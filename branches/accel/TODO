@@ -26,3 +26,39 @@ After the implementation of the new polymerase class, these things still need to
 
 * convert programs with long command lines to either use flags or an input file.  Consider using Boost? http://www.boost.org/doc/html/program_options.html (?)
 
+* Implement an efficient folding with history method -- if only a small number of amino acids have changed, then only a small number of contact energies need be updated.
+- Must be able to efficiently look up contacts corresponding to changed amino acids -- that's the challenge.
+-- If each structure has a map into which contact lists are hashed, that's prolly a good start.
+- Store energies such that small subsets can be updated and sums recomputed efficiently
+-- If you know the energy for a conformation, and the old and new amino acids, just subtract old energies and add new ones.  No need to store an elaborate data structure.
+
+DecoyContactStructure:
+- const_iterator over Contacts vector<Contacts>::const_iterator getContacts() const;
+- const_iterator over Contacts involving a specified residue vector<Contacts>::const_iterator getContactsForResidue(uint index) const;
+- const_iterator over Contacts involving specified residues vector<Contacts>::const_iterator getContactsForResidues(const vector<uint>& indices) const; returns strict set of contacts
+- internal implementation: hash_map keyed by residue index?
+
+// Given old protein, old energies, and new protein:
+// Get site, from, to triples of changes
+// For each structure
+// Get invalidated contacts 
+// 
+
+DecoyContactFolder: 
+- double updateEnergy(structure, old_energy, triplet of (index, from_aa, to_aa)) {
+	// take old energy
+	// for each changed index
+		// get changed contacts
+		// get energy of old contact, subtract from old_energy
+		// get energy of new contact, add to old_energy
+	// return updated energy
+}
+
+SequenceChange:
+struct {
+	uint index;
+	char from;
+	char to;
+};
+
+

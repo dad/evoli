@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "genetic-code.hh"
 
 void DecoyContactStructure::read(istream& fin) {
-	int r1, r2;
+  int r1, r2;
 	string r1aa, r2aa;
 	do {
 		fin >> r1 >> r1aa >> r2 >> r2aa;
@@ -91,6 +91,15 @@ bool inList(const StructureID& sid, const vector<StructureID>& list) {
 
 		//vector<vector<StructureID> >& lookup_table = folder.getStructureLookupTable();
 		// compare structures against contact lookups
+
+// Return true if the given StructureID is in the list, false otherwise.
+bool structureInList(const vector<StructureID>& list, const StructureID& sid) {
+  bool in_list = false;
+  for (uint i=0; i<list.size() && !in_list; i++) {
+	in_list = (list[i] == sid);
+  }
+  return in_list;   
+}
 
 void DecoyContactFolder::initializeStructuresForResidues() {
   // Set up cache of structures.
@@ -334,7 +343,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 		}
 	  }
 	  // Now we're ready to finish up.
-	  for ( uint sid=0; sid<energies.size(); sid++) {
+	  for (unsigned int sid = 0; sid < m_structures.size(); sid++) {
 		double G = energies[sid];
 		//cout << "fwh: " << energies[sid] << " sid = " << sid << endl;
 		if ( G < minG ) {

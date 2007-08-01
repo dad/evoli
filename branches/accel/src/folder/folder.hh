@@ -40,6 +40,8 @@ class ContactStructure {
 private:
 protected:
 public:
+  typedef vector<Contact>::const_iterator const_iterator;
+  typedef vector<Contact>::iterator iterator;
 	virtual ~ContactStructure() {}
 	virtual const vector<Contact>& getContacts() const = 0;
 };

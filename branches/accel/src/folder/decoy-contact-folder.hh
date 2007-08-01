@@ -109,6 +109,7 @@ public:
 	 **/
 	void read(istream& fin);
 	virtual const vector<Contact>& getContacts() const { return m_contacts; }
+  virtual const_iterator contacts() const { return m_contacts.begin(); }
 	int getMaxResidueNumber();
 };
 

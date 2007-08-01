@@ -178,8 +178,7 @@ struct TEST_CLASS( folder_basic )
 		dhfi = folder.foldWithHistory(p, dhfi);
 		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
 		
-		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
-
+		TEST_ASSERT(abs(fi->getDeltaG() - auto_dhfi->getDeltaG()) < 1e-6);
 		TEST_ASSERT(auto_dhfi->getProtein() == p);
 	}
 
@@ -211,8 +210,6 @@ struct TEST_CLASS( folder_basic )
 		TEST_ASSERT(auto_dhfi->getProtein() == p);
 	}
 
-
-	
 	void TEST_FUNCTION( compare_contacts )
 	{
 	  int protein_length = 500;
@@ -398,7 +395,6 @@ struct TEST_CLASS( folder_basic )
 		
 		}
 	}
- 
 // New test: make sure invalidated structures are added only once.
 
 // New test: inList function.  
