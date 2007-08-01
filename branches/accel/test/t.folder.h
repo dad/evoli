@@ -210,6 +210,31 @@ struct TEST_CLASS( folder_basic )
 		TEST_ASSERT(auto_dhfi->getProtein() == p);
 	}
 
+ 	void TEST_FUNCTION( with_history_and_one_mutation )
+	{
+		string stable_seq = "IREDEWEVRRKKKDVRWDMKKQEEDKKKWEMMRCFMCCIHKKRKTERWEDEWMPEEEEKRMRELWEHCIEMIMCWWCCDEEMREDPWMRFWWKEEKRMKEMCRECKKWWRVTEEICMDRHMLCECWKICIKKNKMCEEEFDMCLCIRIKIKKKRCDCERERDKCHNACMWKINMFPLCLEEEEEMEWEFCWCRKIEPWIKRPVQFPGWIFCCKRKRKMRFEKGKGWCWCMCECEEEHEEEECMCKHREMEKSCIEKGGIKFKKGDKKEMDMREQDCCDCKTWKWKEEKEMEGMAECRMMA";
+		int protein_length = stable_seq.size();
+		double log_nconf = 160.0*log(10.0);
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		
+		TEST_ASSERT( folder.good() );
+		if (!folder.good() )
+		  return;
+		Protein p(stable_seq);
+		
+		// get history
+		auto_ptr<DecoyHistoryFoldInfo> dhfi(folder.foldWithHistory(p, NULL));
+		// make one mutation
+		p[2] = 'K';
+		// "true" folding info
+		auto_ptr<FoldInfo> fi( folder.fold( p ) );
+		// with history
+		auto_ptr<DecoyHistoryFoldInfo> dhfi2( folder.foldWithHistory(p, dhfi.get()) );
+		cout << fi->getDeltaG() << " " << dhfi2->getDeltaG() << endl;
+		TEST_ASSERT(abs(fi->getDeltaG() - dhfi2->getDeltaG()) < 1e-6);
+	}
+
 	void TEST_FUNCTION( compare_contacts )
 	{
 	  int protein_length = 500;

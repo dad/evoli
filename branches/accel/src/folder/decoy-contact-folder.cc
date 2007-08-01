@@ -168,7 +168,7 @@ double DecoyContactFolder::getEnergy(const Protein& s, StructureID sid) const {
 }
 //getStructuresWithResidueContact(uint residue_number)
 double DecoyContactFolder::getEnergy(const vector<uint>& aa_indices, StructureID sid) const {
-  double G;
+	double G = 0.0;
 	if (sid >= m_structures.size()) {
 		return 999999;
 	}
@@ -284,6 +284,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	vector<double> energies(m_structures.size(), 0.0);
 	for (unsigned int sid = 0; sid < m_structures.size(); sid++) {
 	  double G = getEnergy(p, sid);
+	  cout << "old: sid=" << sid << " energy=" << G << endl; 
 	  energies[sid] = G;
 
 	  if ( G < minG ) {
@@ -335,11 +336,10 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 		vector<StructureID>::const_iterator iter = bad_structures.begin();
 		for (; iter != bad_structures.end(); iter++) {
 		  StructureID sid = *iter;
-		  energies[sid] = getEnergy(aa_indices, sid);
-		 //cout << "Sid " << sid << " Energy= " << energies[sid] << endl;
-		  
 		  // compute energy for structure sid
 		  // replace energies[sid] with that new energy.
+		  energies[sid] = getEnergy(aa_indices, sid);
+		  cout << "new: ind=" << changed_index << " sid=" << sid << " energy=" << energies[sid] << endl;
 		}
 	  }
 	  // Now we're ready to finish up.
