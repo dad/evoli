@@ -231,6 +231,10 @@ public:
 	uint getNumFolded() const { return m_num_folded; }
 
 	/**
+	 * @return The number of structures.
+	 **/
+	uint getNumStructures() const { return m_structures.size(); }
+	/**
 	This function assesses whether the folder has been properly initialized.
 	@return True if the folder is in good working order, False otherwise.
 	 **/
@@ -244,8 +248,6 @@ public:
 	  return NULL;
 	}
   }
-
-  uint getNumStructures() const { return m_structures.size(); }
 
   /**
    * This function returns all structures with contacts involving the specified residue.

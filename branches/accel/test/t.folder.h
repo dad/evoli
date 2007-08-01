@@ -226,9 +226,6 @@ struct TEST_CLASS( folder_basic )
 		if (!fin.good()) // if we can't read the contact maps, bail out
 			return;
 		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
-		TEST_ASSERT(folder.good());
-		if (!folder.good())
-			return;
 
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
 		DecoyHistoryFoldInfo *dhfi = folder.foldWithHistory(p, NULL);
@@ -265,7 +262,6 @@ struct TEST_CLASS( folder_basic )
 		    TEST_ASSERT(found);
 		  }
 		}
-	
 		// Take first contact residue, look up in table
 		// Confirm that the structure ID exists in the table.
 		
