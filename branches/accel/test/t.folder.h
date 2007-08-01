@@ -197,18 +197,16 @@ struct TEST_CLASS( folder_basic )
 		Protein p(stable_seq);
 		
 		auto_ptr<FoldInfo> fi( folder.fold( p ) );
-
-		//FoldInfo* real_fi = folder.fold(p);
-		//auto_ptr<FoldInfo> fi( real_fi );
-
+		//cout << "first (fold): " << fi->getDeltaG() << endl;
 		DecoyHistoryFoldInfo *dhfi = NULL;
 		dhfi = folder.foldWithHistory(p, dhfi);
-
+		//cout << "first (NULL): " << dhfi->getDeltaG() << endl;
 		dhfi = folder.foldWithHistory(p, dhfi);
-	
+		//cout << "second (hist): " << dhfi->getDeltaG() << endl;	
+
 		auto_ptr<DecoyHistoryFoldInfo> auto_dhfi(dhfi);
 		
-		TEST_ASSERT(fi->getDeltaG() == auto_dhfi->getDeltaG());
+		TEST_ASSERT(abs(fi->getDeltaG() - auto_dhfi->getDeltaG()) < 1e-6);
 
 		TEST_ASSERT(auto_dhfi->getProtein() == p);
 	}
