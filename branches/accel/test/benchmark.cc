@@ -67,6 +67,7 @@ int main(){
   } else {
     //CodingDNA g = Gene::createRandomNoStops(gene_length);
 	CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+	CodingDNA orig_g = g;
 	CodingDNA g2 = g;
     Protein p = g.translate();
     //auto_ptr<DecoyFoldInfo> dfi(folder.fold(p));
@@ -74,7 +75,7 @@ int main(){
     //auto_ptr<DecoyHistoryFoldInfo> dhfi(folder.foldWithHistory(p, dhfi));
     //cout << "Starting dG = " << dfi->getDeltaG() << endl;
     SimpleMutator mut(0.0001);
-
+    Random::seed(111);
 
 
     cout << endl << endl << " Starting DFI performance test..." << endl;
@@ -110,7 +111,7 @@ int main(){
 
 
 
-
+    
 
     double seconds2 = static_cast<double> (duration2)/CLOCKS_PER_SEC;
     cout << " That took: " << seconds2 << " seconds." << endl;
@@ -131,6 +132,8 @@ int main(){
     cout << " The standard deviation is: " << sqrt(variance_dg2) << endl << endl << endl;
 
 
+    g = orig_g;
+    Random::seed(111);
 
     cout << " Starting DHFI performance test..." << endl;
     start = clock();
