@@ -30,8 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 using namespace std;
 
-typedef pair<int, int> Contact;
-
 /** \brief A class holding a protein sequence.
 */
 class Protein : public Sequence {

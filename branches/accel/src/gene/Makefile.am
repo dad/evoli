@@ -6,7 +6,7 @@ INCLUDES = -I$(top_srcdir)/src/tools/
 
 lib_LIBRARIES = libgene.a
 
-libgene_a_SOURCES = genetic-code.cc translator.cc protein.cc codon.cc mutator.cc
+libgene_a_SOURCES = sequence.cc genetic-code.cc translator.cc protein.cc codon.cc mutator.cc
 
 
 mutator_test_SOURCES = mutator-test.cc

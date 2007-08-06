@@ -58,12 +58,12 @@ void LatticeStructure::calcInteractingPairs()
 	for ( int i=0; i<m_size; i++ )
 		for ( int j=0; j<m_size-1; j++ )
 			if ( m_structure[i*(3*m_size-1)+2*j+1] == ' ' )
-				m_interacting_pairs.push_back( pair<int,int> ( (int) m_structure[i*(3*m_size-1)+2*j], (int) m_structure[i*(3*m_size-1)+2*j+2] ) );
+				m_interacting_pairs.push_back( Contact( (int) m_structure[i*(3*m_size-1)+2*j], (int) m_structure[i*(3*m_size-1)+2*j+2] ) );
 	// now the vertical bonds
 	for ( int i=0; i<m_size-1; i++ )
 		for ( int j=0; j<m_size; j++ )
 			if ( m_structure[i*(3*m_size-1)+2*m_size-1+j] == ' ' )
-				m_interacting_pairs.push_back( pair<int,int> ( (int) m_structure[i*(3*m_size-1)+2*j], (int) m_structure[i*(3*m_size-1)+3*m_size-1+2*j] ) );
+				m_interacting_pairs.push_back( Contact( (int) m_structure[i*(3*m_size-1)+2*j], (int) m_structure[i*(3*m_size-1)+3*m_size-1+2*j] ) );
 }
 
 
@@ -100,7 +100,7 @@ vector<int> LatticeStructure::getSurface() const
 void LatticeStructure::draw(ostream& os, const char* prefix) const
 {
 	StructureUtil::drawStructure( os, m_structure, m_size, prefix );
-	vector<pair<int,int> >::const_iterator it,e;
+	vector<Contact>::const_iterator it,e;
 	it = m_interacting_pairs.begin();
 	e = m_interacting_pairs.end();
 	os << prefix;
@@ -735,8 +735,8 @@ void CompactLatticeFolder::enumerateStructures()
 	for ( ; it!=m_structures.end(); it++ )
 	{
 		//(*it)->draw();
-		const vector<pair<int,int> > &p=(*it)->getInteractingPairs();
-		vector<pair<int,int> >::const_iterator it2=p.begin();
+		const vector<Contact > &p=(*it)->getInteractingPairs();
+		vector<Contact >::const_iterator it2=p.begin();
 		for ( ; it2!=p.end(); it2++ )
 		{
 			int a = (*it2).first;
@@ -796,7 +796,7 @@ FoldInfo* CompactLatticeFolder::fold( const Protein& s ) const
 
 		// calculate binding energy of this fold
 		const vector<Contact> &pair_list = m_structures[i]->getInteractingPairs();
-		vector<pair<int,int> >::const_iterator it=pair_list.begin();
+		vector<Contact >::const_iterator it=pair_list.begin();
 		for ( ; it!=pair_list.end(); it++ )
 		{
 			//cout << (*it).first << " " << (*it).second << endl;

@@ -36,6 +36,7 @@ int Codon::baseToInt( char c )
 	default:
 		assert( false );
 	}
+	return 0;
 }
 
 
@@ -55,6 +56,7 @@ char Codon::intToBase( int c, bool RNA )
 	default:
 		assert( false ); // should never get here.
 	}
+	return 0;
 }
 
 int Codon::codonToIndex( const Codon& codon )

@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <fstream>
 #include <cmath>
 #include <memory>
+#include <algorithm>
 
 struct TEST_CLASS( folder_basic )
 {
@@ -300,7 +301,7 @@ struct TEST_CLASS( folder_basic )
 	void TEST_FUNCTION( no_history )
 	{
 	  int protein_length = 500;
-		double log_nconf = 160.0*log(10.0);
+		double log_nconf = 100.0*log(10.0);
 		ifstream fin("test/data/williams_contact_maps/maps.txt");
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps, bail out
@@ -337,7 +338,7 @@ struct TEST_CLASS( folder_basic )
 
 	void TEST_FUNCTION( get_energy ) {
 	  int protein_length = 500;
-		double log_nconf = 160.0*log(10.0);
+		double log_nconf = 100.0*log(10.0);
 		ifstream fin("test/data/williams_contact_maps/maps.txt");
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps, bail out
@@ -389,10 +390,11 @@ struct TEST_CLASS( folder_basic )
 		  TEST_ASSERT(abs(dG - realdG) < 1e-6);
 		}
 	}
+
 	void TEST_FUNCTION( with_some_history )
 	{
-	  int protein_length = 500;
-		double log_nconf = 160.0*log(10.0);
+		int protein_length = 500;
+		double log_nconf = 100.0*log(10.0);
 		ifstream fin("test/data/williams_contact_maps/maps.txt");
 		TEST_ASSERT( fin.good() );
 		if (!fin.good()) // if we can't read the contact maps, bail out
@@ -425,11 +427,108 @@ struct TEST_CLASS( folder_basic )
 		
 		}
 	}
+
 // New test: make sure invalidated structures are added only once.
-
 // New test: inList function.  
+// New test to ensure that dhfi and dfi are the same. 
+	template <class T>
+	bool inList(const T& t, const vector<T>& list) {
+		for (uint i=0; i<list.size(); i++) {
+			if (list[i] == t) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-//New test to ensure that dhfi and dfi are the same. 
+	template <class T>
+	bool sameItems(const vector<T>& list1, const vector<T>& list2) {
+		bool found = true;
+		for (vector<T>::const_iterator it1=list1.begin(); it1 != list1.end() && found; it1++ ) {
+			found = false;
+			for (vector<T>::const_iterator it2=list2.begin(); it2 != list2.end() && !found; it2++ ) {
+				//cout << "(" << it1->first << "," << it1->second << "); (" << it2->first << "," << it2->second << ")" << endl;
+				found = (*it1 == *it2);
+			}
+		}
+		return found;
+	}	
+
+	void TEST_FUNCTION( contacts_for_site ) {
+		int protein_length = 500;
+		double log_nconf = 100.0*log(10.0);
+		ifstream fin("test/data/rand_contact_maps/maps.txt");
+		TEST_ASSERT( fin.good() );
+		if (!fin.good()) // if we can't read the contact maps, bail out
+			return;
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/rand_contact_maps/");
+		TEST_ASSERT(folder.good());
+		if (!folder.good())
+			return;
+		// Go through sites; for each site, find all structures with a contact involving that site.
+		// Confirm that all structures are in the list returned by contactsForSite.
+		for (uint site=0; site<protein_length; site++) {
+			for (StructureID sid=0; sid<folder.getNumStructures(); sid++ ) {
+				vector<Contact> contacts;
+				const DecoyContactStructure *str = folder.getStructure(sid);
+				const DecoyContactStructure::ContactSet& set = str->contactsForSite( site );
+				// Print contacts in set
+				/*
+				cout << sid << " (for site " << site << "): ";
+				for (vector<Contact>::const_iterator it=set.begin(); it != set.end(); it++) {
+					cout << *it << ",";
+				}
+				cout << endl;*/
+				
+				// Go through contacts
+				// If contacts involve site, add
+				//cout << sid << " (all): ";
+				for (vector<Contact>::const_iterator it=str->getContacts().begin(); it != str->getContacts().end(); it++) {
+					//cout << *it << ",";
+					const Contact& c = *it;
+					if ((c.first == site) || (c.second == site)) {
+						contacts.push_back( c );
+					}
+				}
+				//cout << endl;
+				// See if contact lists are the same
+				//cout << "sid: " << sid << ", site: " << site << " (" << set.size() << " items)" << endl;
+				TEST_ASSERT( sameItems(contacts, set ) );
+			}
+		}
+	}
+
+	void TEST_FUNCTION( iterated_history )
+	{
+		int protein_length = 500;
+		double log_nconf = 100.0*log(10.0);
+		ifstream fin("test/data/williams_contact_maps/maps.txt");
+		TEST_ASSERT( fin.good() );
+		if (!fin.good()) // if we can't read the contact maps, bail out
+			return;
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/williams_contact_maps/");
+		TEST_ASSERT(folder.good());
+		if (!folder.good())
+			return;
+
+		SimpleMutator mut(0.01);
+		uint max_reps = 10000;
+		DecoyHistoryFoldInfo *dhfi = NULL;
+		CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
+		for (int i=0; i<max_reps; i++) {
+			CodingDNA g2 = mut.mutate(g);
+			if (g2.encodesFullLength()) {
+				g = g2;
+				Protein p = g.translate();
+				DecoyHistoryFoldInfo *new_dhfi = folder.foldWithHistory(p, NULL);
+				delete dhfi;
+				dhfi = new_dhfi;
+				auto_ptr<DecoyFoldInfo> fi(folder.fold(p));
+				TEST_ASSERT(abs(dhfi->getDeltaG() - fi->getDeltaG()) < 1e-6);
+			}
+		}
+	}
+
 };
 
 

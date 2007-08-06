@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <ext/hash_map>
 
 #include "folder.hh"
 #include "protein-contact-energies.hh"
@@ -98,8 +99,21 @@ public:
  **/
 
 class DecoyContactStructure : public ContactStructure {
+public:
+	typedef vector<Contact> ContactSet;
+	typedef hash_map<uint, ContactSet, hash<uint> > ContactSetMap;
+	typedef ContactSet::const_iterator const_iterator;
+	typedef ContactSet::iterator iterator;
+
 protected:
-	vector<Contact> m_contacts;
+	ContactSet m_contacts;
+	ContactSetMap m_contacts_for_site;
+	ContactSet m_null_set;
+	
+	/**
+	 * Initialize internal data structures.
+	 **/
+	void init();
 public:
 	DecoyContactStructure() {}
 	virtual ~DecoyContactStructure() {}
@@ -109,7 +123,11 @@ public:
 	 **/
 	void read(istream& fin);
 	virtual const vector<Contact>& getContacts() const { return m_contacts; }
-  virtual const_iterator contacts() const { return m_contacts.begin(); }
+	
+	const ContactSet& contactsForSite(uint site) const;
+
+	const ContactSet& nullSet() const { return m_null_set; }
+
 	int getMaxResidueNumber();
 };
 
@@ -214,6 +232,8 @@ public:
 	/**
 	 **/
 	virtual DecoyHistoryFoldInfo* foldWithHistory(const Protein& p, const DecoyHistoryFoldInfo* history) const;
+
+	double updateEnergy(const DecoyContactStructure* structure, double old_energy, const Protein& old_protein, const Protein& new_protein, const vector<uint>& sites_changed) const;
 
 	/**
 	 * @param s The sequence whose energy is sought.

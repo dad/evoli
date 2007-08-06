@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 using namespace std;
 typedef int StructureID;
 
-typedef pair<int,int> Contact;
 
 /**
 \brief This class stores a contact structure: a list of contacts.

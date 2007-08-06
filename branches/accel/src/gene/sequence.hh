@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -80,5 +81,30 @@ public:
 		return diffs;
   }
 };
+
+//typedef pair<int,int> Contact;
+class Contact : public pair<int,int> {
+public:
+	Contact(int i, int j) {
+		if (i<j) {
+			first = i;
+			second = j;
+		}
+		else {
+			first = j;
+			second = i;
+		}
+	}
+	Contact() { first = 0; second = 0;}
+	virtual ~Contact() {}
+
+	bool operator==(const Contact& c) const {
+		// Order doesn't matter for contacts.
+		return ((first == c.first) && (second == c.second)) || ((second == c.first) && (first == c.second));
+	}
+};
+
+ostream& operator<<(ostream& os, const Contact& c);
+
 
 #endif //SEQUENCE_HH
