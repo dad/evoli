@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include <cmath>
 #include <memory>
 #include <algorithm>
+#include <vector>
 
 struct TEST_CLASS( folder_basic )
 {
@@ -106,10 +107,18 @@ struct TEST_CLASS( folder_basic )
 		for (int i=0; i<contacts.size() && !fin.eof();) {
 			fin >> r1 >> r1aa >> r2 >> r2aa;
 			if ( abs(r1-r2)>1 ) {
-				TEST_ASSERT(contacts[i].first == r1);
-				TEST_ASSERT(contacts[i].second == r2);
-				TEST_ASSERT(seq[r1] == r1aa);
-				TEST_ASSERT(seq[r2] == r2aa);
+				if (r1 < r2) {
+					TEST_ASSERT(contacts[i].first == r1);
+					TEST_ASSERT(contacts[i].second == r2);
+					TEST_ASSERT(seq[r1] == r1aa);
+					TEST_ASSERT(seq[r2] == r2aa);
+				}
+				else {
+					TEST_ASSERT(contacts[i].first == r2);
+					TEST_ASSERT(contacts[i].second == r1);
+					TEST_ASSERT(seq[r1] == r1aa);
+					TEST_ASSERT(seq[r2] == r2aa);
+				}
 				i++;
 			}
 			//cout << contacts[i].first << " " << r1 << " " << contacts[i].second << " " << r2 << " " << seq[r1] << " " << r1aa << " " << seq[r2] << " " << r2aa << endl;
@@ -431,7 +440,7 @@ struct TEST_CLASS( folder_basic )
 // New test: make sure invalidated structures are added only once.
 // New test: inList function.  
 // New test to ensure that dhfi and dfi are the same. 
-	template <class T>
+	template <typename T>
 	bool inList(const T& t, const vector<T>& list) {
 		for (uint i=0; i<list.size(); i++) {
 			if (list[i] == t) {
@@ -441,12 +450,13 @@ struct TEST_CLASS( folder_basic )
 		return false;
 	}
 
-	template <class T>
+	template <typename T>
 	bool sameItems(const vector<T>& list1, const vector<T>& list2) {
 		bool found = true;
-		for (vector<T>::const_iterator it1=list1.begin(); it1 != list1.end() && found; it1++ ) {
+		typename vector<T>::const_iterator it1=list1.begin();
+		for (; it1 != list1.end() && found; it1++ ) {
 			found = false;
-			for (vector<T>::const_iterator it2=list2.begin(); it2 != list2.end() && !found; it2++ ) {
+			for (typename vector<T>::const_iterator it2=list2.begin(); it2 != list2.end() && !found; it2++ ) {
 				//cout << "(" << it1->first << "," << it1->second << "); (" << it2->first << "," << it2->second << ")" << endl;
 				found = (*it1 == *it2);
 			}
@@ -493,7 +503,7 @@ struct TEST_CLASS( folder_basic )
 				//cout << endl;
 				// See if contact lists are the same
 				//cout << "sid: " << sid << ", site: " << site << " (" << set.size() << " items)" << endl;
-				TEST_ASSERT( sameItems(contacts, set ) );
+				TEST_ASSERT( sameItems<Contact>(contacts, set ) );
 			}
 		}
 	}
@@ -511,20 +521,30 @@ struct TEST_CLASS( folder_basic )
 		if (!folder.good())
 			return;
 
-		SimpleMutator mut(0.01);
-		uint max_reps = 10000;
+		SimpleMutator mut(0.001);
+		uint max_reps = 100;
 		DecoyHistoryFoldInfo *dhfi = NULL;
 		CodingDNA g = CodingDNA::createRandomNoStops(protein_length*3);
-		for (int i=0; i<max_reps; i++) {
-			CodingDNA g2 = mut.mutate(g);
+		uint i = 0;
+		while (i < max_reps) {
+			CodingDNA g2 = g;
+			bool changed = mut.mutate(g2);
+			//cout << "g2" << g2 << endl;
 			if (g2.encodesFullLength()) {
 				g = g2;
 				Protein p = g.translate();
-				DecoyHistoryFoldInfo *new_dhfi = folder.foldWithHistory(p, NULL);
+				//cout << g << endl;
+				//cout << p << endl;
+				//cout << i << " " << g.substr(0,40) << endl;
+				DecoyHistoryFoldInfo *new_dhfi = folder.foldWithHistory(p, dhfi);
 				delete dhfi;
 				dhfi = new_dhfi;
 				auto_ptr<DecoyFoldInfo> fi(folder.fold(p));
+				if (abs(dhfi->getDeltaG() - fi->getDeltaG()) > 1e-6) {
+					cout << i << " " << dhfi->getDeltaG() << " " << fi->getDeltaG() << endl;
+				}
 				TEST_ASSERT(abs(dhfi->getDeltaG() - fi->getDeltaG()) < 1e-6);
+				i++;
 			}
 		}
 	}

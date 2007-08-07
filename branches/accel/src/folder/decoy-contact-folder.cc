@@ -219,6 +219,7 @@ double DecoyContactFolder::getEnergy(const vector<uint>& aa_indices, StructureID
 	return G;
 }
 
+// Problem with this function is that, due to rounding, values drift from reality rather quickly.
 double DecoyContactFolder::updateEnergy(const DecoyContactStructure* structure, double old_energy, const Protein& old_protein, const Protein& new_protein, const vector<uint>& sites_changed) const {
 	//triplet of (index, from_aa, to_aa)) {
 	// take old energy
@@ -312,12 +313,7 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
 }
 
 DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, const DecoyHistoryFoldInfo* history) const {
-	// Instead, it should do everything fold() does,
-	// except instead of iterating over all structures,
-	// and computing their energies, it should iterate only
-	// over structures corresponding to the changed amino acid.
-	// BTW, you have to figure out what that amino acid is.
-  
+	
 	double kT = 0.6;
 	double minG = 1e50;
 	int minIndex = -1;
@@ -328,7 +324,7 @@ DecoyHistoryFoldInfo* DecoyContactFolder::foldWithHistory(const Protein & p, con
 	// history = NULL;
 	// What if there's no history?
 	// Make a new DHFI
-	if (history == NULL) { // || Random::runif()<0.01) {
+	if (history == NULL || Random::runif()<0.5) {
 		bool valid = getAminoAcidIndices(p, aa_indices);
 		vector<double> energies(m_structures.size(), 0.0);
 		for (unsigned int sid = 0; sid < m_structures.size(); sid++) {

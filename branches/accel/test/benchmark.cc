@@ -36,7 +36,7 @@ int main(){
 	clock_t start, start2;
 	//Random::seed(t);
 	// int size = 500;
-	int MAX = 1000;
+	int MAX = 2000;
 
 	int protein_length = 500;
 	int gene_length = protein_length*3;
