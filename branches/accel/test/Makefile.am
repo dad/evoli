@@ -8,12 +8,24 @@ INCLUDES = -I$(top_srcdir)/src/tools/ \
 
 CLEANFILES =  runtest.cc
 
-bin_PROGRAMS = perf-test perf-test-decoy benchmark
+bin_PROGRAMS = perf-test perf-test-decoy benchmark benchmark_dfi benchmark_dhfi
 benchmark_LDADD = $(top_builddir)/src/evolver/libevolver.a \
 		$(top_builddir)/src/folder/libfolder.a \
 		$(top_builddir)/src/gene/libgene.a \
 	$(top_builddir)/src/tools/libtools.a
 benchmark_SOURCES = benchmark.cc
+
+benchmark_dhfi_LDADD = $(top_builddir)/src/evolver/libevolver.a \
+		$(top_builddir)/src/folder/libfolder.a \
+		$(top_builddir)/src/gene/libgene.a \
+	$(top_builddir)/src/tools/libtools.a
+benchmark_dhfi_SOURCES = benchmark_dhfi.cc
+
+benchmark_dfi_LDADD = $(top_builddir)/src/evolver/libevolver.a \
+		$(top_builddir)/src/folder/libfolder.a \
+		$(top_builddir)/src/gene/libgene.a \
+	$(top_builddir)/src/tools/libtools.a
+benchmark_dfi_SOURCES = benchmark_dfi.cc
 
 perf_test_LDADD = $(top_builddir)/src/evolver/libevolver.a \
 		$(top_builddir)/src/folder/libfolder.a \
