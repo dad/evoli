@@ -62,7 +62,7 @@ int main(){
 	CodingDNA orig_g = g;
 	CodingDNA g2 = g;
 	Protein p = g.translate();
-	SimpleMutator mut(0.0002);
+	SimpleMutator mut(0.0003);
 	Random::seed(111);
 
 
