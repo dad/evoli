@@ -264,10 +264,11 @@ DecoyFoldInfo* DecoyContactFolder::fold(const Protein& s) const {
     
 		const vector<Contact> &pair_list = m_structures[sid]->getContacts();
 		vector<Contact>::const_iterator it = pair_list.begin();
+		const vector<Contact>::const_iterator& end = pair_list.end();
     
 		int num_contacts = 0;
     
-		for ( ; it!=pair_list.end(); it++ ) {
+		for ( ; it!=end; it++ ) {
 			int s1 = (*it).first;
 			int s2 = (*it).second;
 			if (s1 < m_length && s2 < m_length) {

@@ -86,10 +86,10 @@ CodingDNA CodingDNA::createRandomNoStops(unsigned int length ) {
 
 bool CodingDNA::encodesFullLength(void) const {
 	bool full_length = (length() % 3)==0;
-	CodingRNA rna = transcribe();
+	//CodingRNA rna = transcribe();
 	//cout << rna.codonLength() << endl;
-	for (int i=0; i<rna.codonLength() && full_length; i++) {
-		full_length = (GeneticCodeUtil::geneticCode(rna.getCodon(i)) != GeneticCodeUtil::STOP);
+	for (int i=0; i<codonLength() && full_length; i++) {
+		full_length = (GeneticCodeUtil::geneticCode(getCodon(i)) != GeneticCodeUtil::STOP);
 		//cout << i << " " << full_length << endl;
 	}
 	return full_length;

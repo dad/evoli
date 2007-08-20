@@ -191,7 +191,7 @@ protected:
 	* @param residue2 The second of the two contacting residues.
 	* @return The contact energy between the two residues.
 	**/
-	double contactEnergy( int residue1, int residue2 ) const {
+	inline double contactEnergy( int residue1, int residue2 ) const {
 	  return ProteinContactEnergies::ProteinContactEnergies::WilliamsPLoSCB2006[residue1][residue2]; }
 	//=MJ85TableVI[residue1][residue2]; }
 

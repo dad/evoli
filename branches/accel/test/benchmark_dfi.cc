@@ -34,24 +34,16 @@ int main(){
 	long t;
 	time(&t);
 	clock_t start, start2;
-	//Random::seed(t);
-	// int size = 500;
 	int MAX = 1000;
 
 	int protein_length = 500;
 	int gene_length = protein_length*3;
 	double log_nconf = 100.0*log(10.0);
-	double max_dg = 0;
 	double max_dg2 = 0;
-	double sum_dg;
 	double sum_dg2;
-	double mean_dg;
 	double mean_dg2;
-	double sum_sq_dg;  
 	double sum_sq_dg2;  
-	double variance_dg;
 	double variance_dg2;
-
   
 	vector<Contact> m_contacts;
 	double array[MAX];
@@ -66,15 +58,11 @@ int main(){
 		cout<< "Error: folder is not good!" << endl;
 		return 1;
 	}
-	//CodingDNA g = Gene::createRandomNoStops(gene_length);
-	CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+	CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg2, sid);
 	CodingDNA orig_g = g;
 	CodingDNA g2 = g;
 	Protein p = g.translate();
-	//auto_ptr<DecoyFoldInfo> dfi(folder.fold(p));
-	//auto_ptr<DecoyHistoryFoldInfo> dhfi(folder.foldWithHistory(p, dhfi));
-	//cout << "Starting dG = " << dfi->getDeltaG() << endl;
-	SimpleMutator mut(0.0001);
+	SimpleMutator mut(0.0002);
 	Random::seed(111);
 
 
@@ -88,7 +76,7 @@ int main(){
 			Protein p = g2.translate();
 			auto_ptr<DecoyFoldInfo> dfi(folder.fold(p));
 		
-			if ( dfi->getDeltaG() <= max_dg && dfi->getStructure() == (StructureID)sid ) {		 //array[i]= dfi->getDeltaG();
+			if ( dfi->getDeltaG() <= max_dg2 && dfi->getStructure() == (StructureID)sid ) {		 //array[i]= dfi->getDeltaG();
 				sum_dg2 += dfi->getDeltaG();
 				sum_sq_dg2 += dfi->getDeltaG()*dfi->getDeltaG();
 				array[i] = dfi->getDeltaG();

@@ -75,7 +75,7 @@ int main(){
 	//auto_ptr<DecoyHistoryFoldInfo> dhfi(folder.foldWithHistory(p, dhfi));
 	//cout << "Starting dG = " << dfi->getDeltaG() << endl;
 	SimpleMutator mut(0.0001);
-	Random::seed(111);
+	Random::seed(11);
 
 
 	cout << endl << endl << " Starting DFI performance test..." << endl;
@@ -124,7 +124,7 @@ int main(){
 
 
     g = orig_g;
-    Random::seed(111);
+    Random::seed(11);
 	DecoyHistoryFoldInfo *dhfi = NULL;
 
     cout << " Starting DHFI performance test..." << endl;

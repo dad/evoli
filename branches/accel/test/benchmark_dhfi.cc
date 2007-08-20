@@ -66,14 +66,11 @@ int main(){
 		cout<< "Error: folder is not good!" << endl;
 		return 1;
 	}
-	//CodingDNA g = Gene::createRandomNoStops(gene_length);
+
 	CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 	CodingDNA orig_g = g;
 	CodingDNA g2 = g;
 	Protein p = g.translate();
-	//auto_ptr<DecoyFoldInfo> dfi(folder.fold(p));
-	//auto_ptr<DecoyHistoryFoldInfo> dhfi(folder.foldWithHistory(p, dhfi));
-	//cout << "Starting dG = " << dfi->getDeltaG() << endl;
 	SimpleMutator mut(0.0001);
 	Random::seed(111);
 	DecoyHistoryFoldInfo *dhfi = NULL;
