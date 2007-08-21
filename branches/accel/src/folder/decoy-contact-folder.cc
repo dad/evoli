@@ -115,11 +115,11 @@ bool inList(const StructureID& sid, const vector<StructureID>& list) {
 	//(s1 < m_length) {
 	//cout << "inList: " << sid << " " << list.size() << endl;
 	for (uint i=0; i<list.size(); i++) {
-		if (list[i] == sid) {
-			return true;
-		}
+	  if (list[i] == sid) {
+	    return true;
+	  }
 	}
-	return false;
+       	return false;
 }
 
 /*******************************Beginning of Structures For Residue Implementation*************************************************/

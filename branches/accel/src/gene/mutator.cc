@@ -9,6 +9,10 @@ using namespace std;
 // SimpleMutator methods
 ////////////////////
 
+/*SimpleMutator::SimpleMutator(double mutation_rate) {
+	m_mutation_rate = mutation_rate;
+	}*/
+
 SimpleMutator::SimpleMutator(double mutation_rate) {
 	m_mutation_rate = mutation_rate;
 }
@@ -22,26 +26,54 @@ bool SimpleMutator::mutate(NucleotideSequence& seq) const {
 	const char* mutC = "GTA";
 	const char* mutG = "TAC";
 	const char* mutT = "ACG";
-	for (int i=0; i<seq.length(); i++) {
-		if (Random::runif() < m_mutation_rate) {
-			changed = true;
-			int j = Random::rint( 3 );
-			switch( seq[i] ){
-			case 'A':
-				seq[i] = mutA[j]; break;
-			case 'C':
-				seq[i] = mutC[j]; break;
-			case 'G':
-				seq[i] = mutG[j]; break;
-			case 'T':
-				seq[i] = mutT[j]; break;
-			default:
-				assert( false ); // should never get here
-			}
-		}
+
+	if(seq.length() > 80) {
+	  double mean = m_mutation_rate*seq.length();
+	  int k = Random::rpois(mean);
+	  if (k>0){
+	    changed = true;
+	  }
+	  for (int l=0; l<k; l++) {
+	    int i = Random::rint(seq.length());
+	    int j = Random::rint( 3 );
+	    switch( seq[i] ){
+	    case 'A':
+	      seq[i] = mutA[j]; break;
+	    case 'C':
+	      seq[i] = mutC[j]; break;
+	    case 'G':
+	      seq[i] = mutG[j]; break;
+	    case 'T':
+	      seq[i] = mutT[j]; break;
+	    default:
+	      assert( false ); // should never get here
+	    }
+	  }	
+	}
+	else {
+	  for (int i=0; i<seq.length(); i++) {
+	    if (Random::runif() < m_mutation_rate) {
+	      changed = true;
+	      int j = Random::rint( 3 );
+	      switch( seq[i] ){
+	      case 'A':
+		seq[i] = mutA[j]; break;
+	      case 'C':
+		seq[i] = mutC[j]; break;
+	      case 'G':
+		seq[i] = mutG[j]; break;
+	      case 'T':
+		seq[i] = mutT[j]; break;
+	      default:
+		assert( false ); // should never get here
+	      }
+	    }
+	  }
 	}
 	return changed;
 }
+
+
 
 
 
