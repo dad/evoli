@@ -65,7 +65,6 @@ int main(){
 	SimpleMutator mut(0.0003);
 	Random::seed(111);
 
-
 	cout << endl << endl << " Starting DFI performance test..." << endl;
 	start2 = clock();
     
@@ -76,7 +75,7 @@ int main(){
 			Protein p = g2.translate();
 			auto_ptr<DecoyFoldInfo> dfi(folder.fold(p));
 		
-			if ( dfi->getDeltaG() <= max_dg2 && dfi->getStructure() == (StructureID)sid ) {		 //array[i]= dfi->getDeltaG();
+			if ( dfi->getDeltaG() <= max_dg2 && dfi->getStructure() == (StructureID)sid ) {	  //array[i]= dfi->getDeltaG();
 				sum_dg2 += dfi->getDeltaG();
 				sum_sq_dg2 += dfi->getDeltaG()*dfi->getDeltaG();
 				array[i] = dfi->getDeltaG();
@@ -110,8 +109,6 @@ int main(){
 	cout << " The variance of the delta Gs is: " << variance_dg2 << endl;
 	cout << " The standard deviation is: " << sqrt(variance_dg2) << endl << endl << endl;
 
-
-  
 	return 0;
 }
 
