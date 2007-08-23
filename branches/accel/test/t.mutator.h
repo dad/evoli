@@ -83,6 +83,34 @@ struct TEST_CLASS( mutator_basic )
 			}
 		}
 	}
+	void TEST_FUNCTION( is_poisson_accurate ) {
+	  int size = 1000;
+	  double sum_j = 0;
+	  double sum_sq_j = 0;
+	  int MAX = 1000;
+	  for (int i=0; i<MAX; i++) {
+	    CodingDNA g = CodingDNA::createRandomNoStops(size);
+	    SimpleMutator mut(0.01);
+	    double j = 0;
+	    CodingDNA g2 = g;
+	    mut.mutate(g2);
+	    for (int k=0; k<size; k++) {
+	      if (g[k]!=g2[k]){ 
+		j++;
+	      }
+	    }
+	    cout << "There were: " << j << " mutations in the " << i+1 << "th sequence. " <<  endl; 
+	    sum_j += j;
+	    sum_sq_j += sum_j*sum_j;
+	  }
+	  cout << " The sum of all the mutations is: " << sum_j << endl;
+	  cout << " The sum_squared of all the mutations is: " << sum_sq_j << endl;
+	  Accumulator ac(sum_j, sum_sq_j, MAX);
+	  cout << " The mean of the mutations is: " << ac.mean() << endl;
+	  cout << " The standard deviation of the mutations is: " << ac.stdev() << endl;
+	  cout << " The standard error of the mutations is: " << ac.stderror() << endl;
+	}
+	
 };
 
 #endif // _T_MUTATOR_H__
