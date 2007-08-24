@@ -27,7 +27,8 @@ bool SimpleMutator::mutate(NucleotideSequence& seq) const {
 	const char* mutG = "TAC";
 	const char* mutT = "ACG";
 	
-	if(seq.length() > 300) {
+
+	if(seq.length() > 75) {
 	  double mean = m_mutation_rate*seq.length();
 	  int k = Random::rpois(mean);
 	  if (k>0){

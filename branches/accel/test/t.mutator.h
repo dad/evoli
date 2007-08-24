@@ -81,13 +81,15 @@ struct TEST_CLASS( mutator_basic )
 				//cout << s[j] << " " << steps[i+1] << endl;
 				TEST_ASSERT( s[j] == steps[i+1] );
 			}
+			
 		}
 	}
-	void TEST_FUNCTION( is_poisson_accurate ) {
+	
+	void TEST_FUNCTION( is_poisson_true_or_not ) {
 	  int size = 1000;
 	  double sum_j = 0;
 	  double sum_sq_j = 0;
-	  int MAX = 1000;
+	  int MAX = 250;
 	  for (int i=0; i<MAX; i++) {
 	    CodingDNA g = CodingDNA::createRandomNoStops(size);
 	    SimpleMutator mut(0.01);
@@ -109,8 +111,11 @@ struct TEST_CLASS( mutator_basic )
 	  cout << " The mean of the mutations is: " << ac.mean() << endl;
 	  cout << " The standard deviation of the mutations is: " << ac.stdev() << endl;
 	  cout << " The standard error of the mutations is: " << ac.stderror() << endl;
+	  TEST_ASSERT(ac.stderror()/static_cast<double>(size) <= 0.2);
 	}
+
+
 	
 };
-
+	  
 #endif // _T_MUTATOR_H__
