@@ -93,10 +93,10 @@ misfold_countOutcomeFractions(PyObject *self /* Not used */, PyObject *args)
 	}
 	CodingDNA g(gene_sequence);
 	int nfold, nacc, nrob, ntrunc;
-	fitness_evaluator->countOutcomes(g, num_to_fold, nfold, nacc, nrob, ntrunc);
+	fitness_evaluator->countOutcomes(g, num_to_fold, nacc, nrob, ntrunc, nfold);
 	double ntf = static_cast<double>(num_to_fold);
 
-	return Py_BuildValue("dddd", nfold/ntf, nacc/ntf, nrob/(ntf-nacc), ntrunc/ntf);
+	return Py_BuildValue("dddd", nacc/ntf, nrob/(ntf-nacc), ntrunc/ntf, nfold/ntf);
 }
 
 static char misfold_setErrorRate__doc__[] =

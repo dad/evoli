@@ -22,16 +22,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "protein.hh"
 #include "folder.hh"
 #include "compact-lattice-folder.hh"
+#include "folder-util.hh"
 
 static PyObject *FolderErrorObject;
 
+static CompactLatticeFolder* folder = NULL;
+static int protein_length = 0;
 /* ----------------------------------------------------- */
 
 static char folder_fold__doc__[] =
 ""
 ;
 
-static CompactLatticeFolder* folder = NULL;
 static PyObject *
 folder_fold(PyObject *self /* Not used */, PyObject *args)
 {
@@ -69,6 +71,26 @@ folder_getEnergy(PyObject *self /* Not used */, PyObject *args)
 	return Py_BuildValue("f", energy);
 }
 
+static char folder_getSequenceForStructure__doc__[] =
+""
+;
+
+static PyObject *
+folder_getSequenceForStructure(PyObject *self /* Not used */, PyObject *args)
+{
+	int sid;
+	double max_free_energy;
+	if (!folder) {
+		PyErr_SetString(FolderErrorObject, "uninitialized folder: call 'folder.init(...)'");
+		return NULL;
+	}
+	if (!PyArg_ParseTuple(args, "id", &sid, &max_free_energy)) {
+		return NULL;
+	}
+	CodingDNA gene = FolderUtil::getSequenceForStructure(*folder, protein_length*3, max_free_energy, sid);
+	return Py_BuildValue("s", gene.c_str());
+}
+
 static char folder_init__doc__[] =
 ""
 ;
@@ -79,6 +101,7 @@ folder_init(PyObject *self /* Not used */, PyObject *args)
 	int side_length;
 	if (!PyArg_ParseTuple(args, "i", &side_length))
 		return NULL;
+	protein_length = side_length*side_length;
 	folder = new CompactLatticeFolder(side_length);
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -89,14 +112,15 @@ folder_init(PyObject *self /* Not used */, PyObject *args)
 static struct PyMethodDef folder_methods[] = {
 	{"fold",	(PyCFunction)folder_fold,	METH_VARARGS, folder_fold__doc__},
 	{"init",	(PyCFunction)folder_init,	METH_VARARGS, folder_init__doc__},
-	{"getEnergy",	(PyCFunction)folder_getEnergy,	METH_VARARGS, folder_getEnergy__doc__}, 
+	{"getEnergy",	(PyCFunction)folder_getEnergy,	METH_VARARGS, folder_getEnergy__doc__},
+	{"getSequenceForStructure",	(PyCFunction)folder_getSequenceForStructure,	METH_VARARGS, folder_getSequenceForStructure__doc__},
 	{NULL,	 (PyCFunction)NULL, 0, NULL}		/* sentinel */
 };
 
 
 /* Initialization function for the module (*must* be called initfolder) */
 
-static char folder_module_documentation[] = 
+static char folder_module_documentation[] =
 ""
 ;
 
@@ -116,7 +140,7 @@ initfolder(void)
 	PyDict_SetItemString(d, "error", FolderErrorObject);
 
 	/* XXXX Add constants here */
-	
+
 	/* Check for errors */
 	if (PyErr_Occurred())
 		Py_FatalError("can't initialize module folder");

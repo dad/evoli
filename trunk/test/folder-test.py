@@ -20,9 +20,9 @@
 
 import random, math, os, sys
 # Import the modules
-sys.path = [os.path.expanduser('~/research/lib/')] + sys.path
+sys.path = [os.path.expanduser('~/research/lib/'), os.path.expanduser('~/research/lib/src')] + sys.path
 import folder, decoyfolder, misfold
-#import translate
+import translate
 
 # The 20 canonical amino acids
 aas = 'ACDEFGHIKLMNPQRSTVWY'
@@ -36,7 +36,7 @@ if True:
 	prot_length = side_length*side_length
 	folder.init(side_length)
 
-	for i in range(1000):
+	for i in range(10000):
 		# Create a random polypeptide
 		prot = ''.join([random.choice(aas) for xi in range(prot_length)])
 		# Fold it and retrieve its lowest-free-energy conformation, sid, and its
@@ -45,20 +45,11 @@ if True:
 		# Print them out
 		if dg < -3:
 			print "%d\t%d\t%1.3f\t%s" % (i, sid, dg, prot)
-		'''
-		print "sid g"
-		for i in range(1):
-			# Create a random polypeptide
-			prot = ''.join([random.choice(aas) for i in range(prot_length)])
-			# Fold it and retrieve its lowest-free-energy conformation, sid, and its
-			# free energy of folding, dg.
-			(sid, dg) = folder.fold(prot)
-			for j in range(50):
-				G = folder.getEnergy(prot, j)	
-				# Print them out
-				print "%d\t%1.3f\t%s" % (sid, dg, prot)	
-				print "%d\t%1.3f" % (j, G)
-		'''		
+	sid = random.randint(0,1081)
+	dg = -5
+	gene = folder.getSequenceForStructure(sid, dg)
+	(new_sid, new_dg) = folder.fold(translate.Translate(gene))
+	assert(sid == new_sid and new_dg <= dg)
 
 if True:
 	print "\n****\nTesting decoyfolder module"
