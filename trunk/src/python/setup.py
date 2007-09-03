@@ -71,13 +71,13 @@ folder = Extension('misfold',
 				   sources = ['misfoldmodule.cc'],
 				   include_dirs = [srcdir + '/src/tools', \
 							srcdir + '/src/gene', \
-							srcdir + '/src/evolver', \
-							srcdir+'/src/folder'],
-				   libraries = ['folder', 'gene', 'tools', 'evolver'],
+							srcdir + '/src/folder', \
+							srcdir + '/src/evolver'],
+				   libraries = ['evolver','folder','gene','tools'],
 				   library_dirs = [builddir + '/src/tools', \
 	 						builddir + '/src/gene', \
-	 						builddir + '/src/evolver', \
-							builddir + '/src/folder'])
+	 						builddir + '/src/folder', \
+							builddir + '/src/evolver'])
 
 setup (name = 'Misfold',
 	          version = '0.1',

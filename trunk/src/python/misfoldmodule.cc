@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 static PyObject *MisfoldErrorObject;
 static ErrorproneTranslation* fitness_evaluator = NULL;
+static CompactLatticeFolder* folder = NULL;
+
 /* ----------------------------------------------------- */
 
 static char misfold_calcOutcomes__doc__[] =
@@ -45,7 +47,7 @@ misfold_calcOutcomes(PyObject *self /* Not used */, PyObject *args)
 	}
 	CodingDNA g(gene_sequence);
 	double cffold, cfacc, cfrob, cftrunc;
-	double fitness = fitness_evaluator->calcOutcomes(g, cfacc, cfrob, cftrunc, cffold);
+	fitness_evaluator->calcOutcomes(g, cfacc, cfrob, cftrunc, cffold);
 	//cout << fitness << endl;
 	//cout << cfacc << "\t" << cfrob << "\t" << cftrunc << "\t" << cffold << endl;
 	return Py_BuildValue("dddd", cfacc, cfrob, cftrunc, cffold);
@@ -93,7 +95,7 @@ misfold_countOutcomeFractions(PyObject *self /* Not used */, PyObject *args)
 	int nfold, nacc, nrob, ntrunc;
 	fitness_evaluator->countOutcomes(g, num_to_fold, nfold, nacc, nrob, ntrunc);
 	double ntf = static_cast<double>(num_to_fold);
-			   
+
 	return Py_BuildValue("dddd", nfold/ntf, nacc/ntf, nrob/(ntf-nacc), ntrunc/ntf);
 }
 
@@ -141,13 +143,14 @@ static char misfold_init__doc__[] =
 static PyObject *
 misfold_init(PyObject *self /* Not used */, PyObject *args)
 {
-	int side_length, target_structure_id;
+	int side_length, target_structure_id, random_seed;
 	double max_free_energy, ca_cost, target_fraction_accurate;
-	
-	if (!PyArg_ParseTuple(args, "iiddd", &side_length, &target_structure_id, &max_free_energy, &ca_cost, &target_fraction_accurate))
+
+	if (!PyArg_ParseTuple(args, "iidddi", &side_length, &target_structure_id, &max_free_energy, &ca_cost, &target_fraction_accurate, &random_seed))
 		return NULL;
+	Random::seed(random_seed);
 	//cout << side_length << " " << target_structure_id << " " << max_free_energy << " " << ca_cost << " " << target_fraction_accurate << endl;
-	CompactLatticeFolder* folder = new CompactLatticeFolder(side_length);
+	folder = new CompactLatticeFolder(side_length);
 	fitness_evaluator = new ErrorproneTranslation(folder, side_length*side_length, target_structure_id, max_free_energy, 1.0, ca_cost, target_fraction_accurate);
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -168,7 +171,7 @@ static struct PyMethodDef misfold_methods[] = {
 
 /* Initialization function for the module (*must* be called initmisfold) */
 
-static char misfold_module_documentation[] = 
+static char misfold_module_documentation[] =
 ""
 ;
 
@@ -188,7 +191,7 @@ initmisfold(void)
 	PyDict_SetItemString(d, "error", MisfoldErrorObject);
 
 	/* XXXX Add constants here */
-	
+
 	/* Check for errors */
 	if (PyErr_Occurred())
 		Py_FatalError("can't initialize module misfold");

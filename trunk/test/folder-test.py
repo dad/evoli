@@ -20,8 +20,8 @@
 
 import random, math, os, sys
 # Import the modules
+sys.path = [os.path.expanduser('~/research/lib/')] + sys.path
 import folder, decoyfolder, misfold
-#sys.path = [os.path.expanduser('~/research/lib/lib')] + sys.path
 #import translate
 
 # The 20 canonical amino acids
@@ -30,12 +30,13 @@ aas = 'ACDEFGHIKLMNPQRSTVWY'
 # side_length refers to the protein.  E.g., in the 5x5
 # model, side_length=5.
 
-if False:
+if True:
+	print "****\nTesting folder module"
 	side_length = 5
 	prot_length = side_length*side_length
 	folder.init(side_length)
 
-	for i in range(10000):
+	for i in range(1000):
 		# Create a random polypeptide
 		prot = ''.join([random.choice(aas) for xi in range(prot_length)])
 		# Fold it and retrieve its lowest-free-energy conformation, sid, and its
@@ -59,7 +60,8 @@ if False:
 				print "%d\t%1.3f" % (j, G)
 		'''		
 
-if False:
+if True:
+	print "\n****\nTesting decoyfolder module"
 	prot_length = 300
 	log_nconf = 10*math.log(10)
 	map_file = os.path.abspath("test/data/rand_contact_maps/maps.txt")
@@ -67,16 +69,14 @@ if False:
 
 	decoyfolder.init(prot_length, log_nconf, map_file, map_dir)
 	print "sid g"
-	for i in range(1):
+	for i in range(10):
 		# Create a random polypeptide
-		prot = ''.join([random.choice(aas) for i in range(prot_length)])
+		prot = ''.join([random.choice(aas) for xi in range(prot_length)])
 		# Fold it and retrieve its lowest-free-energy conformation, sid, and its
 		# free energy of folding, dg.
 		(sid, dg) = decoyfolder.fold(prot)
-		for j in range(50):
-			G = decoyfolder.getEnergy(prot, j)	
-			# Print them out
-			print "%d\t%1.3f" % (j, G)
+		# Print them out
+		print "%d\t%1.3f" % (i, dg)
 		
 if False:
 	prot_length = 300
@@ -91,27 +91,19 @@ if False:
 	print sid, dg
 
 if True:
+	print "\n****\nTesting misfold module"
 	side_length = 5
 	struct_id = 599
-	target_fraction_accurate = 0.1
-	ca_cost = 4
+	target_fraction_accurate = 0.85
+	ca_cost = 5
 	max_free_energy = -5
 	
-	misfold.init(side_length, struct_id, max_free_energy, ca_cost, target_fraction_accurate)
-	#print misfold.getErrorRate()
-	gene = "CCCCTGTACCGTACGACGAAATCTAACACTGGATCATGGCCTTCTGATTGGAAACCCCTACCTTATGAGTCAAAG"
-	#(facc, frob, ftrunc, ffold) = misfold.calcOutcomes(gene);
-	#print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % ("mis", facc, frob, ftrunc, ffold)
-	if True:
-		f = file(os.path.expanduser('~/research/trsim/data/trs599ca4nmut-genes.txt'),'r')
-		for line in f.readlines()[2:]:
-			flds = line.strip().split('\t')
-			gene = flds[-1]
-			# print gene
-			#(facc, frob, ftrunc, ffold) = misfold.calcOutcomes(gene);
-			#print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % (flds[0], facc, frob, ftrunc, ffold)
-			(facc, frob, ftrunc, ffold) = misfold.countOutcomes(gene, 1000);
-			print "%s\t%d\t%d\t%d\t%d" % (flds[0], facc, frob, ftrunc, ffold)
-			#print line,
-		f.close()
-	
+	misfold.init(side_length, struct_id, max_free_energy, ca_cost, target_fraction_accurate, 111)
+	err_rate = misfold.getErrorRate()
+	gene = "ATTATTGTCTCGAAGGGTGCTATCTCCGCCGTCAGTTCCTTCGCAAAGTACATCTTCTTGCTTCTAACTAAAGAC"
+	(facc, frob, ftrunc, ffold) = misfold.calcOutcomes(gene);
+	print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % ("calcOutcomes", facc, frob, ftrunc, ffold)
+	(facc, frob, ftrunc, ffold) = misfold.countOutcomes(gene, 1000);
+	print "%s\t%d\t%d\t%d\t%d" % ("countOutcomes", facc, frob, ftrunc, ffold)
+	(facc, frob, ftrunc, ffold) = misfold.countOutcomeFractions(gene, 1000);
+	print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % ("countOutcomeFractions", facc, frob, ftrunc, ffold)
