@@ -45,7 +45,7 @@ if True:
 		# Print them out
 		if dg < -3:
 			print "%d\t%d\t%1.3f\t%s" % (i, sid, dg, prot)
-	sid = random.randint(0,1081)
+	sid = random.randint(0,1080)
 	dg = -5
 	gene = folder.getSequenceForStructure(sid, dg)
 	(new_sid, new_dg) = folder.fold(translate.Translate(gene))
@@ -92,9 +92,9 @@ if True:
 	misfold.init(side_length, struct_id, max_free_energy, ca_cost, target_fraction_accurate, 111)
 	err_rate = misfold.getErrorRate()
 	gene = "ATTATTGTCTCGAAGGGTGCTATCTCCGCCGTCAGTTCCTTCGCAAAGTACATCTTCTTGCTTCTAACTAAAGAC"
+	(facc, frob, ftrunc, ffold) = misfold.countOutcomes(gene, 10000);
+	print "%s\t%d\t%d\t%d\t%d" % ("countOutcomes      ", facc, frob, ftrunc, ffold)
 	(facc, frob, ftrunc, ffold) = misfold.calcOutcomes(gene);
-	print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % ("calcOutcomes", facc, frob, ftrunc, ffold)
-	(facc, frob, ftrunc, ffold) = misfold.countOutcomes(gene, 1000);
-	print "%s\t%d\t%d\t%d\t%d" % ("countOutcomes", facc, frob, ftrunc, ffold)
-	(facc, frob, ftrunc, ffold) = misfold.countOutcomeFractions(gene, 1000);
+	print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % ("calcOutcomes     ", facc, frob, ftrunc, ffold)
+	(facc, frob, ftrunc, ffold) = misfold.countOutcomeFractions(gene, 10000);
 	print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % ("countOutcomeFractions", facc, frob, ftrunc, ffold)
