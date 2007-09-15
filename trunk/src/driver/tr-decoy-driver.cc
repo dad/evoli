@@ -122,8 +122,8 @@ int main( int ac, char **av)
 	}
 
 	cout << setprecision(4);
-	//evolutionExperiment( p, *fe, poly);
-	evolutionTest( p, *fe, poly);
+	evolutionExperiment( p, *fe, poly);
+	//evolutionTest( p, *fe, poly);
 	delete fe;
 
 	return 0;
