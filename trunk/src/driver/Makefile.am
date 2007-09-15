@@ -13,4 +13,10 @@ tr_driver_LDADD = $(top_builddir)/src/evolver/libevolver.a \
 		$(top_builddir)/src/gene/libgene.a \
 		$(top_builddir)/src/tools/libtools.a
 
-bin_PROGRAMS = tr-driver
+tr_decoy_driver_SOURCES = tr-decoy-experiment.cc tr-decoy-driver.cc
+tr_decoy_driver_LDADD = $(top_builddir)/src/evolver/libevolver.a \
+		$(top_builddir)/src/folder/libfolder.a \
+		$(top_builddir)/src/gene/libgene.a \
+		$(top_builddir)/src/tools/libtools.a
+
+bin_PROGRAMS = tr-driver tr-decoy-driver
