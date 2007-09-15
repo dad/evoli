@@ -152,6 +152,33 @@ struct TEST_CLASS( folder_basic )
 		return;
 	}
 
+	void TEST_FUNCTION( decoy_sequence_for_structure )
+	{
+		uint protein_length = 300;
+		uint gene_length = protein_length*3;
+		double log_nconf = 100.0*log(10.0);
+		ifstream fin("test/data/rand_contact_maps/maps.txt");
+		TEST_ASSERT( fin.good() );
+		if (!fin.good()) // if we can't read the contact maps, bail out
+			return;
+		DecoyContactFolder folder(protein_length, log_nconf, fin, "test/data/rand_contact_maps/");
+		TEST_ASSERT(folder.good());
+		if (!folder.good())
+			return;
+
+		double max_dg = -1;
+		StructureID sid = StructureID(0);
+		Random::seed(11);
+		int nfolded = folder.getNumFolded();
+		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		//cout << "num folded: " << (folder.getNumFolded() - nfolded) << endl;
+		Protein p = g.translate();
+		auto_ptr<FoldInfo> fi( folder.fold(p) );
+		TEST_ASSERT( fi->getDeltaG() <= max_dg );
+		TEST_ASSERT( fi->getStructure() == (StructureID)sid );
+		return;
+	}
+
 	bool getAminoAcidIndices(const Protein& p, vector<unsigned int>& aa_indices)
 	{
 		int index = 0;

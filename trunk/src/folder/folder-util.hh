@@ -70,13 +70,13 @@ public:
 	/**
 	 * Finds a random sequence with folding energy smaller than cutoff and structure given by struct_id
 	 */
-	static CodingDNA getSequenceForStructure( const Folder &b, unsigned int length, double deltag_cutoff, const int struct_id )
+	static CodingDNA getSequenceForStructure( const Folder &b, unsigned int gene_length, double deltag_cutoff, const int struct_id )
 	{
 		// find a random sequence with folding energy smaller than cutoff
 		double G;
-		CodingDNA g(length);
+		CodingDNA g(gene_length);
 		auto_ptr<FoldInfo> fdata;
-		double mutation_rate = 1.0/length;
+		double mutation_rate = 1.0/gene_length;
 		SimpleMutator mut(mutation_rate);
 		bool found = false;
 		double min_free_energy_for_starting = max(300.0, deltag_cutoff);
@@ -85,12 +85,12 @@ public:
 		// find sequence that encodes the desired structure
 		//int q=0;
 		do {
-			g = CodingDNA::createRandomNoStops( length );
+			g = CodingDNA::createRandomNoStops( gene_length );
 			//cout << g << endl;
 			Protein p = g.translate();
 			fdata = auto_ptr<FoldInfo>( b.fold(p) );
 			found = (fdata->getStructure() == struct_id && fdata->getDeltaG() <= min_free_energy_for_starting);
-			//cout << fdata->getStructure() << "\t" << fdata->getDeltaG() << "\t" << g << endl;
+			//cout << fdata->getStructure() << "\t" << fdata->getDeltaG() << "\t" << g << endl << p << endl;
 			//cout << q++ << " " << g << " " << p << " " << fdata->getStructure() << " " << fdata->getDeltaG() << endl;
 		} while ( !found );
 		//cout << "nf: " << (b.getNumFolded() - nfolded) << endl;
@@ -130,7 +130,7 @@ public:
 			if ( fail_count > 50000 || total_fail_count > 1e6 )	{
 				found = false;
 				do {
-					g = CodingDNA::createRandomNoStops( length );
+					g = CodingDNA::createRandomNoStops( gene_length );
 					Protein p = g.translate();
 					fdata = auto_ptr<FoldInfo>( b.fold(p) );
 					found = (fdata->getStructure() == struct_id && fdata->getDeltaG() <= min_free_energy_for_starting);

@@ -1036,6 +1036,10 @@ FoldingOnlyFitness::FoldingOnlyFitness( Folder* protein_folder, const int length
 	ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight)  {
 }
 
+FoldingOnlyFitness::FoldingOnlyFitness( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy,	const double tr_cost, const double ca_cost, const double target_fraction_accurate ) : ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, target_fraction_accurate)  {
+}
+
+
 FoldingOnlyFitness::~FoldingOnlyFitness() {
 }
 

@@ -416,6 +416,9 @@ protected:
 public:
 	FoldingOnlyFitness( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy,
 						const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight );
+	FoldingOnlyFitness( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy,
+						const double tr_cost, const double ca_cost, const double target_fraction_accurate );
+
   virtual ~FoldingOnlyFitness();
 
   double getFitness( const CodingDNA& g );
