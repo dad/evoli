@@ -86,16 +86,11 @@ public:
 		//int q=0;
 		do {
 			g = CodingDNA::createRandomNoStops( gene_length );
-			//cout << g << endl;
 			Protein p = g.translate();
 			fdata = auto_ptr<FoldInfo>( b.fold(p) );
-			found = (fdata->getStructure() == struct_id && fdata->getDeltaG() <= min_free_energy_for_starting);
-			//cout << fdata->getStructure() << "\t" << fdata->getDeltaG() << "\t" << g << endl << p << endl;
-			//cout << q++ << " " << g << " " << p << " " << fdata->getStructure() << " " << fdata->getDeltaG() << endl;
+			found = (fdata->getStructure() == struct_id) && (fdata->getDeltaG() <= min_free_energy_for_starting);
+			//cout << struct_id << "\t" << fdata->getStructure() << "\t" << min_free_energy_for_starting << "\t" << fdata->getDeltaG() << endl;
 		} while ( !found );
-		//cout << "nf: " << (b.getNumFolded() - nfolded) << endl;
-
-		//cout << "hey" << endl;
 
 		int fail_count = 0;
 		int total_fail_count = 0;

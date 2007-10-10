@@ -124,8 +124,10 @@ ErrorproneTranslation::ErrorproneTranslation(Folder *protein_folder, const int p
 
 	// Build the weight matrices for translation.
 	buildWeightMatrix();
+	//cout << "Preparing to find seed gene" << endl;
 	// Get a seed genotype.
 	CodingDNA seed_gene = FolderUtil::getSequenceForStructure(*protein_folder, protein_length*3, max_free_energy, protein_structure_ID);
+	//cout << "Found seed gene: " << seed_gene << endl;
 	assert(seed_gene.encodesFullLength());
 	assert(seed_gene.translate().length() == protein_length);
 	assert(getFolded(seed_gene));
@@ -493,6 +495,7 @@ double ErrorproneTranslation::calcOutcomes( const CodingDNA &g, double &frac_acc
 	}
 
 	Protein prot( g.translate() );
+	//cout << prot << endl;
 	bool native_seq_folds = sequenceFolds(prot);
 
 	// Bail out if native sequence is misfolded.

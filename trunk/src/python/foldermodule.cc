@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 
 #include <Python.h> // needs to be first include
+
 #include "protein.hh"
 #include "folder.hh"
 #include "compact-lattice-folder.hh"
@@ -103,6 +104,18 @@ folder_init(PyObject *self /* Not used */, PyObject *args)
 		return NULL;
 	protein_length = side_length*side_length;
 	folder = new CompactLatticeFolder(side_length);
+
+    PyObject *module = PyImport_ImportModule("folder");
+    if (module != NULL) {
+		/* Create a CObject containing the folder's address */
+
+		//cout << "folder folder object = " << folder << endl;
+		PyObject* c_folder = PyCObject_FromVoidPtr((void *)folder, NULL);
+		//cout << "folder c_folder = " << c_folder << endl;
+		if (c_folder != NULL) {
+			PyModule_AddObject(module, "_C_FOLDER", c_folder);
+		}
+	}
 	Py_INCREF(Py_None);
 	return Py_None;
 }

@@ -67,7 +67,7 @@ setup (name = 'Codon',
 	          description = 'Module exposing functionality related to calculating synonymous and nonsynonymous substitutions and sites to Python',
 	          ext_modules = [codon])
 
-folder = Extension('misfold',
+misfold = Extension('misfold',
 				   sources = ['misfoldmodule.cc'],
 				   include_dirs = [srcdir + '/src/tools', \
 							srcdir + '/src/gene', \
@@ -81,5 +81,5 @@ folder = Extension('misfold',
 
 setup (name = 'Misfold',
 	          version = '0.1',
-	          description = 'Module exposing misfolding assays of lattice protein folding to Python',
-	          ext_modules = [folder])
+	          description = 'Module exposing misfolding assays of protein folding to Python',
+	          ext_modules = [misfold])

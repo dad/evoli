@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 
 #include <Python.h> // needs to be first include
+#include "tools.hh"
 #include "protein.hh"
 #include "folder.hh"
 #include "compact-lattice-folder.hh"
@@ -26,7 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 static PyObject *MisfoldErrorObject;
 static ErrorproneTranslation* fitness_evaluator = NULL;
-static CompactLatticeFolder* folder = NULL;
+static Folder* folder = NULL;
+
+#if 1
 
 /* ----------------------------------------------------- */
 
@@ -48,7 +51,6 @@ misfold_calcOutcomes(PyObject *self /* Not used */, PyObject *args)
 	CodingDNA g(gene_sequence);
 	double cffold, cfacc, cfrob, cftrunc;
 	fitness_evaluator->calcOutcomes(g, cfacc, cfrob, cftrunc, cffold);
-	//cout << fitness << endl;
 	//cout << cfacc << "\t" << cfrob << "\t" << cftrunc << "\t" << cffold << endl;
 	return Py_BuildValue("dddd", cfacc, cfrob, cftrunc, cffold);
 }
@@ -133,7 +135,7 @@ misfold_getErrorRate(PyObject *self /* Not used */, PyObject *args)
 	return Py_BuildValue("d", error_rate);
 }
 
-
+#endif
 
 static char misfold_init__doc__[] =
 ""
@@ -142,15 +144,37 @@ static char misfold_init__doc__[] =
 static PyObject *
 misfold_init(PyObject *self /* Not used */, PyObject *args)
 {
-	int side_length, target_structure_id, random_seed;
+	PyObject *folder_module;
+	int target_structure_id, random_seed, protein_length;
 	double max_free_energy, ca_cost, target_fraction_accurate;
 
-	if (!PyArg_ParseTuple(args, "iidddi", &side_length, &target_structure_id, &max_free_energy, &ca_cost, &target_fraction_accurate, &random_seed))
+	if (!PyArg_ParseTuple(args, "Oiidddi", &folder_module, &protein_length, &target_structure_id, &max_free_energy, &ca_cost, &target_fraction_accurate, &random_seed)) {
+		PyErr_SetString(MisfoldErrorObject, "bad arguments to decoyfolder.init");
 		return NULL;
+	}
+	if (!PyModule_Check(folder_module)) {
+		PyErr_SetString(MisfoldErrorObject, "first argument not a Python module");
+		return NULL;
+	}
 	Random::seed(random_seed);
 	//cout << side_length << " " << target_structure_id << " " << max_free_energy << " " << ca_cost << " " << target_fraction_accurate << endl;
-	folder = new CompactLatticeFolder(side_length);
-	fitness_evaluator = new ErrorproneTranslation(folder, side_length*side_length, target_structure_id, max_free_energy, 1.0, ca_cost, target_fraction_accurate);
+	
+	//folder = new CompactLatticeFolder(5);
+	PyObject *c_folder = PyObject_GetAttrString(folder_module, "_C_FOLDER");
+	//cout << "misfold c_folder = " << c_folder << endl;
+	if (PyCObject_Check(c_folder)){
+		folder = (Folder*)PyCObject_AsVoidPtr(c_folder);
+		//cout << "misfold c_folder as void* = " << c_folder << endl;
+	}
+	
+	//ErrorproneTranslation(Folder *protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate );
+
+	if (fitness_evaluator) {
+		//cout << "misfold: cleaning up old FE" << endl;
+		delete fitness_evaluator;
+	}
+	fitness_evaluator = new ErrorproneTranslation(folder, protein_length, target_structure_id, max_free_energy, 1.0, ca_cost, target_fraction_accurate);
+	//cout << "misfold: made new FE" << endl;
 	Py_INCREF(Py_None);
 	return Py_None;
 }

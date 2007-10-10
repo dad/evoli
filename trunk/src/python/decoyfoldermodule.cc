@@ -150,6 +150,16 @@ decoyfolder_init(PyObject *self /* Not used */, PyObject *args)
 		PyErr_SetString(FolderErrorObject, err.c_str());
 		return NULL;
 	}
+    PyObject *module = PyImport_ImportModule("decoyfolder");
+    if (module != NULL) {
+		/* Create a CObject containing the folder's address */
+		//cout << "decoyfolder folder object = " << folder << endl;
+		PyObject* c_folder = PyCObject_FromVoidPtr((void *)folder, NULL);
+		//cout << "decoyfolder c_folder = " << c_folder << endl;
+		if (c_folder != NULL) {
+			PyModule_AddObject(module, "_C_FOLDER", c_folder);
+		}
+	}
 	Py_INCREF(Py_None);
 	return Py_None;
 }
