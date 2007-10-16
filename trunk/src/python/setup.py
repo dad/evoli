@@ -83,3 +83,20 @@ setup (name = 'Misfold',
 	          version = '0.1',
 	          description = 'Module exposing misfolding assays of protein folding to Python',
 	          ext_modules = [misfold])
+
+mistrans = Extension('mistrans',
+				   sources = ['mistransmodule.cc'],
+				   include_dirs = [srcdir + '/src/tools', \
+							srcdir + '/src/gene', \
+							srcdir + '/src/folder', \
+							srcdir + '/src/evolver'],
+				   libraries = ['evolver','folder','gene','tools'],
+				   library_dirs = [builddir + '/src/tools', \
+	 						builddir + '/src/gene', \
+	 						builddir + '/src/folder', \
+							builddir + '/src/evolver'])
+
+setup (name = 'Mistrans',
+	          version = '0.1',
+	          description = 'Module exposing translation of proteins to Python',
+	          ext_modules = [mistrans])

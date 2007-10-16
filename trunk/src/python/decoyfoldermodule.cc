@@ -105,21 +105,20 @@ static PyObject *
 decoyfolder_getSequenceForStructure( PyObject *self, PyObject *args)
 {
 	int protein_length;
-	double free_energy_cutoff;
+	double max_free_energy;
 	int struct_id;
 
 	if (!folder) {
 		PyErr_SetString(FolderErrorObject, "uninitialized decoyfolder: call 'decoyfolder.init()'");
 		return NULL;
 	}
-	if (!PyArg_ParseTuple(args, "idi", &protein_length, &free_energy_cutoff, &struct_id )) {
+	if (!PyArg_ParseTuple(args, "iid", &protein_length, &struct_id, &max_free_energy )) {
 		return NULL;
 	}
-	Gene g = FolderUtil::getSequenceForStructure(*folder, 3*protein_length, free_energy_cutoff, struct_id);
+	CodingDNA gene = FolderUtil::getSequenceForStructure(*folder, 3*protein_length, max_free_energy, struct_id);
 	//cout << 3*protein_length << " " << free_energy_cutoff << " " << struct_id << " " << g << endl;
-	Protein p = g.translate();
-	
-	return Py_BuildValue("s", p.toString().c_str());
+	//Protein p = g.translate();
+	return Py_BuildValue("s", gene.c_str());
 }
 
 

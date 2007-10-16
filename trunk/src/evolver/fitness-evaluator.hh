@@ -376,6 +376,11 @@ public:
 	virtual void stabilityOutcomes( const CodingDNA& g, const int num_to_fold, vector<double>& ddgs );
 
 	/**
+	 * Record proteins coming off the simulated ribosome.
+	 */
+	virtual void translationOutcomes( const CodingDNA& g, const int num_to_translate, bool only_mistranslated, vector<Protein>& proteins );
+
+	/**
 	 * Returns the translational error probability per codon.
 	 */
 	double getErrorRate() const {

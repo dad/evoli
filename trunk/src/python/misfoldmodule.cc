@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "tools.hh"
 #include "protein.hh"
 #include "folder.hh"
-#include "compact-lattice-folder.hh"
 #include "fitness-evaluator.hh"
 
 static PyObject *MisfoldErrorObject;
@@ -147,9 +146,9 @@ misfold_init(PyObject *self /* Not used */, PyObject *args)
 	PyObject *folder_module;
 	int target_structure_id, random_seed, protein_length;
 	double max_free_energy, ca_cost, target_fraction_accurate;
-
+	//misfold.init(decoyfolder, target_sid, max_dg, ca_cost, target_frac_accurate, 111)
 	if (!PyArg_ParseTuple(args, "Oiidddi", &folder_module, &protein_length, &target_structure_id, &max_free_energy, &ca_cost, &target_fraction_accurate, &random_seed)) {
-		PyErr_SetString(MisfoldErrorObject, "bad arguments to decoyfolder.init");
+		PyErr_SetString(MisfoldErrorObject, "bad arguments to misfold.init");
 		return NULL;
 	}
 	if (!PyModule_Check(folder_module)) {
@@ -157,16 +156,17 @@ misfold_init(PyObject *self /* Not used */, PyObject *args)
 		return NULL;
 	}
 	Random::seed(random_seed);
-	//cout << side_length << " " << target_structure_id << " " << max_free_energy << " " << ca_cost << " " << target_fraction_accurate << endl;
-	
-	//folder = new CompactLatticeFolder(5);
+	// Get Folder from module that's been passed in.
 	PyObject *c_folder = PyObject_GetAttrString(folder_module, "_C_FOLDER");
-	//cout << "misfold c_folder = " << c_folder << endl;
 	if (PyCObject_Check(c_folder)){
 		folder = (Folder*)PyCObject_AsVoidPtr(c_folder);
 		//cout << "misfold c_folder as void* = " << c_folder << endl;
 	}
-	
+	else {
+		PyErr_SetString(MisfoldErrorObject, "misfold.init: module does not have a Folder object (_C_FOLDER)");
+		return NULL;
+	}
+
 	//ErrorproneTranslation(Folder *protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate );
 
 	if (fitness_evaluator) {

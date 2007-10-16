@@ -150,7 +150,7 @@ ErrorproneTranslation::ErrorproneTranslation( Folder *protein_folder, const int 
 	m_accuracy_weight = accuracy_weight;
 	m_error_weight = error_weight;
 	m_protein_structure_ID = protein_structure_ID;
-	
+
 	buildWeightMatrix();
 }
 
@@ -229,7 +229,7 @@ bool ErrorproneTranslation::sequenceFolds(Protein& p)
 {
 	// test if residue sequence folds into correct structure and has correct free energy
 	auto_ptr<FoldInfo> fold_data( m_protein_folder->fold(p) );
-	
+
 	if ( fold_data->getDeltaG() > m_max_free_energy )
 		return false;  // free energy above cutoff
 
@@ -311,7 +311,7 @@ double ErrorproneTranslation::estimateErrorRateFromAccuracy(const double target_
 	// Our goal is to estimate an error rate per codon that will
 	// yield, on average over a large set of random genes encoding
 	// folded proteins, the target fraction accurate specified.
-	// 
+	//
 	// Justification for this estimate is as follows.  The exact probability of an error at codon i
 	// is given by Pr(err, i) = error_rate*site_weight(i)/(error_weight/protein_length)
 	// where site_weight(i) = [1 + unpreferred_i<1|0>*(unpreferred_penalty-1)]. @see getWeightsForTargetAccuracy
@@ -321,7 +321,7 @@ double ErrorproneTranslation::estimateErrorRateFromAccuracy(const double target_
 	// code.  However, we have an estimate of it, because the ratio of
 	// accuracy_weight to error_weight is approximately
 	// (1-Pr(syn|err)) over a large set of random genes.
-	// 
+	//
 	// The probability that the amino acid sequence is properly
 	// translated (through a combination of accurate translation and
 	// synonymous errors) is then approx.:
@@ -334,7 +334,7 @@ double ErrorproneTranslation::estimateErrorRateFromAccuracy(const double target_
 	//
 	// Pr(accurate) is target_fraction_accurate, and thus our estimate for error_rate can be
 	// obtained by solving for error_rate = (1 - target_fraction_accurate^(1/protein_length))*(error_weight/accuracy_weight);
-	// 
+	//
 	// Note that this estimate is only even approximately valid for a
 	// set of random genes encoding folded proteins.  The estimated
 	// error rate is likely to be too low when applied to sets of
@@ -352,7 +352,7 @@ double ErrorproneTranslation::estimateAccuracyFromErrorRate(const double error_r
 	return acc_estimate;
 }
 
-void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_fraction_accurate, double& error_rate, 
+void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotype, const double target_fraction_accurate, double& error_rate,
 														double& accuracy_weight, double& error_weight, const int num_equil, const int num_rand) {
 
 	// Our goal is to specify an error rate for translation to match
@@ -395,7 +395,7 @@ void ErrorproneTranslation::getWeightsForTargetAccuracy(const Gene& seed_genotyp
 	// The average error weight for a large set of random genes
 	// encoding folded proteins sets a reference point for translation
 	// of arbitrary genes, and is stored in error_weight.
-	// 
+	//
 	// Correspondingly, the "accuracy weight" for a gene is the sum of
 	// each site weight multiplied by the probability of a
 	// nonsynonymous change given an error at that site.  The average
@@ -573,7 +573,7 @@ double ErrorproneTranslation::calcOutcomes( const CodingDNA &g, double &frac_acc
 		frac_robust = (frac_folded - frac_accurate)/(1-frac_accurate);
 	}
 	frac_truncated = 1.0 - p_notrunc;
-	
+
 	// Return fitness, which depends only on misfolding level.
 	// tr_cost can be thought of as the product of fitness cost per
 	// misfolded protein and expression level measured in folded
@@ -660,6 +660,23 @@ void ErrorproneTranslation::stabilityOutcomes( const Gene &g, const int num_to_f
 				ddgs.push_back(fold_data->getDeltaG());
 				i++;
 			}
+		}
+	}
+}
+
+/**
+ * Record the set of proteins coming off the translation system under
+ * the error spectrum of this translator.
+ */
+void ErrorproneTranslation::translationOutcomes( const CodingDNA& g, const int num_to_translate, bool only_mistranslated, vector<Protein>& proteins ) {
+	Translator t(m_error_rate);
+	Protein p = g.translate();
+	for (int i=0; i<num_to_translate;) {
+		bool truncated = false;
+		int numErrors = t.translateRelativeWeighted(g, p, m_error_weight, m_cum_weight_matrix, m_codon_cost, m_ca_cost, truncated);
+		if (!only_mistranslated || (only_mistranslated && numErrors>0)) {
+			proteins.push_back(p);
+			i++;
 		}
 	}
 }
@@ -773,7 +790,7 @@ vector<vector<pair<double, char> > > ErrorproneTranslation::getTranslationWeight
 
 vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 	vector<bool> is_optimal(64, false);
-	
+
 	for (int ci=0; ci<64; ci++) {
 		Codon codon = GeneticCodeUtil::indexToCodon(ci);
 		char aa = GeneticCodeUtil::geneticCode(codon);
@@ -784,7 +801,7 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 			}
 		}
 	}
-	
+
 	return is_optimal;
 }
 
@@ -945,7 +962,7 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 
 
 	// debugging
-	
+
 	int num_optimal_codons = 0;
 	for (int j=0; j<64; j++) {
 		CodonUtil::printCodon(cout, j);
@@ -955,7 +972,7 @@ vector<bool> ErrorproneTranslation::getOptimalCodons(bool print_report) const {
 		}
 	}
 	cout << "Total of " << num_optimal_codons << " optimal codons." << endl;
-	
+
 
 	return is_optimal;
 
@@ -1117,8 +1134,8 @@ RobustnessOnlyTranslation::RobustnessOnlyTranslation(Folder *protein_folder, con
 	m_fraction_accurate = 1.0 - pow((1.0 - error_rate), (double)length);
 }
 
-RobustnessOnlyTranslation::RobustnessOnlyTranslation(Folder *protein_folder, const int length, const StructureID protein_structure_ID, 
-													 const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, 
+RobustnessOnlyTranslation::RobustnessOnlyTranslation(Folder *protein_folder, const int length, const StructureID protein_structure_ID,
+													 const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate,
 													 const double accuracy_weight, const double error_weight ) :
 	ErrorproneTranslation(protein_folder, length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, error_rate, accuracy_weight, error_weight) {
 
@@ -1151,7 +1168,7 @@ double RobustnessOnlyTranslation::getFitness( const Gene &g )
 /*
  * Computes the expected value of various translational outcomes from the gene g.
  */
-double RobustnessOnlyTranslation::calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded ) 
+double RobustnessOnlyTranslation::calcOutcomes( const Gene &g, double &frac_accurate, double &frac_robust, double &frac_truncated, double &frac_folded )
 {
 	// First we cover the case of any existing stop codons
 	if ( !g.encodesFullLength() )

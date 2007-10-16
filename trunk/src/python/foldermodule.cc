@@ -79,16 +79,16 @@ static char folder_getSequenceForStructure__doc__[] =
 static PyObject *
 folder_getSequenceForStructure(PyObject *self /* Not used */, PyObject *args)
 {
-	int sid;
+	int struct_id;
 	double max_free_energy;
 	if (!folder) {
 		PyErr_SetString(FolderErrorObject, "uninitialized folder: call 'folder.init(...)'");
 		return NULL;
 	}
-	if (!PyArg_ParseTuple(args, "id", &sid, &max_free_energy)) {
+	if (!PyArg_ParseTuple(args, "id", &struct_id, &max_free_energy)) {
 		return NULL;
 	}
-	CodingDNA gene = FolderUtil::getSequenceForStructure(*folder, protein_length*3, max_free_energy, sid);
+	CodingDNA gene = FolderUtil::getSequenceForStructure(*folder, protein_length*3, max_free_energy, struct_id);
 	return Py_BuildValue("s", gene.c_str());
 }
 

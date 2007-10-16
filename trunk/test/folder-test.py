@@ -21,7 +21,7 @@
 import random, math, os, sys
 # Import the modules
 sys.path = [os.path.expanduser('~/research/lib/'), os.path.expanduser('~/research/lib/src')] + sys.path
-import folder, decoyfolder, misfold
+import folder, decoyfolder, misfold, mistrans
 import translate
 
 # The 20 canonical amino acids
@@ -51,7 +51,7 @@ if True:
 	(new_sid, new_dg) = folder.fold(translate.Translate(gene))
 	assert(sid == new_sid and new_dg <= dg)
 
-if True:
+if False:
 	print "\n****\nTesting misfold module with compact lattice folder"
 	side_length = 5
 	struct_id = 599
@@ -70,7 +70,7 @@ if True:
 	(facc, frob, ftrunc, ffold) = misfold.countOutcomeFractions(gene, 10000);
 	print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % ("countOutcomeFractions", facc, frob, ftrunc, ffold)
 
-if True:
+if False:
 	print "\n****\nTesting decoyfolder module"
 	sid = 1
 	prot_length = 300
@@ -80,11 +80,10 @@ if True:
 
 	decoyfolder.init(prot_length, log_nconf, map_file, map_dir)
 
-	prot = decoyfolder.getSequenceForStructure(prot_length, max_free_energy, sid)
-	gene = translate.ReverseTranslate(prot)
-	new_prot = translate.Translate(gene)
-	assert prot == new_prot
-	(sid, dg) = decoyfolder.fold(new_prot)
+	gene = decoyfolder.getSequenceForStructure(prot_length, sid, max_free_energy)
+	print gene
+	prot = translate.Translate(gene)
+	(sid, dg) = decoyfolder.fold(prot)
 	print sid, dg
 	print "sid g"
 	for i in range(10):
@@ -96,7 +95,7 @@ if True:
 		# Print them out
 		print "%d\t%1.3f" % (i, dg)
 
-if True:
+if False:
 	print "\n****\nTesting misfold module with decoy contact folder"
 	target_fraction_accurate = 0.85
 	sid = 1
@@ -104,8 +103,7 @@ if True:
 	max_free_energy = -5
 	prot_length = 300
 
-	prot = decoyfolder.getSequenceForStructure(prot_length, max_free_energy, sid)
-	gene = translate.ReverseTranslate(prot)
+	gene = decoyfolder.getSequenceForStructure(prot_length, sid, max_free_energy)
 	misfold.init(decoyfolder, prot_length, sid, max_free_energy, ca_cost, target_fraction_accurate, 111)
 	#err_rate = misfold.getErrorRate()
 	(facc, frob, ftrunc, ffold) = misfold.calcOutcomes(gene);
@@ -116,14 +114,37 @@ if True:
 	print "%s\t%1.4f\t%1.4f\t%1.4f\t%1.4f" % ("countOutcomeFractions", facc, frob, ftrunc, ffold)
 
 if False:
+	print "\n****\nTesting mistrans module with decoy contact folder"
+	target_fraction_accurate = 0.85
+	sid = 1
+	ca_cost = 5
+	max_free_energy = -5
 	prot_length = 300
-	log_nconf = 10*math.log(10)
-	map_file = os.path.abspath("test/data/rand_contact_maps/maps.txt")
-	map_dir = os.path.abspath("test/data/rand_contact_maps/")+"/"
 
-	decoyfolder.init(prot_length, log_nconf, map_file, map_dir)
-	print "sid dg"
-	p = "PRPEEEKKKREREEKRRKEDKLERIRDLPRKILKMIVEPKRRKKGETEDDDEKESKRREEMEKFKREFFTICIKLLECEEEMARRREKRREEEDIDSLRELMKDCRRFIDDPRRVEQQSQRLDFRSRRKLEDEKDDEDKRKPDFLFEFEMCEEDMRRRPLDRVKDICRVCCEMDEEEEIREEEEFFRPEEEDMKLKSFRESFKDVRRCILRKFEKSRREKSAEFLRHEIPMFSSEDEEDRKKKDRRRQRPMMRHFMKRIKEKEEERKKREFKEQEEPKPKSFKWKTEEEMEELGEQEKRV"
-	(sid, dg) = decoyfolder.fold(p)
-	print sid, dg
+	gene = decoyfolder.getSequenceForStructure(prot_length, sid, max_free_energy)
+	misfold.init(decoyfolder, prot_length, sid, max_free_energy, ca_cost, target_fraction_accurate, 111)
+	n = 100
+	only_mistrans = True
+	prots = mistrans.getTranslatedProteins(gene, n, only_mistrans)
+	assert( len(prots) == n )
+	for p in prots:
+		print p
+
+if True:
+	print "\n****\nTesting mistrans module with compact lattice folder"
+	side_length = 5
+	struct_id = 599
+	target_fraction_accurate = 0.85
+	ca_cost = 5
+	max_free_energy = -5
+
+	prot_length = side_length*side_length
+	gene = folder.getSequenceForStructure(struct_id, max_free_energy)
+	mistrans.init(folder, prot_length, struct_id, max_free_energy, ca_cost, target_fraction_accurate, 111)
+	n = 100
+	only_mistrans = True
+	prots = mistrans.getTranslatedProteins(gene, n, only_mistrans)
+	assert( len(prots) == n )
+	for p in prots:
+		print p
 
