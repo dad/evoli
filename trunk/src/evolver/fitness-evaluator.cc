@@ -1285,7 +1285,7 @@ double FunctionalLossErrorproneTranslation::getFitness( const CodingDNA& g ) {
 	// Fitness is the activity of the accurately translated molecules, which differ from the protein sequence by diffs, plus
 	// the activity of the mistranslated molecules that fold, which differ by diffs + 1.
 	// (1-facc)*ffold*exp(-diff_cost)
-	fitness = facc*exp(-m_diff_cost * diffs) + (1.0-facc)*ffold*exp(-m_diff_cost * (diffs+1.0));
+	fitness = facc*exp(-m_diff_cost * diffs) + (1.0-facc)*frob*exp(-m_diff_cost * (diffs+1.0));
 	return fitness;
 }
 

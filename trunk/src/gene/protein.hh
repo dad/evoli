@@ -1,7 +1,7 @@
 /*
 This file is part of the E.voli project.  Copyright (C) 2004, 2005,
-2006, 2007 Claus Wilke <cwilke@mail.utexas.edu>, Allan Drummond
-<drummond@alumni.princeton.edu>
+2006, 2007, 2008 Claus Wilke <cwilke@mail.utexas.edu>, Allan Drummond
+<dadrummond@gmail.com>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -40,6 +40,7 @@ public:
 	Protein(unsigned int length);
 	Protein(unsigned int length, char val);
 	Protein(const string& s) : Sequence(s) {}
+	Protein() : Sequence(static_cast<unsigned int>(0)) {}
 	~Protein() {}
 
 	/**

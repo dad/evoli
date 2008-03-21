@@ -1,6 +1,6 @@
 /*
 This file is part of the evoli project.
-Copyright (C) 2004, 2005, 2006 Claus Wilke <cwilke@mail.utexas.edu>,
+Copyright (C) 2004, 2005, 2006, 2007, 2008 Claus Wilke <cwilke@mail.utexas.edu>,
 Allan Drummond <dadrummond@gmail.com>
 
 This program is free software; you can redistribute it and/or
