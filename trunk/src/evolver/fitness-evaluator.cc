@@ -1286,8 +1286,6 @@ double FunctionalLossErrorproneTranslation::getFitness( const CodingDNA& g ) {
 	// the activity of the mistranslated molecules that fold, which differ by diffs + 1.
 	// (1-facc)*ffold*exp(-diff_cost)
 	fitness = facc*exp(-m_diff_cost * diffs) + (1.0-facc)*ffold*exp(-m_diff_cost * (diffs+1.0));
-	cout << diffs << " " << facc << " " << ffold << " " << m_diff_cost << " " << fitness << endl;
-	//cout << &g << tab << "end getFitness" << endl;
 	return fitness;
 }
 

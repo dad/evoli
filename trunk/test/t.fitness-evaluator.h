@@ -151,7 +151,6 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		flept.calcOutcomes(g, facc, frob, ftrunc, ffold);
 		double fitness = flept.getFitness(g);
 		double target_fitness = facc + (1-facc)*ffold*exp(-diff_cost);
-		cout << fitness << " " << target_fitness << endl;
 		TEST_ASSERT(abs(fitness - target_fitness) < 1e-6);
 	}
 
