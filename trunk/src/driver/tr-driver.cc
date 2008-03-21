@@ -43,7 +43,7 @@ The parameters are, in order (the zeroth parameter is the program name):
 -#  Window time -- number of generations for which evolutionary data is being collected
 -#  Equilibration time -- evolution time in generations before collection of evolutionary data begins
 -#  Number of replicates
--#  %Random number seed -- best to use an odd number
+-#  Random number seed -- best to use an odd number.  n and n+1 yield identical results if n is even.
 
 The error rate (parameter 6) and weights (parameters 7 and 8) are
 chosen such that, given a particular structure and codon adaptation
@@ -58,7 +58,7 @@ as follows:
 \endverbatim
 -#  Codon adaptation cost -- average accuracy ratio between optimal and non-optimal codons
 -#  Maximum free energy of folding
--#  %Random number seed -- best to use an odd number
+-#  %Random number seed -- best to use an odd number; odd
 -#  Seed gene sequence file containing nucleotide sequence that folds into the target structure with less than maximum free energy
 -#  Equilibration time -- number of generations to equilibrate seed sequence by mutational drift
 -#  Window time -- number of generations for which to measure random sequence statistics

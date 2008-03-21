@@ -46,7 +46,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		double fitness = ept.getFitness(test_gene);
 		TEST_ASSERT(fitness >= 0 && fitness <= 1);
 	}
-	
+
 	void TEST_FUNCTION( create_EPT )
 	{
 		CompactLatticeFolder folder(side_length);
@@ -83,7 +83,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		double target_accuracy = 0.85;
 		double max_dg = -1;
 		int sid = 599;
-		
+
 		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		// Test with automatically determined weights.
 		ErrorproneTranslation ept(&folder, g.codonLength(), sid, max_dg, 1.0, 6.0, target_accuracy);
@@ -134,6 +134,28 @@ struct TEST_CLASS( fitness_evaluator_basic )
 			}
 		}
 	}
+
+	void TEST_FUNCTION( test_functional_loss_EPT ) {
+		CompactLatticeFolder folder(side_length);
+		double target_accuracy = 0.85;
+		double max_dg = -1;
+		int sid = 599;
+		double ca_cost = 5.0;
+		double diff_cost = log10(10.0);
+
+		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
+		Protein p = g.translate();
+		// Test with automatically determined weights.
+		FunctionalLossErrorproneTranslation flept(&folder, g.codonLength(), sid, max_dg, ca_cost, target_accuracy, diff_cost, p);
+		double ffold, frob, facc, ftrunc;
+		flept.calcOutcomes(g, facc, frob, ftrunc, ffold);
+		double fitness = flept.getFitness(g);
+		double target_fitness = facc + (1-facc)*ffold*exp(-diff_cost);
+		cout << fitness << " " << target_fitness << endl;
+		TEST_ASSERT(abs(fitness - target_fitness) < 1e-6);
+	}
+
+
 };
 
 #endif

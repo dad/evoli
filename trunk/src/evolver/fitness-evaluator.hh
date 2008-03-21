@@ -518,8 +518,6 @@ protected:
 public:
 	/**
 	 * @param protein_folder An initialized \ref Folder object.
-	 * @param length Protein sequence length in amino acids.
-	 * @param protein_structure_ID Structure identifier for the native structure all folded proteins must attain.
 	 * @param max_free_energy Maximum free energy of folding for a folded protein.
 	 * @param tr_cost Cost factor used to convert fraction of misfolded proteins f into fitness cost via fitness = exp{- tr_cost*f/(1-f).
 	 * @param ca_cost Codon adapation cost.  This cost represents the average fold-decrease in codon accuracy for non-optimal codons relative to optimal synonymous codons.
@@ -532,6 +530,40 @@ public:
 	CutoffErrorproneTranslation( Folder* protein_folder, const int length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double error_rate, const double accuracy_weight, const double error_weight, double cost_constant, int toxicity_cutoff);
 
 	virtual ~CutoffErrorproneTranslation();
+    double getFitness( const CodingDNA& g );
+    double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
+};
+
+
+
+class FunctionalLossErrorproneTranslation : public ErrorproneTranslation {
+protected:
+	/**
+	 * The multiplier to convert translational robustness cost into number of misfolded proteins.
+	 **/
+	double m_cost_constant;
+	/**
+	 * The multiplier to convert differences from the template sequence into fitness cost.
+	 **/
+	double m_diff_cost;
+	/**
+	 * The template protein sequence.
+	 **/
+	Protein m_template_protein;
+public:
+	/**
+	 * @param protein_folder An initialized \ref Folder object.
+	 * @param length Protein sequence length in amino acids.
+	 * @param protein_structure_ID Structure identifier for the native structure all folded proteins must attain.
+	 * @param max_free_energy Maximum free energy of folding for a folded protein.
+	 * @param ca_cost Codon adapation cost.  This cost represents the average fold-decrease in codon accuracy for non-optimal codons relative to optimal synonymous codons.
+	 * @param target_fraction_accurate Desired probability that an average folded protein will be translated with out errors.
+	 * @param diff_cost The multiplier to convert differences from the template sequence into fitness cost.
+	 * @param template_protein The protein sequence from which differences will be calculated to model loss of function.
+	 **/
+	FunctionalLossErrorproneTranslation( Folder* protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double ca_cost, const double target_fraction_accurate, const double diff_cost, const Protein& template_protein );
+
+	virtual ~FunctionalLossErrorproneTranslation();
     double getFitness( const CodingDNA& g );
     double getFitness( const Protein& p ) { return getFitness( GeneUtil::reverseTranslate(p) ); }
 };

@@ -1264,6 +1264,33 @@ double CutoffErrorproneTranslation::getFitness( const Gene &g ) {
 CutoffErrorproneTranslation::~CutoffErrorproneTranslation() {
 }
 
+// FunctionalLossErrorproneTranslation
+
+FunctionalLossErrorproneTranslation::FunctionalLossErrorproneTranslation( Folder* protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double ca_cost, const double target_fraction_accurate, const double diff_cost, const Protein& template_protein )
+ : m_template_protein(template_protein), ErrorproneTranslation(protein_folder, protein_length, protein_structure_ID, max_free_energy, 0.0, ca_cost, target_fraction_accurate) {
+	 m_diff_cost = diff_cost;
+}
+
+FunctionalLossErrorproneTranslation::~FunctionalLossErrorproneTranslation() {
+}
+
+double FunctionalLossErrorproneTranslation::getFitness( const CodingDNA& g ) {
+	double fitness = 1.0;
+	// Compute translation outcomes.
+	double ffold, frob, facc, ftrunc;
+	calcOutcomes(g, facc, frob, ftrunc, ffold);
+	// Compute distance from template sequence
+	Protein p = g.translate();
+	unsigned int diffs = m_template_protein.distance(p);
+	// Fitness is the activity of the accurately translated molecules, which differ from the protein sequence by diffs, plus
+	// the activity of the mistranslated molecules that fold, which differ by diffs + 1.
+	// (1-facc)*ffold*exp(-diff_cost)
+	fitness = facc*exp(-m_diff_cost * diffs) + (1.0-facc)*ffold*exp(-m_diff_cost * (diffs+1.0));
+	cout << diffs << " " << facc << " " << ffold << " " << m_diff_cost << " " << fitness << endl;
+	//cout << &g << tab << "end getFitness" << endl;
+	return fitness;
+}
+
 double fixation_probability(int N, double s) {
 	double res = 0.0;
 	double eps = 1e-10;
