@@ -39,9 +39,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 
 class Parameters {
 public:
+	string eval_type;
 	unsigned int protein_length;
 	double free_energy_cutoff;
 	double u;
+	double tr_cost;
+	string tr_cost_str;
 	double diff_cost;
 	string diff_cost_str;
 	double ca_cost;
@@ -57,16 +60,19 @@ public:
 	bool valid;
 
 	Parameters( int ac, char **av ) {
-		if ( ac < 14 )	{
+		if ( ac < 16 )	{
 			valid = false;
 			cout << "Start program like this:" << endl;
-			cout << "\t" << av[0] << " <prot length> <pop size> <log10 diff cost> <ca cost> <target frac. accurate> <structure id> <free energy cutoff> <mutation rate> <window time> <equilibration time> <repetitions> <random seed> <run ID> <template protein sequence>" << endl;
+			cout << "\t" << av[0] << " <eval. type> <prot length> <pop size> <log10 tr cost> <log10 diff cost> <ca cost> <target frac. accurate> <structure id> <free energy cutoff> <mutation rate> <window time> <equilibration time> <repetitions> <random seed> <run ID> <template protein sequence>" << endl;
 			return;
 		}
 
 		int i = 1;
+		eval_type = av[i++];
 		protein_length = atoi( av[i++] );
 		N = atoi( av[i++] );
+		tr_cost_str = av[i++];
+		tr_cost = pow(10.0,atof( tr_cost_str.c_str() ));
 		diff_cost_str = av[i++];
 		diff_cost = pow(10.0,atof( diff_cost_str.c_str() ));
 		ca_cost = atof( av[i++] );
@@ -79,7 +85,7 @@ public:
 		repetitions = atoi( av[i++] );
 		random_seed = atoi( av[i++] );
 		template_protein_sequence = av[i++];
-		if (ac==15){
+		if (ac==17){
 			run_id = av[i++];
 		}
 		else{
@@ -93,10 +99,13 @@ public:
 ostream & operator<<( ostream &s, const Parameters &p )
 {
 	s << "# Parameters:" << endl;
+	s << "#   evaluation type: " << p.eval_type << endl;
 	s << "#   protein length: " << p.protein_length << endl;
 	s << "#   structure id: " << p.structure_ID << endl;
+	s << "#   evaluation type: diff" << endl;
 	s << "#   free energy maximum: " << p.free_energy_cutoff << endl;
 	s << "#   per-site mutation rate u: " << p.u << endl;
+	s << "#   transl. robust. cost factor: " << p.tr_cost << endl;
 	s << "#   diff. cost factor: " << p.diff_cost << endl;
 	s << "#   codon adaptation cost factor: " << p.ca_cost << endl;
 	s << "#   target fraction accurate: " << p.target_fraction_accurate << endl;
@@ -110,8 +119,6 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	s << "#" << endl;
 	return s;
 }
-
-
 
 int getStructureID( Folder &b, const Gene &g );
 bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
@@ -131,6 +138,7 @@ The program \c tr-fxnloss-driver is used to run actual translational robustness 
 The parameters are, in order (the zeroth parameter is the program name):
 -#  %Protein length in amino acids
 -#  %Population size
+-#  Base-10 logarithm of the translational cost factor
 -#  Base-10 logarithm of the difference cost factor
 -#  Codon adaptation cost -- average accuracy ratio between optimal and non-optimal codons
 -#  Target translational accuracy -- fraction of time a random gene is accurately translated
@@ -178,7 +186,7 @@ int main( int ac, char **av)
 	double ATtoTA = 11.;
 	//Polymerase poly(p.u, GCtoAT, ATtoGC, GCtoTA, GCtoCG, ATtoCG, ATtoTA );
 	Polymerase poly(p.u);
-	FunctionalLossErrorproneTranslation flept(&folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.ca_cost, p.target_fraction_accurate, p.diff_cost, Protein(p.template_protein_sequence) );
+	FunctionalLossErrorproneTranslation flept(&folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.target_fraction_accurate, p.diff_cost, Protein(p.template_protein_sequence) );
 
 	cout << setprecision(4);
 	evolutionExperiment( p, flept, poly);
@@ -306,7 +314,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polyme
 
 	// set up output file
 	stringstream fname;
-	fname << "run-diff_s" << p.structure_ID << "diff" << p.diff_cost_str << "ca" << p.ca_cost << "-id" << p.run_id << ".dat";
+	fname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "ca" << p.ca_cost << "-id" << p.run_id << ".dat";
 	string filename = fname.str();
 
 	ofstream data_file( filename.c_str(), ios::out );
@@ -322,7 +330,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polyme
 	for ( int i=0; i<p.repetitions; i++ )
 	{
 		stringstream repfname;
-		repfname << "run-diff_s" << p.structure_ID << "diff" << p.diff_cost_str << "ca" << p.ca_cost << "-gb-rep" << i << "-id" << p.run_id << ".dat";
+		repfname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "ca" << p.ca_cost << "-gb-rep" << i << "-id" << p.run_id << ".dat";
 		filename = repfname.str();
 		ofstream gen_file( filename.c_str(), ios::out );
 		gen_file << p;
@@ -351,7 +359,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polyme
 
 	data_file << "# Summary:\n# <tr cost> <ca cost> <pop. size> <nonsyn. substs.> <var> <syn. substs.> <var> <nonsyn. sites> <var> <syn. sites> <var> <ave. fitness> <var> <ave fop> <var>" << endl;
 
-	data_file << p.diff_cost << tab << p.ca_cost << tab << p.N << tab;
+	data_file << p.tr_cost << tab << p.ca_cost << tab << p.N << tab;
 	pair<double, double> stat = meanvar( dn_s1, dn_s2, count );
 	data_file << stat.first << tab << stat.second << tab;
 	stat = meanvar( ds_s1, ds_s2, count );
@@ -365,5 +373,4 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polyme
 	stat = meanvar( fop_s1, fop_s2, count );
 	data_file << stat.first << tab << stat.second << endl;
 }
-
 

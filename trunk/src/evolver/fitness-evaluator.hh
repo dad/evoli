@@ -561,7 +561,7 @@ public:
 	 * @param diff_cost The multiplier to convert differences from the template sequence into fitness cost.
 	 * @param template_protein The protein sequence from which differences will be calculated to model loss of function.
 	 **/
-	FunctionalLossErrorproneTranslation( Folder* protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double ca_cost, const double target_fraction_accurate, const double diff_cost, const Protein& template_protein );
+	FunctionalLossErrorproneTranslation( Folder* protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate, const double diff_cost, const Protein& template_protein );
 
 	virtual ~FunctionalLossErrorproneTranslation();
     double getFitness( const CodingDNA& g );

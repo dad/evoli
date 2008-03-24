@@ -142,15 +142,18 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		int sid = 599;
 		double ca_cost = 5.0;
 		double diff_cost = log10(10.0);
+		double tr_cost = log10(1.0);
 
 		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
 		Protein p = g.translate();
 		// Test with automatically determined weights.
-		FunctionalLossErrorproneTranslation flept(&folder, g.codonLength(), sid, max_dg, ca_cost, target_accuracy, diff_cost, p);
+		FunctionalLossErrorproneTranslation flept(&folder, g.codonLength(), sid, max_dg, tr_cost, ca_cost, target_accuracy, diff_cost, p);
 		double ffold, frob, facc, ftrunc;
 		flept.calcOutcomes(g, facc, frob, ftrunc, ffold);
 		double fitness = flept.getFitness(g);
-		double target_fitness = facc + (1-facc)*frob*exp(-diff_cost);
+		// exp{-s[1-(a(1-k/L) + (1-a)r(1-(k+1)/L))]}
+		// exp{-s[1-(a + (1-a)r(1-1/L))]}
+		double target_fitness = exp(-diff_cost*(1.0-(facc + (1-facc)*frob*(1-1.0/25))));
 		TEST_ASSERT(abs(fitness - target_fitness) < 1e-6);
 	}
 

@@ -187,13 +187,13 @@ public:
 			//for ( int i=0; i<m_population.size(); i++ ) {
 			int t = m_time-1;
 			const GenebankEntry<Organism> *e = *it;
-		
+
 			while( !e->isCoalescent() ) {
 				t = e->getBirthTime()-1;
 				e = e->getParent();
 				assert( e!= 0 );
 			}
-		
+
 			if ( min_time > t )
 				min_time = t;
 		}
@@ -241,22 +241,22 @@ void Population<Organism, FitnessEvaluator, Mutator>::init( const Organism &g, F
 	m_time = 0;
 	assert( fe != 0 );
 	m_fitness_evaluator = fe;
-	
+
 	// empty the genebank
 	m_genebank.clear();
-	
+
 	// get the parent fitness
 	double f = m_fitness_evaluator->getFitness( g );
 	assert( f > 0.0 );
-	
+
 	// create the parent of all organisms
 	GenebankEntry<Organism> *parent = m_genebank.createOrganism( g, f, 0, 0 );
 	parent->setCoalescent();
-	
+
 	// initialize population with given organism
 	for ( int i=0; i<m_N; i++ )
 		m_pop[m_buffer][i] = m_genebank.createOrganism( g, f, parent, 0 );
-	
+
 	// the parent is not part of the population anymore
 	m_genebank.removeOrganism( parent );
 }
@@ -283,26 +283,26 @@ void Population<Organism, FitnessEvaluator, Mutator>::setPopulationSize( int N )
 {
 	if ( N > m_maxN )
 		return;
-	
+
 	int outBuffer, index;
-	
+
 	outBuffer = (m_buffer ^ 1);
-	
+
 	// resample the population
 	for ( int i=0; i<N; i++ ) {
 		index = Random::rint( m_N );
 			m_pop[outBuffer][i] = m_pop[m_buffer][index];
 			m_genebank.addOrganism( m_pop[m_buffer][index] );
 	}
-	
+
 	// un-register the organisms of the old generation
 	for (int i=0; i<m_N; i++) {
 		m_genebank.removeOrganism( m_pop[m_buffer][i] );
 		m_pop[m_buffer][i] = 0; // make sure we don't have dangling pointers
 	}
-	
+
 	m_N = N;
-	
+
 	m_buffer = outBuffer;
 }
 
@@ -311,7 +311,7 @@ void Population<Organism, FitnessEvaluator, Mutator>::evolve()
 {
 	double fitnessSum;
 	int outBuffer, index;
-		
+
 	outBuffer = (m_buffer ^ 1);
 	fitnessSum=0;
 
@@ -342,9 +342,10 @@ void Population<Organism, FitnessEvaluator, Mutator>::evolve()
 		double f = m_pop[m_buffer][index]->getFitness();
 		assert( f > 0.0);
 		if (f <= 0.0) {
-			cout << "reproducing with fitness <= 0.0" << endl;
+			// Need to decide what to do -- besides printing -- when this happens.
+			//cout << "reproducing with fitness <= 0.0" << endl;
 		}
-		
+
 		m_pop[outBuffer][i] = createOffspring( m_pop[m_buffer][index] );
 	}
 
