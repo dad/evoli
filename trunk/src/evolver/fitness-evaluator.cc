@@ -1274,7 +1274,7 @@ FunctionalLossErrorproneTranslation::~FunctionalLossErrorproneTranslation() {
 }
 
 double FunctionalLossErrorproneTranslation::getFitness( const CodingDNA& g ) {
-	double fitness = exp(-m_diff_cost);  // The cost of complete knockout of the gene.
+	double fitness = exp(m_diff_cost);  // The cost of complete knockout of the gene.
 	if (g.encodesFullLength()) {
 		Protein p = g.translate();
 		if ( ErrorproneTranslation::sequenceFolds(p) ) {
