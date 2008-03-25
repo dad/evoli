@@ -74,7 +74,7 @@ public:
 		tr_cost_str = av[i++];
 		tr_cost = pow(10.0,atof( tr_cost_str.c_str() ));
 		diff_cost_str = av[i++];
-		diff_cost = pow(10.0,atof( diff_cost_str.c_str() ));
+		diff_cost = atof( diff_cost_str.c_str() ); //pow(10.0,atof( diff_cost_str.c_str() ));
 		ca_cost = atof( av[i++] );
 		target_fraction_accurate = atof( av[i++] );
 		structure_ID = atoi( av[i++] );

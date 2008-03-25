@@ -141,7 +141,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		double max_dg = -1;
 		int sid = 599;
 		double ca_cost = 5.0;
-		double diff_cost = 10.0;
+		double diff_cost = -10.0;
 		double tr_cost = 1.0;
 
 		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
@@ -153,7 +153,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		double fitness = flept.getFitness(g);
 		// exp{-s[1-(a(1-k/L) + (1-a)r(1-(k+1)/L))]}
 		// exp{-s[1-(a + (1-a)r(1-1/L))]}
-		double target_fitness = exp(-diff_cost*(1.0-(facc + (1-facc)*frob*(1-1.0/25))));
+		double target_fitness = exp(diff_cost*(1.0-(facc + (1-facc)*frob*(1-1.0/25))));
 		TEST_ASSERT(abs(fitness - target_fitness) < 1e-6);
 	}
 
@@ -163,7 +163,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		double max_dg = -1;
 		int sid = 599;
 		double ca_cost = 5.0;
-		double diff_cost = 10.0;
+		double diff_cost = -10.0;
 		double tr_cost = 1.0;
 
 		CodingDNA g = FolderUtil::getSequenceForStructure( folder, gene_length, max_dg, sid);
@@ -171,7 +171,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		FunctionalLossErrorproneTranslation flept(&folder, g.codonLength(), sid, -5, tr_cost, ca_cost, target_accuracy, diff_cost, p);
 		double fitness = flept.getFitness(g);
 		// Should be complete knockout, because required -5 stability is too low to get by chance when seeking -1 stability.
-		double target_fitness = exp(-diff_cost);
+		double target_fitness = exp(diff_cost);
 		TEST_ASSERT(abs(fitness - target_fitness) < 1e-6);
 	}
 
