@@ -1264,10 +1264,34 @@ double CutoffErrorproneTranslation::getFitness( const Gene &g ) {
 CutoffErrorproneTranslation::~CutoffErrorproneTranslation() {
 }
 
+// DispensabilityErrorproneTranslation
+
+DispensabilityErrorproneTranslation::DispensabilityErrorproneTranslation( Folder* protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate, const double diff_cost )
+ : m_diff_cost(diff_cost), ErrorproneTranslation(protein_folder, protein_length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, target_fraction_accurate) {
+}
+
+DispensabilityErrorproneTranslation::~DispensabilityErrorproneTranslation() {
+}
+
+double DispensabilityErrorproneTranslation::getFitness( const CodingDNA& g ) {
+	double fitness = exp(m_diff_cost);  // The cost of complete knockout of the gene.
+	if (g.encodesFullLength()) {
+		Protein p = g.translate();
+		if ( ErrorproneTranslation::sequenceFolds(p) ) {
+			// Compute translation outcomes.
+			double ffold, frob, facc, ftrunc;
+			calcOutcomes(g, facc, frob, ftrunc, ffold);
+			// Linearly interpolate the cost of losing a fraction of thet molecules.
+			fitness = exp(m_diff_cost * (1.0 - ffold));
+		}
+	}
+	return fitness;
+}
+
 // FunctionalLossErrorproneTranslation
 
 FunctionalLossErrorproneTranslation::FunctionalLossErrorproneTranslation( Folder* protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate, const double diff_cost, const Protein& template_protein )
- : m_template_protein(template_protein), m_diff_cost(diff_cost), ErrorproneTranslation(protein_folder, protein_length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, target_fraction_accurate) {
+ : m_template_protein(template_protein), DispensabilityErrorproneTranslation(protein_folder, protein_length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, target_fraction_accurate, diff_cost) {
 }
 
 FunctionalLossErrorproneTranslation::~FunctionalLossErrorproneTranslation() {

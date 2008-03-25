@@ -185,7 +185,7 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		double tr_cost = 0.0724436;
 
 		Random::seed(27);
-		CodingDNA g("UGGCGUAUUCUUGAAAUGGACCGGAUAGACGUCGUTAGAACCGAAAUGAAGCCUUUUAAGAACAAGGAAGUGAAG");
+		CodingDNA g("TGGCGTATTCTTGAAATGGACCGGATAGACGTCGTTAGAACCGAAATGAAGCCTTTTAAGAACAAGGAAGTGAAG");
 		Protein p = g.translate();
 		FunctionalLossErrorproneTranslation flept(&folder, g.codonLength(), sid, -5, tr_cost, ca_cost, target_accuracy, diff_cost, p);
 		ErrorproneTranslation* ept = &flept;
