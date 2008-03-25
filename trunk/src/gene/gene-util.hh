@@ -203,7 +203,7 @@ public:
 	/**
 	 * Produces a sequence encoding the same amino acid sequence as gene g, but with randomly chosen codons.
 	 * @param g A gene sequence.
-	 * @return A gene sequence encoding the same protein sequence as g, with randomly selected codons.  
+	 * @return A gene sequence encoding the same protein sequence as g, with randomly selected codons.
 	 * Returns the original sequence if it doesn't translate properly.
 	 **/
 	static CodingDNA randomizeCodons( const CodingDNA &g ) {
@@ -223,7 +223,7 @@ public:
 	 */
 	static CodingDNA reverseTranslate(const Protein& prot) {
 		// DAD: strange...size of the GeneticCodeUtil hash_map RNACodonToAA is 139, not 64!  Figure this out.
-		hash_map<const Codon, char, hash_codon> gc(GeneticCodeUtil::codonAAPairs, GeneticCodeUtil::codonAAPairs+64);
+		hash_map<const Codon, char, hash_codon> gc(GeneticCodeUtil::codonAAPairs + 64, GeneticCodeUtil::codonAAPairs+128);
 		// DAD: probably only want to do this once!
 		hash_map<char, vector<Codon>, hash<char> > AAToDNACodons;
 		hash_map<const Codon, char, hash_codon>::iterator map_it = gc.begin();
@@ -233,7 +233,7 @@ public:
 			char key = p.second;
 			Codon codon = p.first;
 			//cout << ++i << " " << key << " " << codon << endl;
-			
+
 			hash_map<char, vector<Codon>, hash<char> >::iterator found_it = AAToDNACodons.find(key);
 			if (found_it == AAToDNACodons.end()) {
 				// Insert a new vector
@@ -261,7 +261,7 @@ public:
 			//cout << codon << tab << gc[codon] << endl;
 			g.setCodon(which_codon, codon);
 		}
-		
+
 		return g;
 	}
 

@@ -175,7 +175,25 @@ struct TEST_CLASS( fitness_evaluator_basic )
 		TEST_ASSERT(abs(fitness - target_fitness) < 1e-6);
 	}
 
+	void TEST_FUNCTION( test_functional_loss_EPT_get_fitness_virtual ) {
+		CompactLatticeFolder folder(side_length);
+		double target_accuracy = 0.85;
+		double max_dg = -1;
+		int sid = 699;
+		double ca_cost = 5.0;
+		double diff_cost = -10.0;
+		double tr_cost = 0.0724436;
 
+		Random::seed(27);
+		CodingDNA g("UGGCGUAUUCUUGAAAUGGACCGGAUAGACGUCGUTAGAACCGAAAUGAAGCCUUUUAAGAACAAGGAAGUGAAG");
+		Protein p = g.translate();
+		FunctionalLossErrorproneTranslation flept(&folder, g.codonLength(), sid, -5, tr_cost, ca_cost, target_accuracy, diff_cost, p);
+		ErrorproneTranslation* ept = &flept;
+		double fitness_fl = flept.getFitness(g);
+		double fitness_ept = ept->getFitness(g);
+		//cout << fitness_fl << " " << fitness_ept << endl;
+		TEST_ASSERT(fitness_fl == fitness_ept);
+	}
 };
 
 #endif

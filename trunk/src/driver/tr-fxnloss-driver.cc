@@ -288,7 +288,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, Polymerase *poly, const Pa
 
 	Folder& folder = *(fe->getFolder());
 	// Find a sequence.
-	Gene g = FolderUtil::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
+	CodingDNA g = GeneUtil::reverseTranslate(Protein(p.template_protein_sequence));
 	s << "# Starting genotype: " << g << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, poly );

@@ -45,7 +45,7 @@ struct TEST_CLASS( protein_gene_basic )
 	}
 
 
-	
+
 	void TEST_FUNCTION( sequence_from_string ) {
 		string str("ACTGCT");
 		Sequence s(str);
@@ -73,6 +73,17 @@ struct TEST_CLASS( protein_gene_basic )
 		Protein p2 = GeneUtil::reverseTranslate(p).translate();
 		//cout << p2 << endl;
 		TEST_ASSERT( p == p2 );
+		return;
+	}
+	void TEST_FUNCTION( reverse_translate_dna )
+	{
+		CodingDNA g = CodingDNA::createRandomNoStops(gene_length);
+		//cout << g << endl;
+		Protein p = g.translate();
+		//cout << p << endl;
+		CodingDNA g2 = GeneUtil::reverseTranslate(p);
+		int it = g2.find("U");
+		TEST_ASSERT( it == -1 );
 		return;
 	}
 	void TEST_FUNCTION( randomize_codons )
@@ -155,7 +166,7 @@ struct TEST_CLASS( protein_gene_basic )
 	  for (int i=0; i<letters.size(); i++) {
 		char aa = letters[i];
 		int count = countAminoAcids(aa, p);
-		// Let this be random; the probability of failure is 
+		// Let this be random; the probability of failure is
 		// extraordinarily low for a sequence of this length.
 		TEST_ASSERT(count > 0);
 	  }
