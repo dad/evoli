@@ -102,7 +102,6 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	s << "#   evaluation type: " << p.eval_type << endl;
 	s << "#   protein length: " << p.protein_length << endl;
 	s << "#   structure id: " << p.structure_ID << endl;
-	s << "#   evaluation type: diff" << endl;
 	s << "#   free energy maximum: " << p.free_energy_cutoff << endl;
 	s << "#   per-site mutation rate u: " << p.u << endl;
 	s << "#   transl. robust. cost factor: " << p.tr_cost << endl;
@@ -186,11 +185,23 @@ int main( int ac, char **av)
 	double ATtoTA = 11.;
 	//Polymerase poly(p.u, GCtoAT, ATtoGC, GCtoTA, GCtoCG, ATtoCG, ATtoTA );
 	Polymerase poly(p.u);
+	/**
+	ErrorproneTranslation* fe = NULL;
+	if (p.eval_type == "tr") {
+		ErrorproneTranslation ept( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.target_fraction_accurate );
+		fe = &ept;
+	}
+	else if (p.eval_type == "diff") {
+		FunctionalLossErrorproneTranslation flept(&folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.target_fraction_accurate, p.diff_cost, Protein(p.template_protein_sequence) );
+		fe = &flept;
+	}
+	**/
 	FunctionalLossErrorproneTranslation flept(&folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.target_fraction_accurate, p.diff_cost, Protein(p.template_protein_sequence) );
 
 	cout << setprecision(4);
+	//evolutionExperiment( p, *fe, poly);
 	evolutionExperiment( p, flept, poly);
-	//evolutionTest( p, flept );
+	//evolutionTest( p, *fe);
 
 	return 0;
 }
@@ -219,7 +230,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe, Polymerase& 
 
 	Population<Gene, ErrorproneTranslation, Polymerase> pop( p.N );
 	Folder& folder = *(fe.getFolder());
-	Gene g = FolderUtil::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
+	CodingDNA g = FolderUtil::getSequenceForStructure(folder, p.protein_length, p.free_energy_cutoff, p.structure_ID);
 	pop.init(g, &fe, &poly);
 
 	vector<bool> is_optimal = fe.getOptimalCodons();
@@ -238,7 +249,7 @@ void evolutionTest( const Parameters &p, ErrorproneTranslation& fe, Polymerase& 
 		ffolds.reset();
 		dgs.reset();
 		for (int k=0; k<p.N; k++) {
-			const Gene& g = pop[k];
+			const CodingDNA& g = pop[k];
 
 			bool folded = fe.getFolded(g);
 			double dG = 0;
@@ -314,7 +325,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polyme
 
 	// set up output file
 	stringstream fname;
-	fname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "ca" << p.ca_cost << "-id" << p.run_id << ".dat";
+	fname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "di" << p.diff_cost_str << "ca" << p.ca_cost << "-id" << p.run_id << ".dat";
 	string filename = fname.str();
 
 	ofstream data_file( filename.c_str(), ios::out );
@@ -330,7 +341,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polyme
 	for ( int i=0; i<p.repetitions; i++ )
 	{
 		stringstream repfname;
-		repfname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "ca" << p.ca_cost << "-gb-rep" << i << "-id" << p.run_id << ".dat";
+		repfname << "run-" << p.eval_type << "_s" << p.structure_ID << "tr" << p.tr_cost_str << "di" << p.diff_cost_str << "ca" << p.ca_cost << "-gb-rep" << i << "-id" << p.run_id << ".dat";
 		filename = repfname.str();
 		ofstream gen_file( filename.c_str(), ios::out );
 		gen_file << p;

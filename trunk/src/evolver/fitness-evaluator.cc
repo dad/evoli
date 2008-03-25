@@ -1267,25 +1267,28 @@ CutoffErrorproneTranslation::~CutoffErrorproneTranslation() {
 // FunctionalLossErrorproneTranslation
 
 FunctionalLossErrorproneTranslation::FunctionalLossErrorproneTranslation( Folder* protein_folder, const int protein_length, const StructureID protein_structure_ID, const double max_free_energy, const double tr_cost, const double ca_cost, const double target_fraction_accurate, const double diff_cost, const Protein& template_protein )
- : m_template_protein(template_protein), ErrorproneTranslation(protein_folder, protein_length, protein_structure_ID, max_free_energy, 0.0, ca_cost, target_fraction_accurate) {
-	 m_diff_cost = diff_cost;
+ : m_template_protein(template_protein), m_diff_cost(diff_cost), ErrorproneTranslation(protein_folder, protein_length, protein_structure_ID, max_free_energy, tr_cost, ca_cost, target_fraction_accurate) {
 }
 
 FunctionalLossErrorproneTranslation::~FunctionalLossErrorproneTranslation() {
 }
 
 double FunctionalLossErrorproneTranslation::getFitness( const CodingDNA& g ) {
-	double fitness = 1.0;
-	// Compute translation outcomes.
-	double ffold, frob, facc, ftrunc;
-	calcOutcomes(g, facc, frob, ftrunc, ffold);
-	// Compute distance from template sequence
-	Protein p = g.translate();
-	unsigned int diffs = m_template_protein.distance(p);
-	// Fitness is the activity of the accurately translated molecules, which differ from the protein sequence by diffs, plus
-	// the activity of the mistranslated molecules that fold, which differ by diffs + 1.
-	// exp{-s[1-(a(1-k/L) + (1-a)r(1-(k+1)/L))]}
-	fitness = exp(-m_diff_cost * (1.0 - (facc*(1.0-(float)diffs/m_protein_length) + (1.0-facc)*frob*(1.0 - (diffs+1.0)/m_protein_length))));
+	double fitness = exp(-m_diff_cost);  // The cost of complete knockout of the gene.
+	if (g.encodesFullLength()) {
+		Protein p = g.translate();
+		if ( ErrorproneTranslation::sequenceFolds(p) ) {
+			// Compute translation outcomes.
+			double ffold, frob, facc, ftrunc;
+			calcOutcomes(g, facc, frob, ftrunc, ffold);
+			// Compute distance from template sequence
+			unsigned int diffs = m_template_protein.distance(p);
+			// Fitness is the activity of the accurately translated molecules, which differ from the protein sequence by diffs, plus
+			// the activity of the mistranslated molecules that fold, which differ by diffs + 1.
+			// exp{-s[1-(a(1-k/L) + (1-a)r(1-(k+1)/L))]}
+			fitness = exp(-m_diff_cost * (1.0 - (facc*(1.0-(float)diffs/m_protein_length) + (1.0-facc)*frob*(1.0 - (diffs+1.0)/m_protein_length))));
+		}
+	}
 	return fitness;
 }
 
