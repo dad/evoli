@@ -49,7 +49,6 @@ public:
 	string diff_cost_str;
 	double ca_cost;
 	double target_fraction_accurate;
-	string template_protein_sequence;
 	int repetitions;
 	int window_size;
 	int equilibration_time;
@@ -60,10 +59,10 @@ public:
 	bool valid;
 
 	Parameters( int ac, char **av ) {
-		if ( ac < 16 )	{
+		if ( ac < 15 )	{
 			valid = false;
 			cout << "Start program like this:" << endl;
-			cout << "\t" << av[0] << " <eval. type> <prot length> <pop size> <log10 tr cost> <log10 diff cost> <ca cost> <target frac. accurate> <structure id> <free energy cutoff> <mutation rate> <window time> <equilibration time> <repetitions> <random seed> <run ID> <template protein sequence>" << endl;
+			cout << "\t" << av[0] << " <eval. type> <prot length> <pop size> <log10 tr cost> <log10 diff cost> <ca cost> <target frac. accurate> <structure id> <free energy cutoff> <mutation rate> <window time> <equilibration time> <repetitions> <random seed> <run ID>" << endl;
 			return;
 		}
 
@@ -84,8 +83,7 @@ public:
 		equilibration_time = atoi( av[i++] );
 		repetitions = atoi( av[i++] );
 		random_seed = atoi( av[i++] );
-		template_protein_sequence = av[i++];
-		if (ac==17){
+		if (ac==16){
 			run_id = av[i++];
 		}
 		else{
@@ -113,7 +111,6 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	s << "#   equilibration time: " << p.equilibration_time << endl;
 	s << "#   repetitions: " << p.repetitions << endl;
 	s << "#   random seed: " << p.random_seed << endl;
-	s << "#   template protein sequence: " << p.template_protein_sequence << endl;
 	s << "#   run ID: " << p.run_id << endl;
 	s << "#" << endl;
 	return s;
@@ -123,7 +120,7 @@ int getStructureID( Folder &b, const Gene &g );
 bool analyzeReplica( ErrorproneTranslation *fe, const Parameters &p, ostream &s,
 		     double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f,
 		     double &ave_fop );
-void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polymerase& poly);
+void evolutionExperiment( const Parameters &p, ErrorproneTranslation* fe, Polymerase& poly);
 
 /** \page tr-fxnloss-driver tr-fxnloss-driver
 The program \c tr-fxnloss-driver is used to run actual translational robustness experiments. It takes a number of command-line parameters. A typical call is:
@@ -147,12 +144,6 @@ The parameters are, in order (the zeroth parameter is the program name):
 -#  Equilibration time -- evolution time in generations before collection of evolutionary data begins
 -#  Number of replicates
 -#  Random number seed -- best to use an odd number.  n and n+1 yield identical results if n is even.
--#  Template protein sequence -- must be same length as specified protein length
-
-A suitable template protein folding into structure 599 with a stability of -5.106 kcal/mol is:
-\verbatim
-LVLRRPCNRINSSMPDIWFLALDKK
-\endverbatim
 
 */
 
@@ -184,14 +175,15 @@ int main( int ac, char **av)
 	double ATtoTA = 11.;
 	//Polymerase poly(p.u, GCtoAT, ATtoGC, GCtoTA, GCtoCG, ATtoCG, ATtoTA );
 	Polymerase poly(p.u);
+
 	cout << setprecision(4);
 	if (p.eval_type == "tr") {
 		ErrorproneTranslation ept( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.target_fraction_accurate );
-		evolutionExperiment( p, ept, poly);
+		evolutionExperiment( p, &ept, poly);
 	}
-	else if (p.eval_type == "diff") {
-		FunctionalLossErrorproneTranslation flept(&folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.target_fraction_accurate, p.diff_cost, Protein(p.template_protein_sequence) );
-		evolutionExperiment( p, flept, poly);
+	else if (p.eval_type == "disp") {
+		DispensabilityErrorproneTranslation dept(&folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.target_fraction_accurate, p.diff_cost );
+		evolutionExperiment( p, &dept, poly);
 	}
 
 	return 0;
@@ -208,7 +200,6 @@ StructureID getStructureID( Folder &b, const Gene &g ) {
 		return (StructureID)-1;
 }
 
-
 bool runAndAnalyzeReplica( ErrorproneTranslation *fe, Polymerase *poly, const Parameters &p, ostream &s, vector<bool>& is_optimal,
 		     double &ave_dn, double &ave_ds, double &ave_N, double &ave_S, double &ave_f,
 		     double &ave_fop )
@@ -218,7 +209,7 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, Polymerase *poly, const Pa
 
 	Folder& folder = *(fe->getFolder());
 	// Find a sequence.
-	CodingDNA g = GeneUtil::reverseTranslate(Protein(p.template_protein_sequence));
+	CodingDNA g = FolderUtil::getSequenceForStructure(folder, p.protein_length*3, p.free_energy_cutoff, p.structure_ID);
 	s << "# Starting genotype: " << g << endl;
 	// Fill the population with the genotype that we found above
 	pop.init( g, fe, poly );
@@ -247,11 +238,11 @@ bool runAndAnalyzeReplica( ErrorproneTranslation *fe, Polymerase *poly, const Pa
 	return analyzer.analyzeDnDs( p.window_size, ave_dn, ave_ds, ave_N, ave_S, ave_f, ave_fop, is_optimal );
 }
 
-void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polymerase& poly) {
+void evolutionExperiment( const Parameters &p, ErrorproneTranslation* fe, Polymerase& poly) {
 	// set random seed
 	Random::seed( p.random_seed );
 
-	vector<bool> is_optimal = fe.getOptimalCodons(true);
+	vector<bool> is_optimal = fe->getOptimalCodons(true);
 
 	// set up output file
 	stringstream fname;
@@ -276,7 +267,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polyme
 		ofstream gen_file( filename.c_str(), ios::out );
 		gen_file << p;
 
-		if ( runAndAnalyzeReplica( &fe, &poly, p, gen_file, is_optimal, dn, ds, N, S, f, fop ) )
+		if ( runAndAnalyzeReplica( fe, &poly, p, gen_file, is_optimal, dn, ds, N, S, f, fop ) )
 		{
 			count += 1;
 			data_file << "# " << dn << tab << ds << tab << N << tab << S << tab << f
@@ -291,7 +282,7 @@ void evolutionExperiment( const Parameters &p, ErrorproneTranslation& fe, Polyme
 		cout << "[" << i+1 << "/" << p.repetitions << "] " << endl;
 	}
 	cout << endl;
-	Folder* folder = fe.getFolder();
+	Folder* folder = fe->getFolder();
 	if ( folder != NULL) {
 		cout << "# Folded " << folder->getNumFolded() << " proteins" << endl;
 		data_file << "# Folded " << folder->getNumFolded() << " proteins" << endl;
