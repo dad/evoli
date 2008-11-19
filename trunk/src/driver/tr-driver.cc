@@ -107,22 +107,29 @@ int main( int ac, char **av)
 	double ATtoTA = 11.;
 	//Polymerase poly(p.u, GCtoAT, ATtoGC, GCtoTA, GCtoCG, ATtoCG, ATtoTA );
 	Polymerase poly(p.u);
+
+	// Get error rates
+	Gene seed_gene = FolderUtil::getSequenceForStructure(folder, 3*p.protein_length, p.free_energy_cutoff, p.structure_ID);
+	ErrorproneTranslation ept_temp(&folder, seed_gene.codonLength(), p.structure_ID, p.free_energy_cutoff, 1, p.ca_cost, 0.1, 0.1, 0.1 );
+	double error_rate, accuracy_weight, error_weight;
+	ept_temp.getWeightsForTargetAccuracy(seed_gene, p.target_trans_accuracy, error_rate, accuracy_weight, error_weight, 2000, 2000);
+
 	// Choose the FitnessEvaluator based on input parameters (p.eval_type).
 	ErrorproneTranslation* fe = NULL;
 	if (p.eval_type == "tr") {
-		ErrorproneTranslation* ept = new ErrorproneTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+		ErrorproneTranslation* ept = new ErrorproneTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, error_rate, accuracy_weight, error_weight );
 		fe = ept;
 	}
 	else if (p.eval_type == "acc") {
-		AccuracyOnlyTranslation* afe = new AccuracyOnlyTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+		AccuracyOnlyTranslation* afe = new AccuracyOnlyTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, error_rate, accuracy_weight, error_weight );
 		fe = afe;
 	}
 	else if (p.eval_type == "rob") {
-		RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+		RobustnessOnlyTranslation* rob = new RobustnessOnlyTranslation( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, error_rate, accuracy_weight, error_weight );
 		fe = rob;
 	}
 	else if (p.eval_type == "nu") {
-		FoldingOnlyFitness* fof = new FoldingOnlyFitness( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, p.error_rate, p.accuracy_weight, p.error_weight );
+		FoldingOnlyFitness* fof = new FoldingOnlyFitness( &folder, p.protein_length, p.structure_ID, p.free_energy_cutoff, p.tr_cost, p.ca_cost, error_rate, accuracy_weight, error_weight );
 		fe = fof;
 	}
 	if (!fe) {

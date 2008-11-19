@@ -40,14 +40,11 @@ public:
 	string eval_type;
 	unsigned int protein_length;
 	double free_energy_cutoff;
-	double free_energy_minimum;
 	double u;
 	double tr_cost;
 	string tr_cost_str;
 	double ca_cost;
-	double error_rate;
-	double error_weight;
-	double accuracy_weight;
+	double target_trans_accuracy;
 	int repetitions;
 	int window_size;
 	int equilibration_time;
@@ -58,10 +55,10 @@ public:
 	bool valid;
 
 	Parameters( int ac, char **av ) {
-		if ( ac < 17 )	{
+		if ( ac < 14 )	{
 			valid = false;
 			cout << "Start program like this:" << endl;
-			cout << "\t" << av[0] << " <eval type> <prot length> <pop size> <log10 tr cost> <ca cost> <error rate> <accuracy weight> <error weight> <structure id> <free energy cutoff> <free energy minimum> <mutation rate> <window time> <equilibration time> <repetitions> <random seed> <run ID>" << endl;
+			cout << "\t" << av[0] << " <eval type> <prot length> <pop size> <log10 tr cost> <ca cost> <target transl. accuracy> <structure id> <free energy cutoff> <mutation rate> <window time> <equilibration time> <repetitions> <random seed> [<run ID>]" << endl;
 			return;
 		}
 
@@ -72,18 +69,15 @@ public:
 		tr_cost_str = av[i++];
 		tr_cost = pow(10.0,atof( tr_cost_str.c_str() ));
 		ca_cost = atof( av[i++] );
-		error_rate = atof( av[i++] );
-		accuracy_weight = atof( av[i++] );
-		error_weight = atof( av[i++] );
+		target_trans_accuracy = atof( av[i++] );
 		structure_ID = atoi( av[i++] );
 		free_energy_cutoff = atof( av[i++] );
-		free_energy_minimum = atof( av[i++] );
 		u = atof( av[i++] );
 		window_size = atoi( av[i++] );
 		equilibration_time = atoi( av[i++] );
 		repetitions = atoi( av[i++] );
 		random_seed = atoi( av[i++] );
-		if (ac==18){
+		if (ac==15){
 			run_id = av[i++];
 		}
 		else{

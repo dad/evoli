@@ -31,13 +31,10 @@ ostream & operator<<( ostream &s, const Parameters &p )
 	s << "#   protein length: " << p.protein_length << endl;
 	s << "#   structure id: " << p.structure_ID << endl;
 	s << "#   free energy maximum: " << p.free_energy_cutoff << endl;
-	s << "#   free energy minimum: " << p.free_energy_minimum << endl;
 	s << "#   per-site mutation rate u: " << p.u << endl;
 	s << "#   transl. robust. cost factor: " << p.tr_cost << endl;
 	s << "#   codon adaptation cost factor: " << p.ca_cost << endl;
-	s << "#   transl. error rate per codon: " << p.error_rate << endl;
-	s << "#   transl. accuracy weight: " << p.accuracy_weight << endl;
-	s << "#   transl. error weight: " << p.error_weight << endl;
+	s << "#   target transl. accuracy: " << p.target_trans_accuracy << endl;
 	s << "#   population size N: " << p.N << endl;
 	s << "#   window size tau: " << p.window_size << endl;
 	s << "#   equilibration time: " << p.equilibration_time << endl;

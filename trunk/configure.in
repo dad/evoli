@@ -68,6 +68,10 @@ AC_ARG_ENABLE(icc,
   CXXFLAGS="-O3 -fomit-frame-pointer -DNDEBUG"; LDFLAGS="$LDFLAGS -lstdc++"; CXX="icc"; CC="icc"
 )
 
+AC_ARG_ENABLE(fpic,
+[  --enable-fpic: Enable -fPIC for compilation on 64-bit platforms],
+  CXXFLAGS="${CXXFLAGS} -fPIC")
+
 # documentation
 AC_ARG_ENABLE(apidoc,
   [  --disable-apidoc: Do not build API documentation],

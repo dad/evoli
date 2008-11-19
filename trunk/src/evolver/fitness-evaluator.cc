@@ -1277,7 +1277,7 @@ double DispensabilityErrorproneTranslation::getFitness( const CodingDNA& g ) {
 	double fitness = exp(m_diff_cost);  // The cost of complete knockout of the gene.
 	if (g.encodesFullLength()) {
 		Protein p = g.translate();
-		if ( ErrorproneTranslation::sequenceFolds(p) ) {
+		if ( sequenceFolds(p) ) {
 			// Compute translation outcomes.
 			double ffold, frob, facc, ftrunc;
 			calcOutcomes(g, facc, frob, ftrunc, ffold);
@@ -1301,7 +1301,7 @@ double FunctionalLossErrorproneTranslation::getFitness( const CodingDNA& g ) {
 	double fitness = exp(m_diff_cost);  // The cost of complete knockout of the gene.
 	if (g.encodesFullLength()) {
 		Protein p = g.translate();
-		if ( ErrorproneTranslation::sequenceFolds(p) ) {
+		if ( sequenceFolds(p) ) {
 			// Compute translation outcomes.
 			double ffold, frob, facc, ftrunc;
 			calcOutcomes(g, facc, frob, ftrunc, ffold);
