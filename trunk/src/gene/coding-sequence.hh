@@ -51,7 +51,7 @@ public:
 	/**
 	@return The length of the DNA sequence in codons.
 	*/
-	virtual uint codonLength(void) const { return size()/3; }
+	virtual unsigned int codonLength(void) const { return size()/3; }
 
 	/**
 	Translates the DNA sequence into a protein sequence using the

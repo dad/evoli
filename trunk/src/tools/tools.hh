@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 using namespace std;
 
 static const char* tab = "\t";
+typedef unsigned int uint;
 
 /**
  * This function calculates mean and variance from the sums s1=sum_i^n x_i and s2=sum_i^n x_i^2.
