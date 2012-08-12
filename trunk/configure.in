@@ -25,7 +25,7 @@ AC_PROG_RANLIB
 
 # Checks for header files.
 AC_CHECK_HEADERS(iostream sstream fstream)
-AC_CHECK_HEADERS([python2.4/Python.h])
+AC_CHECK_HEADERS([Python27/Python.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
