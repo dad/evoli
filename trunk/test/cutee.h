@@ -22,6 +22,7 @@
 #include <sstream>
 #include <iomanip>
 #include <stdarg.h>
+#include <cstdlib>
 
 typedef unsigned int uint;
 
@@ -62,7 +63,7 @@ typedef unsigned int uint;
 	"\t[" << #a << ": " << a << "]" << std::endl
 
 #define PRINT_ON_FAILURE_1( a ) \
-	PRINT_VALUE( a ) 
+	PRINT_VALUE( a )
 #define PRINT_ON_FAILURE_2( a, b ) \
 	PRINT_VALUE( a ) << PRINT_VALUE( b )
 #define PRINT_ON_FAILURE_3( a, b, c ) \
@@ -78,29 +79,29 @@ typedef unsigned int uint;
 #define TEST_ASSERT_EX_M( e, p, file, line ) \
 	do { expr(#e); exprFileName(file); exprLineNo(line); \
 	std::stringstream _l_ss; _l_ss << p << std::endl; \
-	testAssertM(e, _l_ss ); } while(0) 
+	testAssertM(e, _l_ss ); } while(0)
 
 
 
-#define TEST_ASSERT( expr ) TEST_ASSERT_EX( expr, __FILE__, __LINE__ ) 
+#define TEST_ASSERT( expr ) TEST_ASSERT_EX( expr, __FILE__, __LINE__ )
 #define TEST_ASSERT_EQUALS( a, b ) TEST_ASSERT_EX( (a == b), __FILE__,__LINE__ )
 #define TEST_ASSERT_DIFFERS( a, b ) TEST_ASSERT_EX( (a != b),__FILE__,__LINE__ )
 
 // print p on test fail
-#define TEST_ASSERT_M( expr , p) TEST_ASSERT_EX_M( expr, p, __FILE__,__LINE__ ) 
+#define TEST_ASSERT_M( expr , p) TEST_ASSERT_EX_M( expr, p, __FILE__,__LINE__ )
 #define TEST_ASSERT_EQUALS_M( a, b, p ) TEST_ASSERT_EX_M( (a == b), p,__FILE__,__LINE__ )
 #define TEST_ASSERT_DIFFERS_M( a, b, p ) TEST_ASSERT_EX_M( (a != b), p,__FILE__,__LINE__)
 
 // print a and b on error
-#define TEST_ASSERT_P( expr ) TEST_ASSERT_EX_M( expr, PRINT_ON_FAILURE_1( expr ), __FILE__,__LINE__ ) 
+#define TEST_ASSERT_P( expr ) TEST_ASSERT_EX_M( expr, PRINT_ON_FAILURE_1( expr ), __FILE__,__LINE__ )
 #define TEST_ASSERT_EQUALS_P( a, b ) TEST_ASSERT_EX_M( (a == b), PRINT_ON_FAILURE_2( a, b ), __FILE__,__LINE__ )
 #define TEST_ASSERT_DIFFERS_P( a, b ) TEST_ASSERT_EX_M( (a != b), PRINT_ON_FAILURE_2( a, b ), __FILE__,__LINE__)
 
-#define TEST_ASSERT_PM( expr, m ) TEST_ASSERT_EX_M( expr, PRINT_ON_FAILURE_2( expr, m ), __FILE__,__LINE__ ) 
+#define TEST_ASSERT_PM( expr, m ) TEST_ASSERT_EX_M( expr, PRINT_ON_FAILURE_2( expr, m ), __FILE__,__LINE__ )
 #define TEST_ASSERT_EQUALS_PM( a, b, m ) TEST_ASSERT_EX_M( (a == b), PRINT_ON_FAILURE_3( a, b, m ), __FILE__,__LINE__ )
 #define TEST_ASSERT_DIFFERS_PM( a, b, m ) TEST_ASSERT_EX_M( (a != b), PRINT_ON_FAILURE_3( a, b, m ), __FILE__,__LINE__)
 
-namespace cutee // c++ unit testing environment 
+namespace cutee // c++ unit testing environment
 {
 
 struct CuteeTest;
@@ -110,7 +111,7 @@ struct Context
 {
 	typedef std::string string;
 	Context()
-	: mClassLineNo(0), mFunctionLineNo(0), mExprLineNo(0) 
+	: mClassLineNo(0), mFunctionLineNo(0), mExprLineNo(0)
 	{}
 	// class info
 	const string& className() const	{ return mClassName; }
@@ -139,7 +140,7 @@ struct Context
 	void exprFileName(const string& s) { mExprFileName = s; }
 	void exprLineNo(uint i) { mExprLineNo = i; }
 private:
-	std::string mClassName, mClassFileName, mFunctionName, 
+	std::string mClassName, mClassFileName, mFunctionName,
 		mFileName, mExpr, mExprFileName;
 	uint mClassLineNo, mFunctionLineNo, mExprLineNo;
 };
@@ -149,7 +150,7 @@ private:
 struct TestRunMonitor
 {
 	virtual ~TestRunMonitor() {}
-	
+
 	virtual void beginTesting() {}
 	virtual void endTesting() {}
 
@@ -162,7 +163,7 @@ struct TestRunMonitor
 	virtual void enterFunction(const CuteeTest&) {}
 	virtual void leaveFunction(const CuteeTest&, int ) {}
 
-	virtual void assertion(const CuteeTest&, int, 
+	virtual void assertion(const CuteeTest&, int,
 		const std::string& u = "") {}
 };
 
@@ -178,7 +179,7 @@ struct TestList
 
 
 // this is the base class of all cutee test classes
-struct CuteeTest: public cutee::Context 
+struct CuteeTest: public cutee::Context
 {
 	CuteeTest()
 	: mEvt(&mNullMonitor), mFuncExitCode(0), mFailed(0)
@@ -194,14 +195,14 @@ struct CuteeTest: public cutee::Context
 protected:
 	void testAssert(int b)
 	{
-		if( b == 0 ) // assertion failed 
-			mFuncExitCode++; 
+		if( b == 0 ) // assertion failed
+			mFuncExitCode++;
 		mEvt->assertion(*this, b);
 	}
 	void testAssertM(int b, std::stringstream& os)
 	{
-		if( b == 0 ) // assertion failed 
-			mFuncExitCode++; 
+		if( b == 0 ) // assertion failed
+			mFuncExitCode++;
 		mEvt->assertion(*this, b, os.str());
 	}
 protected:
@@ -222,12 +223,12 @@ struct StatsMonitor: public TestRunMonitor
 	}
 	// void enterSuite(const CuteeTest& t)	{}
 	// void leaveSuite(const CuteeTest& t, int b) {}
-	void enterClass(const CuteeTest& t) 
+	void enterClass(const CuteeTest& t)
 	{
 		std::cout << "Running tests for " << t.className() << std::flush;
 		mClassCount++;
 	}
-	void leaveClass(const CuteeTest& t, int b) 
+	void leaveClass(const CuteeTest& t, int b)
 	{
 		if(b)
 		{
@@ -243,19 +244,19 @@ struct StatsMonitor: public TestRunMonitor
 	{
 		mFuncCount++;
 	}
-	void leaveFunction(const CuteeTest&, int b) 
+	void leaveFunction(const CuteeTest&, int b)
 	{
-		if(b) 
+		if(b)
 			mFuncPassed++;
-		else 
+		else
 			mFuncFailed++;
 	}
-	void assertion(const CuteeTest& t, int b, const std::string& userMsg) 
+	void assertion(const CuteeTest& t, int b, const std::string& userMsg)
 	{
 		mAssertCount++;
-		if(b) 
+		if(b)
 			mAssertPassed++;
-		else 
+		else
 			mAssertFailed++;
 	}
 protected:
@@ -266,18 +267,18 @@ protected:
 // keep stats and print results on exit
 struct ConsoleRunMonitor: public StatsMonitor
 {
-	void assertion(const CuteeTest& t, int b, const std::string& userMsg) 
+	void assertion(const CuteeTest& t, int b, const std::string& userMsg)
 	{
 		using namespace std;
 		StatsMonitor::assertion(t, b, userMsg);
-		if(!b) 
+		if(!b)
 		{
-			cout << endl << " [" 
-				<< t.exprFileName() << ":" 
+			cout << endl << " ["
+				<< t.exprFileName() << ":"
 				<< t.exprLineNo()<< "] "
-				<< t.className() << "::" 
+				<< t.className() << "::"
 				<< t.functionName() << "(): "
-				<< t.expr() << " assertion failed" 
+				<< t.expr() << " assertion failed"
 				<< endl;
 			if(!userMsg.empty())
 				cout << userMsg << endl;
@@ -291,12 +292,12 @@ struct ConsoleRunMonitor: public StatsMonitor
 		cout << "	      Tests Statistics           " << endl;
 		cout << "    --------------------------------------" << endl;
 		cout << "                Functions       Checks   " << endl;
-		cout << "      Success   "<< setw(8) << mFuncPassed << 
+		cout << "      Success   "<< setw(8) << mFuncPassed <<
 			"      " << setw(8) << mAssertPassed << endl;
-		cout << "       Failed   "<< setw(8) << mFuncFailed << 
+		cout << "       Failed   "<< setw(8) << mFuncFailed <<
 			"      " << setw(8) << mAssertFailed << endl;
 		cout << "    --------------------------------------" << endl;
-		cout << "        Total   "<< setw(8) << mFuncCount << 
+		cout << "        Total   "<< setw(8) << mFuncCount <<
 			"      " <<  setw(8) << mAssertCount << endl;
 		cout << "    ======================================" << endl;
 	}
@@ -305,13 +306,13 @@ struct ConsoleRunMonitor: public StatsMonitor
 // keep stats and print skimmer xml output on exit
 struct SkimmerRunMonitor: public StatsMonitor
 {
-	void beginTesting() 
+	void beginTesting()
 	{
 		using namespace std;
 		cout << "<?xml version=\"1.0\"?>" << endl;
 		cout << "<tests>" << endl;
 	}
-	void endTesting() 
+	void endTesting()
 	{
 		using namespace std;
 		cout << "</tests>" << endl;
@@ -319,24 +320,24 @@ struct SkimmerRunMonitor: public StatsMonitor
 	void enterClass(const CuteeTest&)
 	{
 	}
-	void leaveClass(const CuteeTest&, int) 
+	void leaveClass(const CuteeTest&, int)
 	{
 	}
-	void enterFunction(const CuteeTest& t) 
+	void enterFunction(const CuteeTest& t)
 	{
 		using namespace std;
 		cout << "<test>" << endl;
-		cout << "<name>"; 
+		cout << "<name>";
 		cout << t.className() << "::" << t.functionName() << "()";
 		cout << "</name>" << endl;
 	}
-	void leaveFunction(const CuteeTest& t, int b) 
+	void leaveFunction(const CuteeTest& t, int b)
 	{
 		using namespace std;
 		cout << "<type>" << (b ? "pass" : "fail") << "</type>" << endl;
 		cout << "</test>" << endl << endl << endl;
 	}
-	void assertion(const CuteeTest& t, int b, const std::string& u = "") 
+	void assertion(const CuteeTest& t, int b, const std::string& u = "")
 	{
 		using namespace std;
 		if(b)
