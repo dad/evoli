@@ -25,18 +25,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "protein.hh"
 #include "codon.hh"
 #include <iostream>
-#include <map>
 // uncomment next line for older versions of gcc
-//#include <hash_map>
+#include <unordered_map>
 // comment out next two lines for older versions of gcc
-#include <ext/hash_map>
-using namespace __gnu_cxx;
+//#include <ext/unordered_map>
+//using namespace __gnu_cxx;
 
 using namespace std;
 
 // Helper class to hash Codons
 struct hash_codon {
-	size_t operator()(const Codon c) const { 
+	size_t operator()(const Codon c) const {
 		hash<const char*> h;
 		return h(c.c_str());
 	}
@@ -45,8 +44,8 @@ struct hash_codon {
 class GeneticCodeUtil
 {
 public:
-	typedef hash_map<const Codon, char, hash_codon > CodonMap;
-	typedef hash_map<const char*, double, hash<const char*> > StringDoubleMap;
+	typedef unordered_map<const Codon, char, hash_codon > CodonMap;
+	typedef unordered_map<const char*, double, hash<const char*> > StringDoubleMap;
 private:
 	// All this is needed for the function calc DnDs.
 	static double m_dnTable[][64];
@@ -61,22 +60,22 @@ private:
 
 	/**
 	 * Mapping from amino-acid letters to integer indices
-	 **/ 
-	static const map<const char, int, less<const char> > aminoAcidLetterToIndexMap;
+	 **/
+	static const unordered_map<const char, int, less<const char> > aminoAcidLetterToIndexMap;
 
 	/**
 	 * Mapping from proper RNA codons to amino acids.
-	 **/ 
+	 **/
 	static const CodonMap RNACodonToAA;
 
 	/**
 	 * Mapping from DNA pseudo-codons to amino acids.
-	 **/ 
+	 **/
 	static const CodonMap DNACodonToAA;
 
 	/**
 	 * Mapping from all codons (RNA and DNA) to amino acids.
-	 **/ 
+	 **/
 	static const CodonMap codonToAA;
 
 public:
@@ -123,11 +122,11 @@ public:
    * @return Whether the change from nt1 to nt2 is a transition.
    **/
   static bool isTransition( char nt1, char nt2 );
-  
+
 	/**
 	 * Mapping from amino acids to codons
-	 **/ 
-	//static hash_map<char, vector<const Codon>, hash<char> > AAToRNACodon;
+	 **/
+	//static unordered_map<char, vector<const Codon>, hash<char> > AAToRNACodon;
 
 	/**
 	 * Reverse lookup for genetic code. Contains all codons for a given residue. The first number
@@ -174,7 +173,7 @@ public:
 	transversion bias.
 	\param codon The codon to analyze.
 	\param rho Ratio of transitions to transversions. Note that no
-	transition to transversion bias corresponds to rho=.5. 
+	transition to transversion bias corresponds to rho=.5.
 	**/
 	static double calcSynMutationOpportunity( Codon codon, double rho );
 
@@ -184,7 +183,7 @@ public:
 	transition to transversion bias. Mutations to stop codons are not counted.
 	\param codon The codon to analyze.
 	\param rho Ratio of transitions to transversions. Note that no
-	transition to transversion bias corresponds to rho=.5. 
+	transition to transversion bias corresponds to rho=.5.
 	**/
 	static double calcNonsynMutationOpportunity( Codon codon, double rho );
 

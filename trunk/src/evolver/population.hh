@@ -274,7 +274,7 @@ GenebankEntry<Organism>* Population<Organism, FitnessEvaluator, Mutator>::create
 
 	assert( m_fitness_evaluator != 0 );
 	double f =  m_fitness_evaluator->getFitness( g );
-	assert( f > 0.0 );
+	assert( f >= 0.0 );
 	return m_genebank.createOrganism( g, f, e, m_time );
 }
 

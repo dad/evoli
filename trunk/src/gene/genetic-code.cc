@@ -33,172 +33,174 @@ const char* GeneticCodeUtil::DNA_NUCLEOTIDES = "ACGT";
 const char* GeneticCodeUtil::ALL_NUCLEOTIDES = "ACGTU";
 
 // The genetic code
-const pair<const Codon,char> GeneticCodeUtil::codonAAPairs[128] =  {
-	pair<const Codon,char>(Codon("AAA"), 'K'),
-	pair<const Codon,char>(Codon("AAC"), 'N'),
-	pair<const Codon,char>(Codon("AAG"), 'K'),
-	pair<const Codon,char>(Codon("AAU"), 'N'),
-	pair<const Codon,char>(Codon("ACA"), 'T'),
-	pair<const Codon,char>(Codon("ACC"), 'T'),
-	pair<const Codon,char>(Codon("ACG"), 'T'),
-	pair<const Codon,char>(Codon("ACU"), 'T'),
-	pair<const Codon,char>(Codon("AGA"), 'R'),
-	pair<const Codon,char>(Codon("AGC"), 'S'),
-	pair<const Codon,char>(Codon("AGG"), 'R'),
-	pair<const Codon,char>(Codon("AGU"), 'S'),
-	pair<const Codon,char>(Codon("AUA"), 'I'),
-	pair<const Codon,char>(Codon("AUC"), 'I'),
-	pair<const Codon,char>(Codon("AUG"), 'M'),
-	pair<const Codon,char>(Codon("AUU"), 'I'),
-	pair<const Codon,char>(Codon("CAA"), 'Q'),
-	pair<const Codon,char>(Codon("CAC"), 'H'),
-	pair<const Codon,char>(Codon("CAG"), 'Q'),
-	pair<const Codon,char>(Codon("CAU"), 'H'),
-	pair<const Codon,char>(Codon("CCA"), 'P'),
-	pair<const Codon,char>(Codon("CCC"), 'P'),
-	pair<const Codon,char>(Codon("CCG"), 'P'),
-	pair<const Codon,char>(Codon("CCU"), 'P'),
-	pair<const Codon,char>(Codon("CGA"), 'R'),
-	pair<const Codon,char>(Codon("CGC"), 'R'),
-	pair<const Codon,char>(Codon("CGG"), 'R'),
-	pair<const Codon,char>(Codon("CGU"), 'R'),
-	pair<const Codon,char>(Codon("CUA"), 'L'),
-	pair<const Codon,char>(Codon("CUC"), 'L'),
-	pair<const Codon,char>(Codon("CUG"), 'L'),
-	pair<const Codon,char>(Codon("CUU"), 'L'),
-	pair<const Codon,char>(Codon("GAA"), 'E'),
-	pair<const Codon,char>(Codon("GAC"), 'D'),
-	pair<const Codon,char>(Codon("GAG"), 'E'),
-	pair<const Codon,char>(Codon("GAU"), 'D'),
-	pair<const Codon,char>(Codon("GCA"), 'A'),
-	pair<const Codon,char>(Codon("GCC"), 'A'),
-	pair<const Codon,char>(Codon("GCG"), 'A'),
-	pair<const Codon,char>(Codon("GCU"), 'A'),
-	pair<const Codon,char>(Codon("GGA"), 'G'),
-	pair<const Codon,char>(Codon("GGC"), 'G'),
-	pair<const Codon,char>(Codon("GGG"), 'G'),
-	pair<const Codon,char>(Codon("GGU"), 'G'),
-	pair<const Codon,char>(Codon("GUA"), 'V'),
-	pair<const Codon,char>(Codon("GUC"), 'V'),
-	pair<const Codon,char>(Codon("GUG"), 'V'),
-	pair<const Codon,char>(Codon("GUU"), 'V'),
-	pair<const Codon,char>(Codon("UAA"), GeneticCodeUtil::STOP),
-	pair<const Codon,char>(Codon("UAC"), 'Y'),
-	pair<const Codon,char>(Codon("UAG"), GeneticCodeUtil::STOP),
-	pair<const Codon,char>(Codon("UAU"), 'Y'),
-	pair<const Codon,char>(Codon("UCA"), 'S'),
-	pair<const Codon,char>(Codon("UCC"), 'S'),
-	pair<const Codon,char>(Codon("UCG"), 'S'),
-	pair<const Codon,char>(Codon("UCU"), 'S'),
-	pair<const Codon,char>(Codon("UGA"), GeneticCodeUtil::STOP),
-	pair<const Codon,char>(Codon("UGC"), 'C'),
-	pair<const Codon,char>(Codon("UGG"), 'W'),
-	pair<const Codon,char>(Codon("UGU"), 'C'),
-	pair<const Codon,char>(Codon("UUA"), 'L'),
-	pair<const Codon,char>(Codon("UUC"), 'F'),
-	pair<const Codon,char>(Codon("UUG"), 'L'),
-	pair<const Codon,char>(Codon("UUU"), 'F'),
+const pair<const Codon, const char> GeneticCodeUtil::codonAAPairs[128] =  {
+	pair<const Codon, const char>(Codon("AAA"), 'K'),
+	pair<const Codon, const char>(Codon("AAC"), 'N'),
+	pair<const Codon, const char>(Codon("AAG"), 'K'),
+	pair<const Codon, const char>(Codon("AAU"), 'N'),
+	pair<const Codon, const char>(Codon("ACA"), 'T'),
+	pair<const Codon, const char>(Codon("ACC"), 'T'),
+	pair<const Codon, const char>(Codon("ACG"), 'T'),
+	pair<const Codon, const char>(Codon("ACU"), 'T'),
+	pair<const Codon, const char>(Codon("AGA"), 'R'),
+	pair<const Codon, const char>(Codon("AGC"), 'S'),
+	pair<const Codon, const char>(Codon("AGG"), 'R'),
+	pair<const Codon, const char>(Codon("AGU"), 'S'),
+	pair<const Codon, const char>(Codon("AUA"), 'I'),
+	pair<const Codon, const char>(Codon("AUC"), 'I'),
+	pair<const Codon, const char>(Codon("AUG"), 'M'),
+	pair<const Codon, const char>(Codon("AUU"), 'I'),
+	pair<const Codon, const char>(Codon("CAA"), 'Q'),
+	pair<const Codon, const char>(Codon("CAC"), 'H'),
+	pair<const Codon, const char>(Codon("CAG"), 'Q'),
+	pair<const Codon, const char>(Codon("CAU"), 'H'),
+	pair<const Codon, const char>(Codon("CCA"), 'P'),
+	pair<const Codon, const char>(Codon("CCC"), 'P'),
+	pair<const Codon, const char>(Codon("CCG"), 'P'),
+	pair<const Codon, const char>(Codon("CCU"), 'P'),
+	pair<const Codon, const char>(Codon("CGA"), 'R'),
+	pair<const Codon, const char>(Codon("CGC"), 'R'),
+	pair<const Codon, const char>(Codon("CGG"), 'R'),
+	pair<const Codon, const char>(Codon("CGU"), 'R'),
+	pair<const Codon, const char>(Codon("CUA"), 'L'),
+	pair<const Codon, const char>(Codon("CUC"), 'L'),
+	pair<const Codon, const char>(Codon("CUG"), 'L'),
+	pair<const Codon, const char>(Codon("CUU"), 'L'),
+	pair<const Codon, const char>(Codon("GAA"), 'E'),
+	pair<const Codon, const char>(Codon("GAC"), 'D'),
+	pair<const Codon, const char>(Codon("GAG"), 'E'),
+	pair<const Codon, const char>(Codon("GAU"), 'D'),
+	pair<const Codon, const char>(Codon("GCA"), 'A'),
+	pair<const Codon, const char>(Codon("GCC"), 'A'),
+	pair<const Codon, const char>(Codon("GCG"), 'A'),
+	pair<const Codon, const char>(Codon("GCU"), 'A'),
+	pair<const Codon, const char>(Codon("GGA"), 'G'),
+	pair<const Codon, const char>(Codon("GGC"), 'G'),
+	pair<const Codon, const char>(Codon("GGG"), 'G'),
+	pair<const Codon, const char>(Codon("GGU"), 'G'),
+	pair<const Codon, const char>(Codon("GUA"), 'V'),
+	pair<const Codon, const char>(Codon("GUC"), 'V'),
+	pair<const Codon, const char>(Codon("GUG"), 'V'),
+	pair<const Codon, const char>(Codon("GUU"), 'V'),
+	pair<const Codon, const char>(Codon("UAA"), GeneticCodeUtil::STOP),
+	pair<const Codon, const char>(Codon("UAC"), 'Y'),
+	pair<const Codon, const char>(Codon("UAG"), GeneticCodeUtil::STOP),
+	pair<const Codon, const char>(Codon("UAU"), 'Y'),
+	pair<const Codon, const char>(Codon("UCA"), 'S'),
+	pair<const Codon, const char>(Codon("UCC"), 'S'),
+	pair<const Codon, const char>(Codon("UCG"), 'S'),
+	pair<const Codon, const char>(Codon("UCU"), 'S'),
+	pair<const Codon, const char>(Codon("UGA"), GeneticCodeUtil::STOP),
+	pair<const Codon, const char>(Codon("UGC"), 'C'),
+	pair<const Codon, const char>(Codon("UGG"), 'W'),
+	pair<const Codon, const char>(Codon("UGU"), 'C'),
+	pair<const Codon, const char>(Codon("UUA"), 'L'),
+	pair<const Codon, const char>(Codon("UUC"), 'F'),
+	pair<const Codon, const char>(Codon("UUG"), 'L'),
+	pair<const Codon, const char>(Codon("UUU"), 'F'),
 	// DNA pseudo-codons
-	pair<const Codon,char>(Codon("AAA"), 'K'),
-	pair<const Codon,char>(Codon("AAC"), 'N'),
-	pair<const Codon,char>(Codon("AAG"), 'K'),
-	pair<const Codon,char>(Codon("AAT"), 'N'),
-	pair<const Codon,char>(Codon("ACA"), 'T'),
-	pair<const Codon,char>(Codon("ACC"), 'T'),
-	pair<const Codon,char>(Codon("ACG"), 'T'),
-	pair<const Codon,char>(Codon("ACT"), 'T'),
-	pair<const Codon,char>(Codon("AGA"), 'R'),
-	pair<const Codon,char>(Codon("AGC"), 'S'),
-	pair<const Codon,char>(Codon("AGG"), 'R'),
-	pair<const Codon,char>(Codon("AGT"), 'S'),
-	pair<const Codon,char>(Codon("ATA"), 'I'),
-	pair<const Codon,char>(Codon("ATC"), 'I'),
-	pair<const Codon,char>(Codon("ATG"), 'M'),
-	pair<const Codon,char>(Codon("ATT"), 'I'),
-	pair<const Codon,char>(Codon("CAA"), 'Q'),
-	pair<const Codon,char>(Codon("CAC"), 'H'),
-	pair<const Codon,char>(Codon("CAG"), 'Q'),
-	pair<const Codon,char>(Codon("CAT"), 'H'),
-	pair<const Codon,char>(Codon("CCA"), 'P'),
-	pair<const Codon,char>(Codon("CCC"), 'P'),
-	pair<const Codon,char>(Codon("CCG"), 'P'),
-	pair<const Codon,char>(Codon("CCT"), 'P'),
-	pair<const Codon,char>(Codon("CGA"), 'R'),
-	pair<const Codon,char>(Codon("CGC"), 'R'),
-	pair<const Codon,char>(Codon("CGG"), 'R'),
-	pair<const Codon,char>(Codon("CGT"), 'R'),
-	pair<const Codon,char>(Codon("CTA"), 'L'),
-	pair<const Codon,char>(Codon("CTC"), 'L'),
-	pair<const Codon,char>(Codon("CTG"), 'L'),
-	pair<const Codon,char>(Codon("CTT"), 'L'),
-	pair<const Codon,char>(Codon("GAA"), 'E'),
-	pair<const Codon,char>(Codon("GAC"), 'D'),
-	pair<const Codon,char>(Codon("GAG"), 'E'),
-	pair<const Codon,char>(Codon("GAT"), 'D'),
-	pair<const Codon,char>(Codon("GCA"), 'A'),
-	pair<const Codon,char>(Codon("GCC"), 'A'),
-	pair<const Codon,char>(Codon("GCG"), 'A'),
-	pair<const Codon,char>(Codon("GCT"), 'A'),
-	pair<const Codon,char>(Codon("GGA"), 'G'),
-	pair<const Codon,char>(Codon("GGC"), 'G'),
-	pair<const Codon,char>(Codon("GGG"), 'G'),
-	pair<const Codon,char>(Codon("GGT"), 'G'),
-	pair<const Codon,char>(Codon("GTA"), 'V'),
-	pair<const Codon,char>(Codon("GTC"), 'V'),
-	pair<const Codon,char>(Codon("GTG"), 'V'),
-	pair<const Codon,char>(Codon("GTT"), 'V'),
-	pair<const Codon,char>(Codon("TAA"), GeneticCodeUtil::STOP),
-	pair<const Codon,char>(Codon("TAC"), 'Y'),
-	pair<const Codon,char>(Codon("TAG"), GeneticCodeUtil::STOP),
-	pair<const Codon,char>(Codon("TAT"), 'Y'),
-	pair<const Codon,char>(Codon("TCA"), 'S'),
-	pair<const Codon,char>(Codon("TCC"), 'S'),
-	pair<const Codon,char>(Codon("TCG"), 'S'),
-	pair<const Codon,char>(Codon("TCT"), 'S'),
-	pair<const Codon,char>(Codon("TGA"), GeneticCodeUtil::STOP),
-	pair<const Codon,char>(Codon("TGC"), 'C'),
-	pair<const Codon,char>(Codon("TGG"), 'W'),
-	pair<const Codon,char>(Codon("TGT"), 'C'),
-	pair<const Codon,char>(Codon("TTA"), 'L'),
-	pair<const Codon,char>(Codon("TTC"), 'F'),
-	pair<const Codon,char>(Codon("TTG"), 'L'),
-	pair<const Codon,char>(Codon("TTT"), 'F')
+	pair<const Codon, const char>(Codon("AAA"), 'K'),
+	pair<const Codon, const char>(Codon("AAC"), 'N'),
+	pair<const Codon, const char>(Codon("AAG"), 'K'),
+	pair<const Codon, const char>(Codon("AAT"), 'N'),
+	pair<const Codon, const char>(Codon("ACA"), 'T'),
+	pair<const Codon, const char>(Codon("ACC"), 'T'),
+	pair<const Codon, const char>(Codon("ACG"), 'T'),
+	pair<const Codon, const char>(Codon("ACT"), 'T'),
+	pair<const Codon, const char>(Codon("AGA"), 'R'),
+	pair<const Codon, const char>(Codon("AGC"), 'S'),
+	pair<const Codon, const char>(Codon("AGG"), 'R'),
+	pair<const Codon, const char>(Codon("AGT"), 'S'),
+	pair<const Codon, const char>(Codon("ATA"), 'I'),
+	pair<const Codon, const char>(Codon("ATC"), 'I'),
+	pair<const Codon, const char>(Codon("ATG"), 'M'),
+	pair<const Codon, const char>(Codon("ATT"), 'I'),
+	pair<const Codon, const char>(Codon("CAA"), 'Q'),
+	pair<const Codon, const char>(Codon("CAC"), 'H'),
+	pair<const Codon, const char>(Codon("CAG"), 'Q'),
+	pair<const Codon, const char>(Codon("CAT"), 'H'),
+	pair<const Codon, const char>(Codon("CCA"), 'P'),
+	pair<const Codon, const char>(Codon("CCC"), 'P'),
+	pair<const Codon, const char>(Codon("CCG"), 'P'),
+	pair<const Codon, const char>(Codon("CCT"), 'P'),
+	pair<const Codon, const char>(Codon("CGA"), 'R'),
+	pair<const Codon, const char>(Codon("CGC"), 'R'),
+	pair<const Codon, const char>(Codon("CGG"), 'R'),
+	pair<const Codon, const char>(Codon("CGT"), 'R'),
+	pair<const Codon, const char>(Codon("CTA"), 'L'),
+	pair<const Codon, const char>(Codon("CTC"), 'L'),
+	pair<const Codon, const char>(Codon("CTG"), 'L'),
+	pair<const Codon, const char>(Codon("CTT"), 'L'),
+	pair<const Codon, const char>(Codon("GAA"), 'E'),
+	pair<const Codon, const char>(Codon("GAC"), 'D'),
+	pair<const Codon, const char>(Codon("GAG"), 'E'),
+	pair<const Codon, const char>(Codon("GAT"), 'D'),
+	pair<const Codon, const char>(Codon("GCA"), 'A'),
+	pair<const Codon, const char>(Codon("GCC"), 'A'),
+	pair<const Codon, const char>(Codon("GCG"), 'A'),
+	pair<const Codon, const char>(Codon("GCT"), 'A'),
+	pair<const Codon, const char>(Codon("GGA"), 'G'),
+	pair<const Codon, const char>(Codon("GGC"), 'G'),
+	pair<const Codon, const char>(Codon("GGG"), 'G'),
+	pair<const Codon, const char>(Codon("GGT"), 'G'),
+	pair<const Codon, const char>(Codon("GTA"), 'V'),
+	pair<const Codon, const char>(Codon("GTC"), 'V'),
+	pair<const Codon, const char>(Codon("GTG"), 'V'),
+	pair<const Codon, const char>(Codon("GTT"), 'V'),
+	pair<const Codon, const char>(Codon("TAA"), GeneticCodeUtil::STOP),
+	pair<const Codon, const char>(Codon("TAC"), 'Y'),
+	pair<const Codon, const char>(Codon("TAG"), GeneticCodeUtil::STOP),
+	pair<const Codon, const char>(Codon("TAT"), 'Y'),
+	pair<const Codon, const char>(Codon("TCA"), 'S'),
+	pair<const Codon, const char>(Codon("TCC"), 'S'),
+	pair<const Codon, const char>(Codon("TCG"), 'S'),
+	pair<const Codon, const char>(Codon("TCT"), 'S'),
+	pair<const Codon, const char>(Codon("TGA"), GeneticCodeUtil::STOP),
+	pair<const Codon, const char>(Codon("TGC"), 'C'),
+	pair<const Codon, const char>(Codon("TGG"), 'W'),
+	pair<const Codon, const char>(Codon("TGT"), 'C'),
+	pair<const Codon, const char>(Codon("TTA"), 'L'),
+	pair<const Codon, const char>(Codon("TTC"), 'F'),
+	pair<const Codon, const char>(Codon("TTG"), 'L'),
+	pair<const Codon, const char>(Codon("TTT"), 'F')
 };
 
 const GeneticCodeUtil::CodonMap GeneticCodeUtil::codonToAA(GeneticCodeUtil::codonAAPairs, GeneticCodeUtil::codonAAPairs+128);
 
 // Reverse mapping, from AA to vector<Codon>, would be nice, but for some reason doesn't work properly.
 
-const pair<const char, int> GeneticCodeUtil::aaLetterIndices[21] =
+const pair<const char, const int> GeneticCodeUtil::aaLetterIndices[21] =
 {
-	pair<char, int>('*', -1),
-	pair<char, int>('C', 0),
-	pair<char, int>('M', 1),
-	pair<char, int>('F', 2),
-	pair<char, int>('I', 3),
-	pair<char, int>('L', 4),
-	pair<char, int>('V', 5),
-	pair<char, int>('W', 6),
-	pair<char, int>('Y', 7),
-	pair<char, int>('A', 8),
-	pair<char, int>('G', 9),
-	pair<char, int>('T', 10),
-	pair<char, int>('S', 11),
-	pair<char, int>('Q', 12),
-	pair<char, int>('N', 13),
-	pair<char, int>('E', 14),
-	pair<char, int>('D', 15),
-	pair<char, int>('H', 16),
-	pair<char, int>('R', 17),
-	pair<char, int>('K', 18),
-	pair<char, int>('P', 19)
+	pair<const char, const int>('*', -1),
+	pair<const char, const int>('C', 0),
+	pair<const char, const int>('M', 1),
+	pair<const char, const int>('F', 2),
+	pair<const char, const int>('I', 3),
+	pair<const char, const int>('L', 4),
+	pair<const char, const int>('V', 5),
+	pair<const char, const int>('W', 6),
+	pair<const char, const int>('Y', 7),
+	pair<const char, const int>('A', 8),
+	pair<const char, const int>('G', 9),
+	pair<const char, const int>('T', 10),
+	pair<const char, const int>('S', 11),
+	pair<const char, const int>('Q', 12),
+	pair<const char, const int>('N', 13),
+	pair<const char, const int>('E', 14),
+	pair<const char, const int>('D', 15),
+	pair<const char, const int>('H', 16),
+	pair<const char, const int>('R', 17),
+	pair<const char, const int>('K', 18),
+	pair<const char, const int>('P', 19)
 
 };
 
-const map<const char, int, less<const char> > GeneticCodeUtil::aminoAcidLetterToIndexMap(aaLetterIndices, aaLetterIndices+sizeof(aaLetterIndices)/sizeof(aaLetterIndices[0]));
+//const unordered_map<const char, int, less<const char> > GeneticCodeUtil::aminoAcidLetterToIndexMap(aaLetterIndices, aaLetterIndices+sizeof(aaLetterIndices)/sizeof(aaLetterIndices[0]));
+unordered_map<const char, const int, less<const char> > GeneticCodeUtil::aminoAcidLetterToIndexMap(aaLetterIndices, aaLetterIndices+sizeof(aaLetterIndices)/sizeof(aaLetterIndices[0]));
 
-int GeneticCodeUtil::aminoAcidLetterToIndex(char aa) {
-	map<const char, int, less<const char> >::const_iterator it = aminoAcidLetterToIndexMap.find(aa);
+int GeneticCodeUtil::aminoAcidLetterToIndex(const char aa) {
+	//unordered_map<const char, int, less<const char> >::const_iterator it = aminoAcidLetterToIndexMap.find(aa);
+	unordered_map<const char, const int, less<const char> >::const_iterator it = aminoAcidLetterToIndexMap.find(aa);
 	if (it != aminoAcidLetterToIndexMap.end()) {
 		return (*it).second;
 	}
@@ -497,10 +499,10 @@ double GeneticCodeUtil::calcSynonymousSites( Codon test_codon, int sites )
 
 	if ( ( sites & 4 ) != 0 )
 		numSyn += synHelper(codon, varcodon, 0);
-				
+
 	if ( ( sites & 2 ) != 0 )
 		numSyn += synHelper(codon, varcodon, 1);
-				
+
 	if ( ( sites & 1 ) != 0 )
 		numSyn += synHelper(codon, varcodon, 2);
 
@@ -624,7 +626,7 @@ pair<double, double> GeneticCodeUtil::calcDnDs( Codon test_codon1, Codon test_co
 			}
 		}
 	}
-	
+
 	int c1index = codonToIndex(codon1);
 	int c2index = codonToIndex(codon2);
 	assert(c1index >= 0 && c1index < 64);
@@ -702,7 +704,7 @@ void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, Codon test_codon1
 
 		// subst 1
 		tmpc[subst_positions[1]] = codon2[subst_positions[1]];
-		tmpres1 = geneticCode(tmpc); 
+		tmpres1 = geneticCode(tmpc);
 		if ( res1 == tmpres1 )
 			ds += 1;
 		else
@@ -731,7 +733,7 @@ void GeneticCodeUtil::calcDnDsPrivate( double &dn, double &ds, Codon test_codon1
 	mutation_paths.push_back(pair<int,int>(2,1));
 	mutation_paths.push_back(pair<int,int>(0,2));
 	mutation_paths.push_back(pair<int,int>(2,0));
-	
+
 	vector<pair<int,int> >::const_iterator mutit = mutation_paths.begin();
 	for (; mutit != mutation_paths.end(); mutit++) {
 		pair<int,int> mut = *mutit;
@@ -894,7 +896,7 @@ pair<double, double> GeneticCodeUtil::calcDnDsWeighted(Codon test_codon1, Codon 
 	mutation_paths.push_back(pair<int,int>(2,1));
 	mutation_paths.push_back(pair<int,int>(0,2));
 	mutation_paths.push_back(pair<int,int>(2,0));
-	
+
 	vector<pair<int,int> >::const_iterator mutit = mutation_paths.begin();
 	for (; mutit != mutation_paths.end(); mutit++) {
 		pair<int,int> mut = *mutit;

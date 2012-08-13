@@ -61,16 +61,16 @@ AS_IF([test -z "$PYTHON_INCLUDE"], [
 AC_ARG_ENABLE(debug,
 [  --disable-debug: Don't compile with debugging symbols],
   CXXFLAGS="-O2",
-  CXXFLAGS="-g -DDEBUG"
+  CXXFLAGS="-g -DDEBUG -std=c++0x"
 )
 
 AC_ARG_ENABLE(profile,
 [  --enable-profile: Compile with profiling symbols],
-  CXXFLAGS="${CXXFLAGS} -pg")
+  CXXFLAGS="${CXXFLAGS} -pg -std=c++0x")
 
 AC_ARG_ENABLE(final,
 [  --enable-final: Compile with aggressive optimization, don't include any debugging symbols],
-  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -DNDEBUG"
+  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -std=c++0x -DNDEBUG"
 # Architecture-specific optimization flags
 # Uncomment for Intel Core Duo
 #  CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -march=pentium-m -mtune=prescott -DNDEBUG"

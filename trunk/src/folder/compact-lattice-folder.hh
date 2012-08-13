@@ -30,9 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1
 #include "protein-contact-energies.hh"
 
 // uncomment next line for older versions of gcc
-//#include <hash_map>
+//#include < unordered_map>
 // comment out next two lines for older versions of gcc
-#include <ext/hash_map>
+//#include <ext/ unordered_map>
+#include <unordered_map>
 using namespace __gnu_cxx;
 
 using namespace std;
@@ -165,9 +166,9 @@ struct ltstr {
 class CompactLatticeFolder : public DGCutoffFolder {
 private:
 	// some useful typedefs
-	typedef hash_map<const char*, int, hash<const char*>, eqstr> StructureMap;
-	typedef hash_map<const char*, int, hash<const char*>, eqstr>::iterator StructureMapIterator;
-	typedef hash_map<const char*, int, hash<const char*>, eqstr>::const_iterator StructureMapConstIterator;
+	typedef  unordered_map<const char*, int, hash<const char*>, eqstr> StructureMap;
+	typedef  unordered_map<const char*, int, hash<const char*>, eqstr>::iterator StructureMapIterator;
+	typedef  unordered_map<const char*, int, hash<const char*>, eqstr>::const_iterator StructureMapConstIterator;
 
 	// the contact energies between residues
 //	static const double contactEnergies[20][20];
